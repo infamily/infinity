@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     'infty.users.apps.UsersConfig',
+    'infty.core.apps.CoreConfig',
     # Your stuff: custom apps go here
 ]
 
