@@ -9,27 +9,28 @@ class GenericModel(models.Model):
     class Meta:
         abstract = True
 
-NEED = 0
-GOAL = 1
-IDEA = 2
-PLAN = 3
-STEP = 4
-TASK = 5
-
-TOPIC_TYPES = [
-    (NEED, 'Need'),
-    (GOAL, 'Goal'),
-    (IDEA, 'Idea'),
-    (PLAN, 'Plan'),
-    (STEP, 'Step'),
-    (TASK, 'Task'),
-]
 
 class Topic(GenericModel):
     """
     Main content type, to include fields of all types.
     """
-    type = models.PositiveSmallIntegerField(TOPIC_TYPES)
+    NEED = 0
+    GOAL = 1
+    IDEA = 2
+    PLAN = 3
+    STEP = 4
+    TASK = 5
+
+    TOPIC_TYPES = [
+        (NEED, 'Need'),
+        (GOAL, 'Goal'),
+        (IDEA, 'Idea'),
+        (PLAN, 'Plan'),
+        (STEP, 'Step'),
+        (TASK, 'Task'),
+    ]
+
+    type = models.PositiveSmallIntegerField(TOPIC_TYPES, default=TASK)
     title = models.TextField()
     body = models.TextField(null=True, blank=True)
     editors = models.ManyToManyField(
@@ -67,21 +68,13 @@ class CommentSnapshot(GenericModel):
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
 
-USD = 0
-EUR = 1
-CNY = 2
-RUB = 3
-JPY = 4
-INR = 5
-
-
 CURRENCY_TYPES = [
-    (USD, 'USD'),
-    (EUR, 'EUR'),
-    (CNY, 'CNY'),
-    (RUB, 'RUB'),
-    (JPY, 'JPY'),
-    (INR, 'INR'),
+    (0, 'USD'),
+    (1, 'EUR'),
+    (2, 'CNY'),
+    (3, 'RUB'),
+    (4, 'JPY'),
+    (5, 'INR'),
 ]
 
 class HourPriceSnapshot(GenericModel):
