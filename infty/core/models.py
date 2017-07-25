@@ -33,6 +33,7 @@ class Topic(GenericModel):
     type = models.PositiveSmallIntegerField(TOPIC_TYPES, default=TASK)
     title = models.TextField()
     body = models.TextField(null=True, blank=True)
+    owner = models.ForeignKey(User)
     editors = models.ManyToManyField(
         User,
         related_name='topic_editors',
@@ -55,6 +56,7 @@ class Comment(GenericModel):
     text = models.TextField()
     claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    owner = models.ForeignKey(User)
 
 
 class CommentSnapshot(GenericModel):
@@ -66,6 +68,7 @@ class CommentSnapshot(GenericModel):
     text = models.TextField()
     claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    owner = models.ForeignKey(User)
 
 
 CURRENCY_TYPES = [
