@@ -19,12 +19,19 @@ class TestTopic(TestCase):
         # Then, we have a user 'doer'..
         doer = self.make_user('doer')
 
-        # ..who creates a comment on it,..
+        # ..who creates a comment on it
+        # with past time expenses, declared work result, 
+        # and estimates of future time expenses.
         self.comment = Comment(
             topic=self.topic,
-            text="""{1.5},{?0.5} for coming up with
+            text="""
+            {1.5},{?0.5} for coming up with
             basic class structure, and {?2.5} for
-            implementation, and {?3.5} for testing."""
+            implementation, and {?3.5} for testing.
+
+            Here is the result so far:
+            https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
+            """
         )
 
     def test_comment_values(self):
