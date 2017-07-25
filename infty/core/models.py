@@ -1,6 +1,10 @@
 # Create your models here.
+from re import finditer
+from decimal import Decimal
+
 from django.db import models
 from infty.users.models import User
+
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -43,7 +47,7 @@ class Topic(GenericModel):
         'self',
         blank=True,
         symmetrical=False,
-        related_name='parent_items'
+        related_name='parent_topics'
     )
 
 
@@ -57,6 +61,43 @@ class Comment(GenericModel):
     claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     owner = models.ForeignKey(User)
+    parents = models.ManyToManyField(
+        'self',
+        blank=True,
+        symmetrical=False,
+        related_name='parent_comments'
+    )
+
+    def save(self, *args, **kwargs):
+        """
+        Save comment created date to parent object.
+        """
+        self.set_hours()
+        super(Comment, self).save(*args, **kwargs)
+
+    def set_hours(self):
+
+        self.claimed_hours = Decimal(0.0)
+        self.assumed_hours = Decimal(0.0)
+
+        for m in finditer('\{([^}]+)\}', self.text):
+            token = m.group(1)
+            if token:
+                if token[0] == '?':
+                    try:
+                        hours = float(token[1:])
+                        self.assumed_hours += Decimal(hours)
+                        print(self.assumed_hours)
+                    except:
+                        pass
+                else:
+                    try:
+                        hours = float(token)
+                        self.claimed_hours += Decimal(hours)
+                        print(self.claimed_hours)
+                    except:
+                        pass
+
 
 
 class CommentSnapshot(GenericModel):
@@ -72,13 +113,16 @@ class CommentSnapshot(GenericModel):
 
 
 CURRENCY_TYPES = [
-    (0, 'USD'),
-    (1, 'EUR'),
-    (2, 'CNY'),
-    (3, 'RUB'),
-    (4, 'JPY'),
-    (5, 'INR'),
+    (0, 'HUR'), # Human Hour as Currency (backed by registered assets)
+    (1, 'EUR'), # European Euro
+    (2, 'USD'), # United States Dollar
+    (3, 'CNY'), # Chinese Yuan
+    (4, 'RUB'), # Russian Rouble
+    (5, 'JPY'), # Japanese Yen
+    (6, 'INR'), # Indian Ruppie
 ]
+
+CURRENCY_IDS = dict([(C[-1], C[0]) for C in CURRENCY_TYPES])
 
 class HourPriceSnapshot(GenericModel):
     """
@@ -108,11 +152,12 @@ class HourPriceSnapshot(GenericModel):
     """
     hour_price_source = models.TextField()
     hour_price = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    hour_price_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES)
+    hour_price_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
 
     currency_exchange_source = models.TextField()
-    target_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES)
+    target_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
     unit_of_target_currency_in_hour_price_currency = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    value = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
 
 class Transaction(GenericModel):
@@ -123,7 +168,7 @@ class Transaction(GenericModel):
     comment = models.ForeignKey(Comment)
     snapshot = models.ForeignKey(CommentSnapshot)
     payment_amount = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    payment_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES)
+    payment_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
     payment_recipient = models.ForeignKey(User, related_name='recipient')
     payment_sender = models.ForeignKey(User, related_name='sender')
 
@@ -133,13 +178,56 @@ class Transaction(GenericModel):
     donated_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     matched_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
+    def save(self, *args, **kwargs):
+        """
+        Save comment created date to parent object.
+        """
+        self.set_hours()
+        super(Transaction, self).save(*args, **kwargs)
+        self.create_contribution_certificates()
+
+    def set_hours(self):
+        self.donated_hours = self.payment_amount/self.hour_price_in_payment_currency
+        self.matched_hours = min(self.snapshot.claimed_hours, self.donated_hours)
+
+    def create_contribution_certificates(self):
+
+        DOER = 0
+        INVESTOR = 1
+
+        doer_cert = ContributionCertificate(
+            type=DOER,
+            transaction=self,
+            comment_snapshot=self.snapshot,
+            matched_hours=self.matched_hours/Decimal(2.),
+            received_by=self.payment_recipient,
+        )
+        doer_cert.save()
+        investor_cert = ContributionCertificate(
+            type=INVESTOR,
+            transaction=self,
+            comment_snapshot=self.snapshot,
+            matched_hours=self.matched_hours/Decimal(2.),
+            received_by=self.payment_sender,
+        )
+        investor_cert.save()
+
+
 
 class ContributionCertificate(GenericModel):
     """
     ContributionCertificates are proofs of co-creation, grounded in
     immutable comment_snapshots and transactions: one doer, one investor.
     """
+    DOER = 0
+    INVESTOR = 1
 
+    CERTIFICATE_TYPES = [
+        (DOER, 'DOER'),
+        (INVESTOR, 'INVESTOR'),
+    ]
+
+    type = models.PositiveSmallIntegerField(CERTIFICATE_TYPES, default=DOER)
     transaction = models.ForeignKey(Transaction)
     comment_snapshot = models.ForeignKey(CommentSnapshot)
     matched_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
