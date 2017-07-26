@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from django.db import models
 from infty.users.models import User
+from django.contrib.postgres.fields import JSONField
 
 
 class GenericModel(models.Model):
@@ -99,7 +100,6 @@ class Comment(GenericModel):
                         pass
 
 
-
 class CommentSnapshot(GenericModel):
     """
     Whenever comment is changed, or transaction is made,
@@ -152,13 +152,27 @@ class HourPriceSnapshot(GenericModel):
     """
     hour_price_source = models.TextField()
     hour_price = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    hour_price_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
+    hour_price_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
 
     currency_exchange_source = models.TextField()
-    target_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
+    target_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
     unit_of_target_currency_in_hour_price_currency = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     value = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
+class FREDHourPrice(GenericModel):
+    """
+    Price from endpoint: 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
+    """
+    data = JSONField()
+
+class FIXERCurrencyPrices(GenericModel):
+    """
+    Currency prices, rebased to hour price, according to FREDHourPrice.
+    EXCHANGE_ENDPOINT = 'https://api.fixer.io/latest?base=hur'
+    The base 'hur' to be comupted in overloaded .save() method.
+    """
+    fred_hour_price = models.ForeignKey(FREDHourPrice)
+    data = JSONField()
 
 class Transaction(GenericModel):
     """
@@ -168,7 +182,7 @@ class Transaction(GenericModel):
     comment = models.ForeignKey(Comment)
     snapshot = models.ForeignKey(CommentSnapshot)
     payment_amount = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    payment_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=0)
+    payment_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
     payment_recipient = models.ForeignKey(User, related_name='recipient')
     payment_sender = models.ForeignKey(User, related_name='sender')
 
