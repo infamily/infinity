@@ -124,55 +124,47 @@ CURRENCY_TYPES = [
 
 CURRENCY_IDS = dict([(C[-1], C[0]) for C in CURRENCY_TYPES])
 
+
+class HourPriceSerie(GenericModel):
+    """
+    We need average price of human labor.
+
+    Example:
+
+    name = 'FRED'
+    endpoint = 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
+
+    """
+    name = models.TextField()
+    endpoint = models.TextField()
+    data = JSONField()
+
+
+class CurrencyPriceSerie(GenericModel):
+    """
+    We need the prices of currencies.
+
+    Example:
+    name = 'FIXER'
+    endpoint = 'https://api.fixer.io/latest?base=hur'
+    The base 'hur' to be comupted in overloaded .save() method.
+    """
+    name = models.TextField()
+    endpoint = models.TextField()
+    data = JSONField()
+
+
 class HourPriceSnapshot(GenericModel):
     """
     Record of hour price used, based the exchange rate at the time of transaction.
-    HourPrice needs to be computed every time, immediately before Transaction,
-    from two sources:
-
-    1. Hour Price Source
-
-    E.g., if our hour price source is FRED, we would look at:
-     hour_price_source = 'https://fred.stlouisfed.org/series/CES0500000003'
-     hour_price = 26.25
-     hour_price_currency = 'USD'
-
-    2. Currency Exchange Rate Source
-
-    E.g., if our dollar exchange source is European Central Bank:
-
-     currency_exchange_source = 'https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html'
-     target_currency = 'EUR'
-     unit_of_target_currency_in_hour_price_currency = 1.1642
-
-    (So, we have:)
-
-     hour_price_in_payment_currency = 26.25 / 1.1642
-
     """
-    hour_price_source = models.TextField()
-    hour_price = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    hour_price_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
 
-    currency_exchange_source = models.TextField()
-    target_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
-    unit_of_target_currency_in_hour_price_currency = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    value = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    price = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
 
-class FREDHourPrice(GenericModel):
-    """
-    Price from endpoint: 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
-    """
-    data = JSONField()
+    hour_price = models.ForeignKey(HourPriceSerie)
+    currency_price = models.ForeignKey(CurrencyPriceSerie)
 
-class FIXERCurrencyPrices(GenericModel):
-    """
-    Currency prices, rebased to hour price, according to FREDHourPrice.
-    EXCHANGE_ENDPOINT = 'https://api.fixer.io/latest?base=hur'
-    The base 'hur' to be comupted in overloaded .save() method.
-    """
-    fred_hour_price = models.ForeignKey(FREDHourPrice)
-    data = JSONField()
 
 class Transaction(GenericModel):
     """
