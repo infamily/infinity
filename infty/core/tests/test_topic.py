@@ -1,34 +1,67 @@
 # Create your tests here.
-import requests
+import requests, json
 from decimal import Decimal
 from test_plus.test import TestCase
-from infty.core.models import (Topic,
-                               Comment,
-                               HourPriceSnapshot,
-                               CommentSnapshot,
-                               Transaction,
-                               ContributionCertificate)
-from infty.core.models import CURRENCY_IDS
+from infty.core.models import (
+    Topic,
+    Comment,
+    Currency,
+    HourPriceSnapshot,
+    CurrencyPriceSnapshot,
+    CommentSnapshot,
+    Transaction,
+    ContributionCertificate
+)
+from django.db.models import Sum
 
 class TestTopic(TestCase):
 
     def setUp(self):
+        # Let's say we have currencies:
+        self.hur = Currency(label='hur'); self.hur.save()
+        self.usd = Currency(label='usd'); self.usd.save()
+        self.eur = Currency(label='eur'); self.eur.save()
+        self.cny = Currency(label='cny'); self.cny.save()
+        self.gbp = Currency(label='gbp'); self.gbp.save()
+
+        # Let's say we have the hour price, and currency prices
+        # collected periodically:
+        # 
+        # - HourPriceSnapshot
+        # - CurrencyPriceSnapshot0
+
+        self.hprice = HourPriceSnapshot(
+            name='FRED',
+            base=self.usd,
+            data=json.loads("""
+{"realtime_start":"2017-07-28","realtime_end":"2017-07-28","observation_start":"1600-01-01","observation_end":"9999-12-31","units":"lin","output_type":1,"file_type":"json","order_by":"observation_date","sort_order":"desc","count":136,"offset":0,"limit":1,"observations":[{"realtime_start":"2017-07-28","realtime_end":"2017-07-28","date":"2017-06-01","value":"26.25"}]}"""),
+            endpoint='https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json',
+        )
+        self.hprice.save()
+        self.cprice = CurrencyPriceSnapshot(
+            name='FIXER',
+            base=self.eur,
+            data=json.loads("""
+{"base":"EUR","date":"2017-07-28","rates":{"AUD":1.4732,"BGN":1.9558,"BRL":3.7015,"CAD":1.4712,"CHF":1.1357,"CNY":7.9087,"CZK":26.048,"DKK":7.4364,"GBP":0.89568,"HKD":9.1613,"HRK":7.412,"HUF":304.93,"IDR":15639.0,"ILS":4.1765,"INR":75.256,"JPY":130.37,"KRW":1317.6,"MXN":20.809,"MYR":5.0229,"NOK":9.3195,"NZD":1.5694,"PHP":59.207,"PLN":4.2493,"RON":4.558,"RUB":69.832,"SEK":9.5355,"SGD":1.5947,"THB":39.146,"TRY":4.1462,"USD":1.1729,"ZAR":15.281}}"""),
+            endpoint='https://api.fixer.io/latest?base=eur',
+        )
+        self.cprice.save()
 
         # Let's say we have a user 'thinker'..
-        thinker = self.make_user('thinker')
-        thinker.save()
+        self.thinker = self.make_user('thinker')
+        self.thinker.save()
 
         # ..who writes a post:
         self.topic = Topic.objects.create(
             title='Improve test module',
             body='implement class that autogenerates users',
-            owner=thinker,
+            owner=self.thinker,
         )
         self.topic.save()
 
         # Then, we have a user 'doer'..
-        doer = self.make_user('doer')
-        doer.save()
+        self.doer = self.make_user('doer')
+        self.doer.save()
 
         # ..who creates a comment on it, with:
         self.comment = Comment(
@@ -44,78 +77,53 @@ class TestTopic(TestCase):
             Here is the result so far:
             https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
             """,
-            owner=doer
+            owner=self.doer
         )
         self.comment.save()
 
         # Then, investor comes in:
-        investor = self.make_user('investor')
-        investor.save()
+        self.investor = self.make_user('investor')
+        self.investor.save()
 
-        # ..who decides that he wants to invest into 0.2 of claimed time,
-        # he sees the "(1.5 h) INVEST" button, and clicks it.
+        # And there is another investor:
 
-        WANT_TO_CREATE_AMOUNT_SHARES = 0.2 # (h)
+        self.alice = self.make_user('alice')
+        self.alice.save()
 
-        # The latest price of hour in currency chosen in the form is retrieved and saved in HourPriceSnapshot
-        FORM_CURRENCY = 'EUR'
-        CURRENCY_ID = CURRENCY_IDS[FORM_CURRENCY]
+        # And there is another investor:
 
-        HOUR_PRICE_ENDPOINT = 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
-        EXCHANGE_ENDPOINT = 'https://api.fixer.io/latest?base={}'.format(FORM_CURRENCY.lower())
+        self.bob = self.make_user('bob')
+        self.bob.save()
 
-        hour_price_in_usd = Decimal(26.25)
-        # hour_price_in_usd = requests.get(HOUR_PRICE_ENDPOINT).json().get('observations')[0]['value']
-        usd_price_in_FORM_CURRENCY = Decimal(1.1694)
-        # usd_price_in_FORM_CURRENCY = requests.get(EXCHANGE_ENDPOINT).json().get('rates')['USD']
+        # Ok, so, what investments can happen?
 
-        self.hour_price = HourPriceSnapshot(
-            hour_price_source='https://fred.stlouisfed.org/series/CES0500000003',
-            hour_price=Decimal(hour_price_in_usd),
-            hour_price_currency=CURRENCY_IDS['USD'],
 
-            currency_exchange_source='https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html',
-            target_currency=CURRENCY_ID,
-            unit_of_target_currency_in_hour_price_currency=Decimal(usd_price_in_FORM_CURRENCY),
-            value=Decimal(hour_price_in_usd)/Decimal(usd_price_in_FORM_CURRENCY)
+    def test_currency_uppercase(self):
+        self.assertEqual(self.hur.label, 'HUR')
+        self.assertEqual(self.eur.label, 'EUR')
+        self.assertEqual(self.usd.label, 'USD')
+
+    def test_currency_parsing(self):
+        self.assertEqual(self.hprice.data['observations'][0]['value'], "26.25")
+        self.assertEqual(self.cprice.data['rates']['USD'], 1.1729)
+
+    def test_currency_eur(self):
+        self.assertEqual(
+            self.eur.in_hours(),
+            Decimal(1)/((Decimal('26.25')/Decimal(1.1729)))
         )
-        self.hour_price.save()
 
-        # Then, we can we display the amount that needs to be
-        # payed to generate the (0.2 h) shares.
-        # Decimal(0.2) * (Decimal(26.25)/Decimal(1.1694))
-
-        self.AMOUNT_TO_PAY_DOER = Decimal(WANT_TO_CREATE_AMOUNT_SHARES) * self.hour_price.value
-
-        # Then, if all is good, the comment snapshot and payment is created. 
-
-        self.comment_snapshot = CommentSnapshot(
-            comment=self.comment,
-            text=self.comment.text,
-            claimed_hours=self.comment.claimed_hours,
-            assumed_hours=self.comment.assumed_hours,
-            owner=self.comment.owner
+    def test_currency_gbp(self):
+        self.assertEqual(
+            self.gbp.in_hours(),
+            Decimal(1)/(Decimal('26.25')/Decimal(1.1729)*(Decimal(0.89568)))
         )
-        self.comment_snapshot.save()
 
-        self.tx = Transaction(
-            comment=self.comment,
-            snapshot=self.comment_snapshot,
-            payment_amount=self.AMOUNT_TO_PAY_DOER,
-            payment_currency=CURRENCY_ID,
-            payment_recipient=doer,
-            payment_sender=investor,
-            hour_price_snapshot=self.hour_price,
-            hour_price_in_payment_currency=self.hour_price.value,
+    def test_currency_cny(self):
+        self.assertEqual(
+            self.cny.in_hours(),
+            Decimal(1)/((Decimal('26.25')/Decimal(1.1729)*(Decimal(7.9087))))
         )
-        self.tx.save()
-
-        # As part of transaction, the ContributionCertificates
-        # are generated to both parties - the doer, and investor.
-        # For thinker -- wil add the option to auto-generate 
-        # first comment with amount of time claimed to write the topic.
-
-
 
     def test_comment_parsed_values(self):
 
@@ -129,51 +137,77 @@ class TestTopic(TestCase):
             6.5
         )
 
-    def test_hour_price(self):
-
-        self.assertEqual(
-            self.hour_price.hour_price,
-            Decimal(26.25)
-        )
-
-    def test_dollar_price(self):
-
-        self.assertEqual(
-            self.hour_price.unit_of_target_currency_in_hour_price_currency,
-            Decimal(1.1694)
-        )
-
-    def test_amount_to_pay(self):
+    def test_simple_investment(self):
         """
-        Computed amount to pay should be approx (0.2*26.25) usd in eur.
+        Investment amount is smaller than declared hours,
+        and there is just one investor.
         """
 
-        # AMT SHARES * (HOUR PRICE USD / USD for EUR)
-        # Decimal(0.2) * (Decimal(26.25)/Decimal(1.1694))
+        # Investor decides that he wants to invest into 0.2 of claimed time,
+        # he sees the "(1.5 h) invest" button, and clicks it.
+        WANT_TO_CREATE_AMOUNT_HOUR_SHARES = Decimal(0.2) # (h)
+
+        # Let's say he has chosen the currency 'EUR':
+        CHOSEN_CURRENCY = Currency.objects.get(label='EUR')
+        CURRENCY_VALUE, h_obj, c_obj = CHOSEN_CURRENCY.in_hours(objects=True)
+
+        # Then, we can we display the amount that needs to be payed:
+        self.AMOUNT_TO_PAY_DOER = WANT_TO_CREATE_AMOUNT_HOUR_SHARES / CURRENCY_VALUE
+
         self.assertEqual(
             self.AMOUNT_TO_PAY_DOER,
-            Decimal('4.489481785531041828085620537')
+            Decimal(0.2) * (Decimal(26.25)/Decimal(1.1729))
         )
 
-    def test_matched_hours(self):
-        """
-        Matched hours is 0.2, as defined.
-        """
+        # Then, if all is good, the comment snapshot is saved.. 
+        self.comment_snapshot = CommentSnapshot(
+            comment=self.comment,
+            text=self.comment.text,
+            claimed_hours=self.comment.claimed_hours,
+            assumed_hours=self.comment.assumed_hours,
+            owner=self.comment.owner
+        )
+        self.comment_snapshot.save()
 
+        # ..and payment is created:
+        self.tx = Transaction(
+            comment=self.comment,
+            snapshot=self.comment_snapshot,
+            currency_price=c_obj,
+            hour_price=h_obj,
+
+            payment_amount=self.AMOUNT_TO_PAY_DOER,
+            payment_currency=CHOSEN_CURRENCY,
+            payment_recipient=self.doer,
+            payment_sender=self.investor,
+            hour_unit_cost=Decimal(1.)/CURRENCY_VALUE,
+        )
+        self.tx.save()
+
+        self.assertTrue(
+            self.tx.hour_unit_cost-Decimal('22.38042458862648158969049976') < Decimal('1E-28')
+        )
+
+        # As part of transaction, the ContributionCertificates
+        # are generated to both parties - the doer, and investor.
+        # For thinker -- will add the option to auto-generate 
+        # first comment with amount of time claimed to write the topic.
+
+        # Generated amount is approximately equal to amount purchased.
         self.assertTrue(
             (self.tx.matched_hours-Decimal(0.2)) < Decimal('1E-28')
         )
 
-    def test_contribution_certificates(self):
-        """
-        Doer and Investor gets equal amount as contributors.
-        """
-
+        # Doer and Investor gets equal amount as contributors.
         self.assertTrue(
             (ContributionCertificate.objects.filter(transaction=self.tx).first().matched_hours-Decimal(0.1)) < Decimal('1E-28')
         )
 
-    def test_contributor_balance(self):
-        #ContributionCertificate.objects.filter(self.doer)
-        pass
-
+        # The balance (score) of user is defined as sum of all contributions!
+        self.assertEqual(
+            Decimal('0.1'),
+            ContributionCertificate.objects.filter(
+                received_by=self.doer).aggregate(
+                    total=Sum('matched_hours')
+                         )['total']
+        )

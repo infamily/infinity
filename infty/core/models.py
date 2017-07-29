@@ -15,29 +15,58 @@ class GenericModel(models.Model):
         abstract = True
 
 
+class Thing(GenericModel):
+    """
+    F: Things are references to anything with respect to which we
+    will formulate goals. To be implemented in blockchain db.
+    """
+    ASSET = 0
+    AGENT = 1
+    PLACE = 2
+    EVENT = 3
+    TOPIC = 4
+
+    THING_TYPES = [
+        (ASSET, 'Asset'),
+        (AGENT, 'Agent'),
+        (PLACE, 'Place'),
+        (EVENT, 'Event'),
+        (TOPIC, 'Topic'),
+    ]
+
+    type = models.PositiveSmallIntegerField(THING_TYPES, default=TOPIC)
+
+
 class Topic(GenericModel):
     """
-    Main content type, to include fields of all types.
+    Y: Main content type, to include fields of all infty types.
+
+    Note: 'STEP' is missing intentionally. 'TASK' and 'STEP' are
+    redundant, and in the choice, which one to get rid of, 'STEP'
+    made more sense to remove, because people have theories of HTN
+    (hierarchical task networks), and 'TASK' is understood as 'STEP'
+    by AI planning community. Also 'TASK' is much more tangible thing
+    to start with for people. We'll introduce the fields of 'STEP'
+    (e.g., planning I/O, https://github.com/wefindx/StepIO) later.
     """
     NEED = 0
     GOAL = 1
     IDEA = 2
     PLAN = 3
-    STEP = 4
-    TASK = 5
+    TASK = 4
 
     TOPIC_TYPES = [
         (NEED, 'Need'),
         (GOAL, 'Goal'),
         (IDEA, 'Idea'),
         (PLAN, 'Plan'),
-        (STEP, 'Step'),
         (TASK, 'Task'),
     ]
 
     type = models.PositiveSmallIntegerField(TOPIC_TYPES, default=TASK)
     title = models.TextField()
     body = models.TextField(null=True, blank=True)
+
     owner = models.ForeignKey(User)
     editors = models.ManyToManyField(
         User,
@@ -54,20 +83,19 @@ class Topic(GenericModel):
 
 class Comment(GenericModel):
     """
-    Comments are the place to discuss and claim time and things.
+    X: Comments are the place to discuss and claim time and things.
+
+    Note: the reason why we need a separate model for Comment,
+    is because comments should not have multiple editors.
     """
 
     topic = models.ForeignKey(Topic)
     text = models.TextField()
+
     claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+
     owner = models.ForeignKey(User)
-    parents = models.ManyToManyField(
-        'self',
-        blank=True,
-        symmetrical=False,
-        related_name='parent_comments'
-    )
 
     def save(self, *args, **kwargs):
         """
@@ -112,58 +140,99 @@ class CommentSnapshot(GenericModel):
     owner = models.ForeignKey(User)
 
 
-CURRENCY_TYPES = [
-    (0, 'HUR'), # Human Hour as Currency (backed by registered assets)
-    (1, 'EUR'), # European Euro
-    (2, 'USD'), # United States Dollar
-    (3, 'CNY'), # Chinese Yuan
-    (4, 'RUB'), # Russian Rouble
-    (5, 'JPY'), # Japanese Yen
-    (6, 'INR'), # Indian Ruppie
-]
+HOUR_PRICE_SOURCES = {
+    'FRED': 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
+}
 
-CURRENCY_IDS = dict([(C[-1], C[0]) for C in CURRENCY_TYPES])
+CURRENCY_PRICE_SOURCES = {
+    'FIXER': 'https://api.fixer.io/latest?base=eur'
+}
 
 
-class HourPriceSerie(GenericModel):
+class Currency(GenericModel):
+    """
+    Currency labels, e.g. 'EUR', 'CNY', 'USD'.
+    """
+    label = models.CharField(max_length=10)
+
+    def save(self, *args, **kwargs):
+        """
+        Save in upper case.
+        """
+        self.label = self.label.upper()
+        super(Currency, self).save(*args, **kwargs)
+
+    def in_hours(self,
+                 hour_price_obj=None,
+                 currency_price_obj=None,
+                 hour_price_source='FRED',
+                 currency_price_source='FIXER',
+                 objects=False):
+        """
+        Compute the value of currency in hours.
+        """
+
+        if not hour_price_obj:
+            hour_price_obj = HourPriceSnapshot.objects.filter(
+                name=hour_price_source,
+            ).last()
+
+        if not currency_price_obj:
+            currency_price_obj = CurrencyPriceSnapshot.objects.filter(
+                name=currency_price_source
+            ).last()
+
+        if hour_price_obj.name =='FRED' and \
+            currency_price_obj.name=='FIXER':
+
+
+            rates = currency_price_obj.data['rates']
+            rates[currency_price_obj.base.label] = 1.
+
+            price = Decimal(hour_price_obj.data['observations'][0]['value'])
+            hour_base_rate = Decimal(rates[hour_price_obj.base.label])
+            local_base_rate = Decimal(rates[self.label])
+
+            value = Decimal(1)/((price/hour_base_rate)*local_base_rate)
+
+            if objects:
+                return (value, hour_price_obj, currency_price_obj)
+
+            return value
+
+
+class HourPriceSnapshot(GenericModel):
     """
     We need average price of human labor.
 
     Example:
 
     name = 'FRED'
+    base = 'USD'
     endpoint = 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
-
     """
-    name = models.TextField()
+    name = models.CharField(max_length=10)
+    base = models.ForeignKey(Currency)
+
     endpoint = models.TextField()
     data = JSONField()
 
 
-class CurrencyPriceSerie(GenericModel):
+class CurrencyPriceSnapshot(GenericModel):
     """
     We need the prices of currencies.
 
     Example:
+
     name = 'FIXER'
+    base = 'EUR'
     endpoint = 'https://api.fixer.io/latest?base=hur'
-    The base 'hur' to be comupted in overloaded .save() method.
     """
-    name = models.TextField()
+    name = models.CharField(max_length=10)
+    base = models.ForeignKey(Currency)
+
     endpoint = models.TextField()
     data = JSONField()
-
-
-class HourPriceSnapshot(GenericModel):
-    """
-    Record of hour price used, based the exchange rate at the time of transaction.
-    """
-
-    price = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
-
-    hour_price = models.ForeignKey(HourPriceSerie)
-    currency_price = models.ForeignKey(CurrencyPriceSerie)
 
 
 class Transaction(GenericModel):
@@ -173,13 +242,14 @@ class Transaction(GenericModel):
 
     comment = models.ForeignKey(Comment)
     snapshot = models.ForeignKey(CommentSnapshot)
+    hour_price = models.ForeignKey(HourPriceSnapshot)
+    currency_price = models.ForeignKey(CurrencyPriceSnapshot)
+
     payment_amount = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    payment_currency = models.PositiveSmallIntegerField(CURRENCY_TYPES, default=1)
+    payment_currency = models.ForeignKey(Currency)
     payment_recipient = models.ForeignKey(User, related_name='recipient')
     payment_sender = models.ForeignKey(User, related_name='sender')
-
-    hour_price_snapshot = models.ForeignKey(HourPriceSnapshot)
-    hour_price_in_payment_currency = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    hour_unit_cost = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
     donated_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     matched_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
@@ -193,7 +263,7 @@ class Transaction(GenericModel):
         self.create_contribution_certificates()
 
     def set_hours(self):
-        self.donated_hours = self.payment_amount/self.hour_price_in_payment_currency
+        self.donated_hours = self.payment_amount/self.hour_unit_cost
         self.matched_hours = min(self.snapshot.claimed_hours, self.donated_hours)
 
     def create_contribution_certificates(self):
