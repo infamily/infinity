@@ -6,6 +6,7 @@ from django.db import models
 from infty.users.models import User
 from django.contrib.postgres.fields import JSONField
 
+from django.db.models import Sum
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -127,6 +128,42 @@ class Comment(GenericModel):
                     except:
                         pass
 
+    def create_snapshot(self):
+
+        snapshot = CommentSnapshot(
+            comment=self,
+            text=self.text,
+            claimed_hours=self.claimed_hours,
+            assumed_hours=self.assumed_hours,
+            owner=self.owner
+        )
+
+        snapshot.save()
+
+        return snapshot
+
+    def remains(self):
+        return (
+            self.claimed_hours + self.assumed_hours - \
+            ContributionCertificate.objects.filter(
+                comment_snapshot__comment=self).aggregate(
+                    total=Sum('matched_hours')
+                         )['total']
+        )
+
+    def invest(self, hour_amount, payment_currency_label):
+
+        amount = min(Decimal(hour_amount), self.remains())
+
+        currency = Currency.objects.get(
+            label=payment_currency_label.upper()
+        )
+
+        value = currency.in_hours(objects=True)
+
+        to_pay = amount / value['in_hours']
+
+
 
 class CommentSnapshot(GenericModel):
     """
@@ -196,7 +233,11 @@ class Currency(GenericModel):
             value = Decimal(1)/((price/hour_base_rate)*local_base_rate)
 
             if objects:
-                return (value, hour_price_obj, currency_price_obj)
+                return {
+                    "in_hours": value,
+                    "hour_price_snapshot": hour_price_obj,
+                    "currency_price_snapshot": currency_price_obj
+                }
 
             return value
 
@@ -287,7 +328,6 @@ class Transaction(GenericModel):
             received_by=self.payment_sender,
         )
         investor_cert.save()
-
 
 
 class ContributionCertificate(GenericModel):

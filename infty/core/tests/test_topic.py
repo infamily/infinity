@@ -81,22 +81,35 @@ class TestTopic(TestCase):
         )
         self.comment.save()
 
+        # ...and another comment, with some other amount of time, and result:
+        self.comment2 = Comment(
+            topic=self.topic,
+            text="""
+            - {?8} for testing.
+
+            Here is the result so far:
+            https://wiki.mindey.com/shared/screens/7e402349b3c2e3a626b5d25fd.png
+            """,
+            owner=self.doer
+        )
+        self.comment2.save()
+
+
         # Then, investor comes in:
         self.investor = self.make_user('investor')
         self.investor.save()
 
         # And there is another investor:
 
-        self.alice = self.make_user('alice')
-        self.alice.save()
+        self.investor2 = self.make_user('investor2')
+        self.investor2.save()
 
         # And there is another investor:
 
-        self.bob = self.make_user('bob')
-        self.bob.save()
+        self.investor3 = self.make_user('investor3')
+        self.investor3.save()
 
         # Ok, so, what investments can happen?
-
 
     def test_currency_uppercase(self):
         self.assertEqual(self.hur.label, 'HUR')
@@ -137,50 +150,79 @@ class TestTopic(TestCase):
             6.5
         )
 
+    def test_comment2_parsed_values(self):
+        self.assertEqual(
+            self.comment2.assumed_hours,
+            Decimal('8.0')
+        )
+
+
+
+
+    """
+    INVESTMENT TYPES TO COVER
+    =========================
+    """
+
     def test_simple_investment(self):
         """
-        Investment amount is smaller than declared hours,
-        and there is just one investor.
+        "Simple Investment"
+        : there is only one investor, and the amount to invest is smaller
+          than then time declared.
+
+        DOER
+             1.5 h                       6.5 ĥ
+        [------------][-------------------------------------------]
+
+        INVESTOR
+
+        0.2 ḥ
+        [--]
+
+        CONTRIBUTIONS
+        [--]
+
+        # https://wiki.mindey.com/shared/screens/b6767a949a4884cfd4fe17b41.png
         """
 
-        # Investor decides that he wants to invest into 0.2 of claimed time,
-        # he sees the "(1.5 h) invest" button, and clicks it.
-        WANT_TO_CREATE_AMOUNT_HOUR_SHARES = Decimal(0.2) # (h)
+        # Investor decides that s/he wants to invest into 0.2
+        # of claimed time;  sees the "(1.5 h) invest" button, and clicks it.
 
-        # Let's say he has chosen the currency 'EUR':
-        CHOSEN_CURRENCY = Currency.objects.get(label='EUR')
-        CURRENCY_VALUE, h_obj, c_obj = CHOSEN_CURRENCY.in_hours(objects=True)
+        TARGET_INVESTMENT_SIZE = Decimal(0.2) # (h)
+
+        # Form displays choice of currency.
+        # Let's say he wants to pay in 'EUR', so chooses Euro in form:
+        CURRENCY = Currency.objects.get(label='EUR')
+
+        # We retrieve latest currency price in hours, and
+        # also, the associated HourPriceSnapshot, CurrencyPriceSnapshot
+        # because we will want to include them in the transaction,
+        # as a reference for basis of price (currency value).
+        VALUE = CURRENCY.in_hours(objects=True)
 
         # Then, we can we display the amount that needs to be payed:
-        self.AMOUNT_TO_PAY_DOER = WANT_TO_CREATE_AMOUNT_HOUR_SHARES / CURRENCY_VALUE
+        self.AMOUNT_TO_PAY_DOER = TARGET_INVESTMENT_SIZE / VALUE['in_hours']
 
         self.assertEqual(
             self.AMOUNT_TO_PAY_DOER,
             Decimal(0.2) * (Decimal(26.25)/Decimal(1.1729))
         )
 
-        # Then, if all is good, the comment snapshot is saved.. 
-        self.comment_snapshot = CommentSnapshot(
-            comment=self.comment,
-            text=self.comment.text,
-            claimed_hours=self.comment.claimed_hours,
-            assumed_hours=self.comment.assumed_hours,
-            owner=self.comment.owner
-        )
-        self.comment_snapshot.save()
+        # Then, if all is good, the comment snapshot is saved for history.. 
+        self.comment_snapshot = self.comment.create_snapshot()
 
-        # ..and payment is created:
+        # ..and payment is created with all associated details..
         self.tx = Transaction(
             comment=self.comment,
             snapshot=self.comment_snapshot,
-            currency_price=c_obj,
-            hour_price=h_obj,
+            hour_price=VALUE['hour_price_snapshot'],
+            currency_price=VALUE['currency_price_snapshot'],
 
             payment_amount=self.AMOUNT_TO_PAY_DOER,
-            payment_currency=CHOSEN_CURRENCY,
+            payment_currency=CURRENCY,
             payment_recipient=self.doer,
             payment_sender=self.investor,
-            hour_unit_cost=Decimal(1.)/CURRENCY_VALUE,
+            hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
         )
         self.tx.save()
 
@@ -199,6 +241,8 @@ class TestTopic(TestCase):
         )
 
         # Doer and Investor gets equal amount as contributors.
+
+        # Testing condition:
         self.assertTrue(
             (ContributionCertificate.objects.filter(transaction=self.tx).first().matched_hours-Decimal(0.1)) < Decimal('1E-28')
         )
@@ -211,3 +255,157 @@ class TestTopic(TestCase):
                     total=Sum('matched_hours')
                          )['total']
         )
+
+        # The balance (score) of user is defined as sum of all contributions!
+        self.assertEqual(
+            Decimal('0.1'),
+            ContributionCertificate.objects.filter(
+                received_by=self.investor).aggregate(
+                    total=Sum('matched_hours')
+                         )['total']
+        )
+
+
+        self.assertEqual(
+            self.comment.remains(),
+            Decimal('1.5')+Decimal('6.5')-Decimal('0.2')
+        )
+
+    def test_simple_investment_multiparty(self):
+        """
+        "Simple Investment Multiparty"
+        : there is a couple of investors, and the total amount of investment
+          is smaller than total declared time.
+
+        DOER
+             1.5 h                       6.5 ĥ
+        [------------][-------------------------------------------]
+
+        INVESTOR 1
+
+        0.2 ḥ
+        [--]
+
+        INVESTOR 2
+            0.5 ḥ
+            [----]
+
+        CONTRIBUTIONS
+        [--][----]
+        """
+
+
+        self.assertEqual(
+            1,
+            1
+        )
+
+    def test_future_investment_one_investor(self):
+        """
+        DOER
+                                     8.0 ĥ
+        [---------------------------------------------------------]
+
+        INVESTOR
+
+          1.0 ḥ
+        [-------]
+
+        CONTRIBUTIONS
+        [-------]
+        """
+        self.assertEqual(
+            1,
+            1
+        )
+
+    def test_mixed_present_future_investment_one_investor(self):
+        """
+        "Mixed Present-Future Investment one investor"
+        : there is only one investor, and the amount to invest is larger
+          than the time declared.
+          (needs to simulate that if there is re-declaration of time,
+           where there is more time declared, then the new ContributionCer-
+           tificates generated, linked to same Transaction)
+
+        DOER
+             1.5 h                       6.5 ĥ
+        [------------][-------------------------------------------]
+
+        INVESTOR
+
+                    4.0 ḥ
+        [---------------------------]
+
+        CONTRIBUTIONS
+        [------------][-------------]
+        """
+
+        self.assertEqual(
+            1,
+            1
+        )
+
+    def test_future_investment_multiparty(self):
+        """
+        DOER
+                                     8.0 ĥ
+        [---------------------------------------------------------]
+
+        INVESTOR1 INVESTOR2                INVESTOR3
+
+           1.0 ḥ    1.0 ḥ                    6.0 ḥ
+        [--------][--------][-------------------------------------]
+
+        CONTRIBUTIONS
+        [--------][--------][-------------------------------------]
+        """
+        self.assertEqual(
+            1,
+            1
+        )
+
+    def test_mixed_present_future_investment_multiparty(self):
+        """
+        "Mixed Present-Future Investment Multiparty
+        : there is a couple of investors ,and the total amount of investment
+          is larger than the time declared.
+          (needs to simulate that if there is re-declaration of time,
+          where there is more time declared, then the new ContributionCer-
+          tificates are generated, so as to preserve priority of investors'
+          sequence. E.g., if small extra time is declared, the newly
+          crated ContributionCertificate is for the earlier investments.)
+
+        DOER
+             1.5 h                       6.5 ĥ
+        [------------][-------------------------------------------]
+
+        INVESTOR1 INVESTOR2                INVESTOR3
+
+           1.0 ḥ    1.0 ḥ                    6.0 ḥ
+        [--------][--------][-------------------------------------]
+
+        CONTRIBUTIONS
+        [--------][--][----][-------------------------------------]
+
+        """
+
+        self.assertEqual(
+            1,
+            1
+        )
+
+    def test_redeclaration_of_less_time(self):
+        """
+        test re-declarations of time. E.g., if there is already covered
+          declared time, it should not be possible to save comment with
+          less declared time than is already covered by transactions.
+
+        -Should not be possible to change the declared time to smaller
+        if there are investments already.-
+        """
+        self.assertEqual(
+            1,
+            1
+        )
+
