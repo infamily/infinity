@@ -143,26 +143,46 @@ class Comment(GenericModel):
         return snapshot
 
     def remains(self):
-        return (
-            self.claimed_hours + self.assumed_hours - \
-            ContributionCertificate.objects.filter(
-                comment_snapshot__comment=self).aggregate(
-                    total=Sum('matched_hours')
-                         )['total']
-        )
 
-    def invest(self, hour_amount, payment_currency_label):
+        invested = ContributionCertificate.objects.filter(
+            comment_snapshot__comment=self).aggregate(
+            total=Sum('matched_hours')
+        ).get('total')
 
-        amount = min(Decimal(hour_amount), self.remains())
+        if invested is None:
+            invested = Decimal(0.0)
 
-        currency = Currency.objects.get(
+        return self.claimed_hours + self.assumed_hours - invested
+
+    def invest(self, hour_amount, payment_currency_label, investor):
+
+        AMOUNT = min(Decimal(hour_amount), self.remains())
+
+        CURRENCY = Currency.objects.get(
             label=payment_currency_label.upper()
         )
 
-        value = currency.in_hours(objects=True)
+        VALUE = CURRENCY.in_hours(objects=True)
 
-        to_pay = amount / value['in_hours']
+        amount = AMOUNT / VALUE['in_hours']
 
+        snapshot = self.create_snapshot()
+
+        tx = Transaction(
+            comment=self,
+            snapshot=snapshot,
+            hour_price=VALUE['hour_price_snapshot'],
+            currency_price=VALUE['currency_price_snapshot'],
+
+            payment_amount=amount,
+            payment_currency=CURRENCY,
+            payment_recipient=self.owner,
+            payment_sender=investor,
+            hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
+        )
+        tx.save()
+
+        return tx
 
 
 class CommentSnapshot(GenericModel):

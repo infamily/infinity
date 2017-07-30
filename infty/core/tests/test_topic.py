@@ -185,46 +185,36 @@ class TestTopic(TestCase):
         # https://wiki.mindey.com/shared/screens/b6767a949a4884cfd4fe17b41.png
         """
 
-        # Investor decides that s/he wants to invest into 0.2
+        # Investor decides that s/he wants to invest into 0.2, and pay in EUR
         # of claimed time;  sees the "(1.5 h) invest" button, and clicks it.
 
-        TARGET_INVESTMENT_SIZE = Decimal(0.2) # (h)
+        self.tx = self.comment.invest(0.2, 'eur', self.investor)
 
-        # Form displays choice of currency.
-        # Let's say he wants to pay in 'EUR', so chooses Euro in form:
-        CURRENCY = Currency.objects.get(label='EUR')
 
-        # We retrieve latest currency price in hours, and
-        # also, the associated HourPriceSnapshot, CurrencyPriceSnapshot
-        # because we will want to include them in the transaction,
-        # as a reference for basis of price (currency value).
-        VALUE = CURRENCY.in_hours(objects=True)
-
-        # Then, we can we display the amount that needs to be payed:
-        self.AMOUNT_TO_PAY_DOER = TARGET_INVESTMENT_SIZE / VALUE['in_hours']
-
-        self.assertEqual(
-            self.AMOUNT_TO_PAY_DOER,
-            Decimal(0.2) * (Decimal(26.25)/Decimal(1.1729))
-        )
-
-        # Then, if all is good, the comment snapshot is saved for history.. 
-        self.comment_snapshot = self.comment.create_snapshot()
+        # self.AMOUNT_TO_PAY_DOER = self.comment.invest(0.2, 'eur')
+        #
+        # self.assertEqual(
+        #     self.AMOUNT_TO_PAY_DOER,
+        #     Decimal(0.2) * (Decimal(26.25)/Decimal(1.1729))
+        # )
+        #
+        # # Then, if all is good, the comment snapshot is saved for history.. 
+        # self.comment_snapshot = self.comment.create_snapshot()
 
         # ..and payment is created with all associated details..
-        self.tx = Transaction(
-            comment=self.comment,
-            snapshot=self.comment_snapshot,
-            hour_price=VALUE['hour_price_snapshot'],
-            currency_price=VALUE['currency_price_snapshot'],
-
-            payment_amount=self.AMOUNT_TO_PAY_DOER,
-            payment_currency=CURRENCY,
-            payment_recipient=self.doer,
-            payment_sender=self.investor,
-            hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
-        )
-        self.tx.save()
+        # self.tx = Transaction(
+        #     comment=self.comment,
+        #     snapshot=self.comment_snapshot,
+        #     hour_price=VALUE['hour_price_snapshot'],
+        #     currency_price=VALUE['currency_price_snapshot'],
+        #
+        #     payment_amount=self.AMOUNT_TO_PAY_DOER,
+        #     payment_currency=CURRENCY,
+        #     payment_recipient=self.doer,
+        #     payment_sender=self.investor,
+        #     hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
+        # )
+        # self.tx.save()
 
         self.assertTrue(
             self.tx.hour_unit_cost-Decimal('22.38042458862648158969049976') < Decimal('1E-28')
