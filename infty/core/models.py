@@ -102,31 +102,76 @@ class Comment(GenericModel):
         """
         Save comment created date to parent object.
         """
-        self.set_hours()
-        super(Comment, self).save(*args, **kwargs)
+
+        if self.pk:
+            """
+            We create new snapshot, if changed.
+            We determine the difference between new and snapshot.
+            And create new ContributionCertificates if needed.
+            """
+
+            old_obj = Comment.objects.get(pk=self.pk)
+            old = self.parse_hours(old_obj.text)
+            new = self.parse_hours(self.text)
+
+            # Monotonicity
+            # 1. new (.claimed_hours+.assumed_hours) >= comment.invested()
+            if (new['claimed_hours'] + new['assumed_hours']) < old_obj.invested():
+                """
+                Cannot remove time already paid for, don't .save().
+                """
+                pass
+            # 2. new (.claimed_hours) >=  previously .matched_time.
+            elif new['claimed_hours'] < old_obj.matched():
+                """
+                Cannot remove time matched, don't .save().
+                """
+                pass
+            else:
+            # Else, it is okay to generete new ContributionCertificates,
+            # and make the previous one broken=True
+                self.set_hours()
+                super(Comment, self).save(*args, **kwargs)
+
+        else:
+            self.set_hours()
+            super(Comment, self).save(*args, **kwargs)
 
     def set_hours(self):
 
-        self.claimed_hours = Decimal(0.0)
-        self.assumed_hours = Decimal(0.0)
+        parsed = self.parse_hours(self.text)
 
-        for m in finditer('\{([^}]+)\}', self.text):
+        self.claimed_hours = parsed['claimed_hours']
+        self.assumed_hours = parsed['assumed_hours']
+
+    def parse_hours(self, text):
+        """
+        Given text, e.g., comment text, parses the
+        claimed_hours and assumed_hours.
+        """
+
+        claimed_hours = Decimal(0.0)
+        assumed_hours = Decimal(0.0)
+
+        for m in finditer('\{([^}]+)\}', text):
             token = m.group(1)
             if token:
                 if token[0] == '?':
                     try:
                         hours = float(token[1:])
-                        self.assumed_hours += Decimal(hours)
-                        print(self.assumed_hours)
+                        assumed_hours += Decimal(hours)
                     except:
                         pass
                 else:
                     try:
                         hours = float(token)
-                        self.claimed_hours += Decimal(hours)
-                        print(self.claimed_hours)
+                        claimed_hours += Decimal(hours)
                     except:
                         pass
+        return {
+            'claimed_hours': claimed_hours,
+            'assumed_hours': assumed_hours,
+        }
 
     def create_snapshot(self):
 
@@ -142,19 +187,38 @@ class Comment(GenericModel):
 
         return snapshot
 
+    def invested(self):
+        """
+        Hours invested.
+        """
+
+        return Decimal(ContributionCertificate.objects.filter(
+            comment_snapshot__comment=self, broken=False).aggregate(
+            total=Sum('hours')
+        ).get('total') or 0)
+
+    def matched(self):
+        """
+        Hours matched.
+        """
+
+        return Decimal(ContributionCertificate.objects.filter(
+            comment_snapshot__comment=self, matched=True, broken=False).aggregate(
+            total=Sum('hours')
+        ).get('total') or 0)
+
     def remains(self):
-
-        invested = ContributionCertificate.objects.filter(
-            comment_snapshot__comment=self).aggregate(
-            total=Sum('matched_hours')
-        ).get('total')
-
-        if invested is None:
-            invested = Decimal(0.0)
-
-        return self.claimed_hours + self.assumed_hours - invested
+        """
+        Hours in comment, not yet covered by investment.
+        """
+        return self.claimed_hours + self.assumed_hours - self.invested()
 
     def invest(self, hour_amount, payment_currency_label, investor):
+        """
+        Investing into .claimed_time, and .assumed_time.
+        Generating Transaction, ContributionCertificates for
+        comment owner, and investor.
+        """
 
         AMOUNT = min(Decimal(hour_amount), self.remains())
 
@@ -164,25 +228,27 @@ class Comment(GenericModel):
 
         VALUE = CURRENCY.in_hours(objects=True)
 
-        amount = AMOUNT / VALUE['in_hours']
+        if AMOUNT:
 
-        snapshot = self.create_snapshot()
+            amount = AMOUNT / VALUE['in_hours']
 
-        tx = Transaction(
-            comment=self,
-            snapshot=snapshot,
-            hour_price=VALUE['hour_price_snapshot'],
-            currency_price=VALUE['currency_price_snapshot'],
+            snapshot = self.create_snapshot()
 
-            payment_amount=amount,
-            payment_currency=CURRENCY,
-            payment_recipient=self.owner,
-            payment_sender=investor,
-            hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
-        )
-        tx.save()
+            tx = Transaction(
+                comment=self,
+                snapshot=snapshot,
+                hour_price=VALUE['hour_price_snapshot'],
+                currency_price=VALUE['currency_price_snapshot'],
 
-        return tx
+                payment_amount=amount,
+                payment_currency=CURRENCY,
+                payment_recipient=self.owner,
+                payment_sender=investor,
+                hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
+            )
+            tx.save()
+
+            return tx
 
 
 class CommentSnapshot(GenericModel):
@@ -324,36 +390,76 @@ class Transaction(GenericModel):
         self.create_contribution_certificates()
 
     def set_hours(self):
-        self.donated_hours = self.payment_amount/self.hour_unit_cost
-        self.matched_hours = min(self.snapshot.claimed_hours, self.donated_hours)
+        """ Hours matched up with claimed time. """
+        paid_in_hours = self.payment_amount/self.hour_unit_cost
+
+        self.matched_hours = min(self.snapshot.claimed_hours, paid_in_hours)
+
+        """ Hours not matched up.  """
+        self.donated_hours = min(self.snapshot.assumed_hours, paid_in_hours - self.matched_hours)
 
     def create_contribution_certificates(self):
 
         DOER = 0
         INVESTOR = 1
 
-        doer_cert = ContributionCertificate(
-            type=DOER,
-            transaction=self,
-            comment_snapshot=self.snapshot,
-            matched_hours=self.matched_hours/Decimal(2.),
-            received_by=self.payment_recipient,
-        )
-        doer_cert.save()
-        investor_cert = ContributionCertificate(
-            type=INVESTOR,
-            transaction=self,
-            comment_snapshot=self.snapshot,
-            matched_hours=self.matched_hours/Decimal(2.),
-            received_by=self.payment_sender,
-        )
-        investor_cert.save()
+        if self.matched_hours:
+            doer_cert = ContributionCertificate(
+                type=DOER,
+                transaction=self,
+                comment_snapshot=self.snapshot,
+                hours=self.matched_hours/Decimal(2.),
+                matched=True,
+                received_by=self.payment_recipient,
+            )
+            doer_cert.save()
+            investor_cert = ContributionCertificate(
+                type=INVESTOR,
+                transaction=self,
+                comment_snapshot=self.snapshot,
+                hours=self.matched_hours/Decimal(2.),
+                matched=True,
+                received_by=self.payment_sender,
+            )
+            investor_cert.save()
+
+        if self.donated_hours:
+            doer_cert = ContributionCertificate(
+                type=DOER,
+                transaction=self,
+                comment_snapshot=self.snapshot,
+                hours=self.donated_hours/Decimal(2.),
+                matched=False,
+                received_by=self.payment_recipient,
+            )
+            doer_cert.save()
+            investor_cert = ContributionCertificate(
+                type=INVESTOR,
+                transaction=self,
+                comment_snapshot=self.snapshot,
+                hours=self.donated_hours/Decimal(2.),
+                matched=False,
+                received_by=self.payment_sender,
+            )
+            investor_cert.save()
 
 
 class ContributionCertificate(GenericModel):
     """
     ContributionCertificates are proofs of co-creation, grounded in
     immutable comment_snapshots and transactions: one doer, one investor.
+
+    They will be e-mailed to both parties, in additional e-mail addresses
+    desired, as well as in blockchains, so as to have multi-method prov-
+    ability. ( https://infty.xyz/goal/116/detail/?lang=en )
+
+    Regarding the .matched property -- indicates if the time was matched.
+      Instead of updating the record, we will create new contribution
+      certificates. If a transaction certificate is updated, derived
+      future is considered invalid.
+
+    Whenever we have a contribution certificate with matched=False time,
+
     """
     DOER = 0
     INVESTOR = 1
@@ -366,5 +472,14 @@ class ContributionCertificate(GenericModel):
     type = models.PositiveSmallIntegerField(CERTIFICATE_TYPES, default=DOER)
     transaction = models.ForeignKey(Transaction)
     comment_snapshot = models.ForeignKey(CommentSnapshot)
-    matched_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    matched = models.BooleanField(default=True)
     received_by = models.ForeignKey(User)
+
+    broken = models.BooleanField(default=False)
+    children = models.ManyToManyField(
+        'self',
+        blank=True,
+        symmetrical=False,
+        related_name='child_certificates'
+    )
