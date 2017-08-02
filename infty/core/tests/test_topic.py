@@ -594,10 +594,54 @@ class TestTopic(TestCase):
         [-FUTURE-][-FUTURE-][---------------FUTURE----------------]
         ( .unmatched ) ( .unmatched ) ( .unmatched )
         """
+
         self.assertEqual(
-            1,
-            1
+            self.comment2.remains(),
+            Decimal('8.0')
         )
+
+        self.tx1 = self.comment2.invest(1.0, 'eur', self.investor)
+        self.tx2 = self.comment2.invest(1.0, 'eur', self.investor2)
+        self.tx3 = self.comment2.invest(6.0, 'eur', self.investor3)
+
+        self.assertEqual(
+            self.comment2.invested(),
+            Decimal('8.0')
+        )
+
+        self.assertEqual(
+            self.comment2.remains(),
+            Decimal('0.0')
+        )
+
+        # [PRESENT]
+        self.assertEqual(
+            self.comment2.matched(),
+            Decimal('0.0')
+        )
+
+        # [FUTURE]
+        self.assertEqual(
+            self.comment2.donated(),
+            Decimal('8.0')
+        )
+
+        # .matched_hours by investors must be zero.
+        self.assertEqual(self.comment2.matched(by=self.investor),Decimal('0.0'))
+        self.assertEqual(self.comment2.matched(by=self.investor2),Decimal('0.0'))
+        self.assertEqual(self.comment2.matched(by=self.investor3),Decimal('0.0'))
+
+        # .donated_hours by investors must be 1/2,1/2,6/2 respectively.
+        self.assertEqual(self.comment2.donated(by=self.investor),Decimal('1.0')/Decimal(2))
+        self.assertEqual(self.comment2.donated(by=self.investor2),Decimal('1.0')/Decimal(2))
+        self.assertEqual(self.comment2.donated(by=self.investor3),Decimal('6.0')/Decimal(2))
+
+        # .donated_hours by doer must be 4, or 1/2+1/2+6/2, in this case, cause one doer.
+        self.assertEqual(
+            self.comment2.donated(by=self.doer),
+            Decimal('4.0')
+        )
+
 
     def test_mixed_present_future_investment_multiparty(self):
         """
