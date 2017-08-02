@@ -302,12 +302,42 @@ class TestTopic(TestCase):
 
         CONTRIBUTIONS
         [-FUTURE-] ( .unmatched )
+
+
+        Now, let's say that the doer updates the comment to show
+        the progress (changes the .assumed_hours to .claimed_hours)
+
+                                     8.0 ĥ
+        [---------------------------------------------------------]
+        COMMENT UPDATE
+             |
+            \ /
+             v
+
+        DOER
+        0.4 h                       7.6 ĥ
+        [--][-----------------------------------------------------]
+
+        INVESTOR
+
+          1.0 ħ
+        [--------]
+
+        CONTRIBUTIONS
+        [-FUTURE-] ( .unmatched )
+
+        0.4 ḥ
+        [--]
+
+        HAPPENS
+
+        (1) We go through old certificates with broken=False, matched=False,
+        (2) Make new child certificates with broken=False, matched=True,
+        (3) and at the points of overflow, broken=False, matched=False.
+        (4) invalidate parent certificates.
         """
 
         # We have correct initial state: 
-        # - 0.0 claimed hours,
-        # - 8.0 assumed hours
-        # - 8.0 remains to invest
         self.assertEqual(
             self.comment2.claimed_hours,
             Decimal(0.0)
@@ -342,6 +372,13 @@ class TestTopic(TestCase):
             self.comment2.remains(),
             Decimal('7.0')
         )
+
+        # None is matched yet.
+        self.assertEqual(
+            self.comment2.matched(),
+            Decimal('0.0')
+        )
+
 
         # Both investor and doer should by now have zero matched time.
         self.assertEqual(
@@ -386,51 +423,7 @@ class TestTopic(TestCase):
             Decimal(0.5)
         )
 
-        """
-        Now, let's say that the doer updates the comment to show
-        the progress (changes the .assumed_hours to .claimed_hours)
-        """
-
-        """
-                                     8.0 ĥ
-        [---------------------------------------------------------]
-        COMMENT UPDATE
-             |
-            \ /
-             v
-
-        DOER
-        0.4 h                       7.6 ĥ
-        [--][-----------------------------------------------------]
-
-        INVESTOR
-
-          1.0 ħ
-        [--------]
-
-        CONTRIBUTIONS
-        [-FUTURE-] ( .unmatched )
-
-        0.4 ḥ
-        [--]
-
-        HAPPENS
-
-        (1) We go through old certificates with broken=False, matched=False,
-        (2) Make new child certificates with broken=False, matched=True,
-        (3) and at the points of overflow, broken=False, matched=False.
-        (4) invalidate parent certificates.
-        """
-
-        self.assertEqual(
-            self.comment2.invested(),
-            Decimal(1.0)
-        )
-
-        self.assertEqual(
-            self.comment2.matched(),
-            Decimal(0.0)
-        )
+        # Let's say, the doer updates comment to show progress.
 
         self.comment2.text = """
         - {0.4}{?7.6} for testing.
@@ -441,12 +434,97 @@ class TestTopic(TestCase):
         """
         self.comment2.save()
 
-        self.assertTrue(
-            abs(self.comment2.donated()-Decimal(0.6)) < Decimal('1E-16')
+        # The matched time is 0.4
+        self.assertEqual(
+            self.comment2.matched(),
+            Decimal('0.4')
         )
 
+        # The donated time is 0.6
+        self.assertEqual(
+            self.comment2.donated(),
+            Decimal('0.6')
+        )
+
+        # Invested should be 1.0 as before
+        self.assertEqual(
+            self.comment2.invested(),
+            Decimal('1.0')
+        )
+
+        # Remains the same amount to invest:
         self.assertTrue(
-            abs(self.comment2.matched()-Decimal(0.4)) < Decimal('1E-16')
+            Decimal('7.0')-self.comment2.remains() < Decimal('1E-15')
+        )
+
+        # Number of certificates for the comment should be:
+        self.assertEqual(
+            ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2
+            ).count(),
+            6
+        )
+
+        # Two of them broken:
+        self.assertEqual(
+            ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                broken=True
+            ).count(),
+            2
+        )
+
+        # Four of them not broken:
+        self.assertEqual(
+            ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                broken=False
+            ).count(),
+            4
+        )
+
+        # Two of unbroken those received by doer:
+        self.assertEqual(
+            ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                received_by=self.doer,
+                broken=False
+            ).count(),
+            2
+        )
+
+        # Two of unbroken those received by the investor:
+        self.assertEqual(
+            ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                received_by=self.investor,
+                broken=False
+            ).count(),
+            2
+        )
+
+        # Doer has 0.2, and investor also 0.2 matched hours.
+
+        # Two of unbroken those received by the investor, summing to 0.2:
+        self.assertEqual(
+            Decimal(ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                received_by=self.investor,
+                matched=True,
+                broken=False
+            ).aggregate(total=Sum('hours')).get('total') or 0),
+            Decimal('0.2')
+        )
+
+        # Two of unbroken those received by the doer, summing to 0.2:
+        self.assertEqual(
+            Decimal(ContributionCertificate.objects.filter(
+                transaction__comment=self.comment2,
+                received_by=self.doer,
+                matched=True,
+                broken=False
+            ).aggregate(total=Sum('hours')).get('total') or 0),
+            Decimal('0.2')
         )
 
 

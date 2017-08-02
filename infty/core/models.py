@@ -311,16 +311,6 @@ class Comment(GenericModel):
 
         return snapshot
 
-    def invested(self):
-        """
-        Hours invested.
-        """
-
-        return Decimal(ContributionCertificate.objects.filter(
-            comment_snapshot__comment=self, broken=False).aggregate(
-            total=Sum('hours')
-        ).get('total') or 0)
-
     def matched(self):
         """
         Hours matched.
@@ -341,6 +331,15 @@ class Comment(GenericModel):
             total=Sum('hours')
         ).get('total') or 0)
 
+    def invested(self):
+        """
+        Hours invested.  = self.matched() + self.donated()
+        """
+
+        return Decimal(ContributionCertificate.objects.filter(
+            comment_snapshot__comment=self, broken=False).aggregate(
+            total=Sum('hours')
+        ).get('total') or 0)
 
     def remains(self):
         """
