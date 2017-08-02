@@ -152,6 +152,14 @@ class Comment(GenericModel):
                         continue
                     """ Iterating over certificate pairs. """
 
+                    # PAIR INTEGRITY CHECKS - PAIR MUST BE SYMMETRIC:
+                    if not ((cert1.transaction == cert2.transaction) & \
+                       (cert1.type == DOER) & \
+                       (cert2.type == INVESTOR) & \
+                       (cert1.hours == cert2.hours)):
+                        " Don't proceed if these conditions not satisfied. "
+                        break
+
                     certs_hours = cert1.hours + cert2.hours
 
 

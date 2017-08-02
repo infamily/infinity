@@ -549,11 +549,35 @@ class TestTopic(TestCase):
         CONTRIBUTIONS
         [--PRESENT--][---FUTURE-----] ( .unmatched )
         """
+        self.assertEqual(self.comment.claimed_hours, Decimal('1.5'))
+        self.assertEqual(self.comment.assumed_hours, Decimal('6.5'))
 
+        self.tx1 = self.comment.invest(4.0, 'eur', self.investor)
+
+        # [INVESTED]
         self.assertEqual(
-            1,
-            1
+            self.comment.invested(),
+            Decimal('4.0')
         )
+
+        # [PRESENT]
+        self.assertEqual(
+            self.comment.matched(),
+            Decimal('1.5')
+        )
+
+        # [FUTURE]
+        self.assertEqual(
+            self.comment.donated(),
+            Decimal('2.5')
+        )
+
+        # [REMAINS]
+        self.assertEqual(
+            self.comment.remains(),
+            Decimal('4.0')
+        )
+
 
     def test_future_investment_multiparty(self):
         """
