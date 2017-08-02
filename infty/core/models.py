@@ -110,19 +110,19 @@ class Comment(GenericModel):
             And create new ContributionCertificates if needed.
             """
 
-            old_obj = Comment.objects.get(pk=self.pk)
-            old = self.parse_hours(old_obj.text)
+            obj = Comment.objects.get(pk=self.pk)
+            old = self.parse_hours(obj.text)
             new = self.parse_hours(self.text)
 
             # Monotonicity
             # 1. new (.claimed_hours+.assumed_hours) >= comment.invested()
-            if (new['claimed_hours'] + new['assumed_hours']) < old_obj.invested():
+            if (new['claimed_hours'] + new['assumed_hours']) < obj.invested():
                 """
                 Cannot remove time already paid for, don't .save().
                 """
                 pass
             # 2. new (.claimed_hours) >=  previously .matched_time.
-            elif new['claimed_hours'] < old_obj.matched():
+            elif new['claimed_hours'] < obj.matched():
                 """
                 Cannot remove time matched, don't .save().
                 """
@@ -130,6 +130,49 @@ class Comment(GenericModel):
             else:
             # Else, it is okay to generete new ContributionCertificates,
             # and make the previous one broken=True
+
+                # Subjects:
+                new_claimed_hours = new['claimed_hours'] - obj.matched()
+
+                """ Going in pairs over all unmatched, unbroken certificates
+                ContributionCertificates of the comment, and creating matched
+                and unmatched children certificates.
+                """
+
+                track = Decimal(0.0)
+
+                cert1 = None
+                for i, cert2 in enumerate(
+                        ContributionCertificate.objects.filter(
+                            transaction__comment=self,
+                            broken=False,
+                            matched=False,
+                        ).order_by('pk').all()):
+                    if i % 2 == 0:
+                        cert1 = cert2
+                        continue
+
+                    certs_hours = cert1.hours + cert2.hours
+
+                    """ Iterating over certificate pairs. """
+
+                    if new_claimed_hours >= certs_hours:
+                        new_claimed_hours -= certs_hours
+                        " Create matched certs. (2)"
+
+                        " Mark original cert as broken"
+                        pass
+                    elif new_claimed_hours < certs_hours:
+                        " Create matched and unmatched certs. (4) "
+
+                        " Mark original cert as broken"
+                        pass
+                    # If we can, we match it fully, if we can't, we match
+                    # it partially, generating matched=False certificates too.
+
+                    track += certs_hours
+
+
                 self.set_hours()
                 super(Comment, self).save(*args, **kwargs)
 
@@ -206,6 +249,17 @@ class Comment(GenericModel):
             comment_snapshot__comment=self, matched=True, broken=False).aggregate(
             total=Sum('hours')
         ).get('total') or 0)
+
+    def donated(self):
+        """
+        Hours donated.
+        """
+
+        return Decimal(ContributionCertificate.objects.filter(
+            comment_snapshot__comment=self, matched=False, broken=False).aggregate(
+            total=Sum('hours')
+        ).get('total') or 0)
+
 
     def remains(self):
         """
@@ -477,9 +531,4 @@ class ContributionCertificate(GenericModel):
     received_by = models.ForeignKey(User)
 
     broken = models.BooleanField(default=False)
-    children = models.ManyToManyField(
-        'self',
-        blank=True,
-        symmetrical=False,
-        related_name='child_certificates'
-    )
+    parent = models.ForeignKey('self', blank=True, null=True)
