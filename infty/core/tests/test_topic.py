@@ -386,8 +386,10 @@ class TestTopic(TestCase):
             Decimal(0.5)
         )
 
-        # Now, let's say that the doer updates the comment to show
-        # the progress (changes the .assumed_hours to .claimed_hours)
+        """
+        Now, let's say that the doer updates the comment to show
+        the progress (changes the .assumed_hours to .claimed_hours)
+        """
 
         """
                                      8.0 ĥ
@@ -414,58 +416,11 @@ class TestTopic(TestCase):
 
         HAPPENS
 
-        (1) The old certificate should be marked broken=True
-
-        # But for that, we need to get all contribution certificates
-        # of a comment, so, need all transactions of the comment.
+        (1) We go through old certificates with broken=False, matched=False,
+        (2) Make new child certificates with broken=False, matched=True,
+        (3) and at the points of overflow, broken=False, matched=False.
+        (4) invalidate parent certificates.
         """
-
-        self.assertEqual(
-            ContributionCertificate.objects.filter(
-                transaction__comment=self.comment2, broken=False
-            ).count(),
-            2
-        )
-
-        """
-        And, we also need to figure out, which certificates are
-        corresponding to previously matched time.
-        """
-
-        # Obviously, previously matched time corresponds to
-        # sum of all ContributionCertificates with matched=True,
-        self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    transaction__comment=self.comment2,
-                    matched=True).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(0.0)
-        )
-        # and previously unmatched time is all certs with matched=False
-        self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    transaction__comment=self.comment2,
-                    matched=False).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(1.0)
-        )
-
-        # So, previously, matched time was 0.0, and unmatched 1.0
-        # Now the matched time will be 0.4, and unmatched 0.6
-
-        # now, we should go through the certificates in pairs,
-        # and match them up until 0.4 margin.
-
-        # We have (DOER, INVESTOR), (it was just two certificates)
-        # And, of course, they will have been created in pairs,
-        # And, in the sequence of ascending ids.
-        # And there will be always even number of them per comment.
 
         self.assertEqual(
             self.comment2.invested(),
@@ -477,228 +432,6 @@ class TestTopic(TestCase):
             Decimal(0.0)
         )
 
-
-        parsed = self.comment2.parse_hours("""
-        - {0.4}{?7.6} for testing.
-
-        Here is the result so far:
-        https://wiki.mindey.com/shared/screens/7e402349b3c2e3a626b5d25fd.png
-        https://wiki.mindey.com/shared/screens/92fe2c4d8c795e4ff39884622.png
-        """)
-        parsed_claimed_hours = parsed['claimed_hours']
-        parsed_assumed_hours = parsed['assumed_hours']
-
-        self.assertTrue(parsed_claimed_hours - Decimal(0.4) < Decimal('1E-28'))
-        self.assertTrue(parsed_assumed_hours - Decimal(7.6) < Decimal('1E-28'))
-
-        self.assertEqual(self.comment2.claimed_hours, Decimal(0.0))
-        self.assertEqual(self.comment2.assumed_hours, Decimal(8.0))
-
-        new_claimed_hours = parsed_claimed_hours - self.comment2.matched()
-
-        self.assertTrue(new_claimed_hours - Decimal(0.4) < Decimal('1E-28'))
-
-
-        """ Going in pairs over all unmatched, unbroken certificates
-        ContributionCertificates of the comment, and creating matched
-        and unmatched children certificates.
-        """
-        cert1 = None
-        for i, cert2 in enumerate(
-                ContributionCertificate.objects.filter(
-                    transaction__comment=self.comment2,
-                    broken=False,
-                    matched=False,
-                ).order_by('pk').all()):
-            if i % 2 == 0:
-                cert1 = cert2
-                continue
-
-            # SANITY CHECKS:
-            self.assertEqual(cert1.transaction, cert2.transaction)
-            self.assertEqual(cert1.type, 0)
-            self.assertEqual(cert2.type, 1)
-            self.assertEqual(cert1.hours, cert2.hours)
-
-            certs_hours = cert1.hours + cert2.hours
-            self.assertEqual(certs_hours, Decimal(1.0))
-            """ Iterating over certificate pairs. """
-
-            DOER = 0
-            INVESTOR = 1
-
-            if not new_claimed_hours:
-                break
-
-            elif new_claimed_hours >= certs_hours:
-                " Create matched certs. (2) "
-
-                doer_cert = ContributionCertificate(
-                    type=DOER,
-                    transaction=cert1.transaction,
-                    comment_snapshot=cert1.comment_snapshot,
-                    hours=cert1.hours,
-                    matched=True,
-                    received_by=cert1.received_by,
-                    broken=False,
-                    parent=cert1,
-                )
-                doer_cert.save()
-                investor_cert = ContributionCertificate(
-                    type=INVESTOR,
-                    transaction=cert2.transaction,
-                    comment_snapshot=cert2.comment_snapshot,
-                    hours=cert2.hours,
-                    matched=True,
-                    received_by=cert2.received_by,
-                    broken=False,
-                    parent=cert2,
-                )
-                investor_cert.save()
-
-                " Mark original cert as broken "
-
-                cert1.broken = True; cert1.save()
-                cert2.broken = True; cert2.save()
-
-                " reduce number of hours covered "
-                new_claimed_hours -= certs_hours
-
-            elif new_claimed_hours < certs_hours:
-                " Create matched and unmatched certs. (4) "
-
-                hours_to_match = new_claimed_hours/Decimal(2)
-
-                doer_cert = ContributionCertificate(
-                    type=DOER,
-                    transaction=cert1.transaction,
-                    comment_snapshot=cert1.comment_snapshot,
-                    hours=hours_to_match,
-                    matched=True,
-                    received_by=cert1.received_by,
-                    broken=False,
-                    parent=cert1,
-                )
-                doer_cert.save()
-                investor_cert = ContributionCertificate(
-                    type=INVESTOR,
-                    transaction=cert2.transaction,
-                    comment_snapshot=cert2.comment_snapshot,
-                    hours=hours_to_match,
-                    matched=True,
-                    received_by=cert2.received_by,
-                    broken=False,
-                    parent=cert2,
-                )
-                investor_cert.save()
-
-                hours_to_donate = (certs_hours-new_claimed_hours)/Decimal(2)
-
-                doer_cert = ContributionCertificate(
-                    type=DOER,
-                    transaction=cert1.transaction,
-                    comment_snapshot=cert1.comment_snapshot,
-                    hours=hours_to_donate,
-                    matched=False,
-                    received_by=cert1.received_by,
-                    broken=False,
-                    parent=cert1,
-                )
-                doer_cert.save()
-                investor_cert = ContributionCertificate(
-                    type=INVESTOR,
-                    transaction=cert2.transaction,
-                    comment_snapshot=cert2.comment_snapshot,
-                    hours=hours_to_donate,
-                    matched=False,
-                    received_by=cert2.received_by,
-                    broken=False,
-                    parent=cert2,
-                )
-                investor_cert.save()
-
-                " Mark original cert as broken "
-
-                cert1.broken = True; cert1.save()
-                cert2.broken = True; cert2.save()
-
-                " reduce number of hours covered "
-                new_claimed_hours = Decimal(0.0)
-
-                " Break the iteration "
-                break
-
-            self.assertTrue(
-                Decimal(0.6)-self.comment2.donated() < Decimal('1E-28')
-            )
-            self.assertTrue(
-                Decimal(0.4)-self.comment2.matched() < Decimal('1E-28')
-            )
-
-
-            # If we can, we match it fully, if we can't, we match
-            # it partially, generating matched=False certificates too.
-            # Super, now we break the pairs of certificates.
-            # if  .matched() < track <= .invested() region
-            # we'll match them.
-
-
-        """
-        Then figure out the newly matched time.
-
-        And take the difference between newly matched time
-        and previously matched time, to see, which certificates
-        are affacted.
-
-        """
-
-
-        """
-        Then, for each affected certificate, split (brake) it
-        and create four new ones.
-
-        """
-
-        # for ContributionCertificate.objects.filter()
-        #
-        # self.assertEqual(
-        #
-        # )
-
-        """
-        (2) The new child certificates should be generated:
-          - one with matched=True, other with matched=False
-           (both with broken=False)
-
-        To do that, we need to identify the old certificate(s) that are
-        within the interval.
-
-        To do that, we need to order all the broken=False certificates
-        in order of date increase (better: ID increase, cause clocks
-        are changing and getting out of sync over time)
-
-        Also order all the .claimed_time, and .assumed time at two points:
-
-        [----------][--------] # claimed_hours, assumed_hours
-        [----][-------]        # matched_hours, donated_hours
-
-        [----][----][-][-----]
-          M     M    D    D
-
-          M - matched
-          D - donated
-
-        [--------------][----] # claimed_hours, assumed_hours
-        [----][-------]        # matched_hours, donated_hours
-
-        [----][----][--][----]
-          M     M    M    D
-
-        """
-
-        # So, upon update of comment amount, we have to invalidate
-        # previous certificate, and create two new certificates.
-
         self.comment2.text = """
         - {0.4}{?7.6} for testing.
 
@@ -706,25 +439,16 @@ class TestTopic(TestCase):
         https://wiki.mindey.com/shared/screens/7e402349b3c2e3a626b5d25fd.png
         https://wiki.mindey.com/shared/screens/92fe2c4d8c795e4ff39884622.png
         """
-
         self.comment2.save()
 
         self.assertTrue(
-            self.comment2.claimed_hours - Decimal(7.6) < Decimal('1E-28')
+            abs(self.comment2.donated()-Decimal(0.6)) < Decimal('1E-16')
         )
 
         self.assertTrue(
-            self.comment2.assumed_hours - Decimal(7.6) < Decimal('1E-28')
+            abs(self.comment2.matched()-Decimal(0.4)) < Decimal('1E-16')
         )
 
-        # self.assertEqual(
-        #     self.comment2.text,
-        #     Comment.objects.get(pk=self.comment2.pk).text
-        # )
-
-
-
-        # 4. Also can write more .claimed_time or .assumed_time
 
     def test_mixed_present_future_investment_one_investor(self):
         """

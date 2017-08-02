@@ -128,18 +128,17 @@ class Comment(GenericModel):
                 """
                 pass
             else:
-            # Else, it is okay to generete new ContributionCertificates,
-            # and make the previous one broken=True
+            # Else, it is okay to proceed.
 
                 # Subjects:
                 new_claimed_hours = new['claimed_hours'] - obj.matched()
 
                 """ Going in pairs over all unmatched, unbroken certificates
-                ContributionCertificates of the comment, and creating matched
-                and unmatched children certificates.
+                ContributionCertificates of the comment, and creating matched and unmatched children certificates.
                 """
 
-                track = Decimal(0.0)
+                DOER = 0
+                INVESTOR = 1
 
                 cert1 = None
                 for i, cert2 in enumerate(
@@ -151,27 +150,109 @@ class Comment(GenericModel):
                     if i % 2 == 0:
                         cert1 = cert2
                         continue
+                    """ Iterating over certificate pairs. """
 
                     certs_hours = cert1.hours + cert2.hours
 
-                    """ Iterating over certificate pairs. """
 
                     if new_claimed_hours >= certs_hours:
-                        new_claimed_hours -= certs_hours
-                        " Create matched certs. (2)"
 
-                        " Mark original cert as broken"
-                        pass
+                        " Create matched certs. (2) "
+
+                        doer_cert = ContributionCertificate(
+                            type=DOER,
+                            transaction=cert1.transaction,
+                            comment_snapshot=cert1.comment_snapshot,
+                            hours=cert1.hours,
+                            matched=True,
+                            received_by=cert1.received_by,
+                            broken=False,
+                            parent=cert1,
+                        )
+                        doer_cert.save()
+                        investor_cert = ContributionCertificate(
+                            type=INVESTOR,
+                            transaction=cert2.transaction,
+                            comment_snapshot=cert2.comment_snapshot,
+                            hours=cert2.hours,
+                            matched=True,
+                            received_by=cert2.received_by,
+                            broken=False,
+                            parent=cert2,
+                        )
+                        investor_cert.save()
+
+                        " Mark original cert as broken "
+
+                        cert1.broken = True; cert1.save()
+                        cert2.broken = True; cert2.save()
+
+                        " reduce number of hours covered "
+                        new_claimed_hours -= certs_hours
+
                     elif new_claimed_hours < certs_hours:
                         " Create matched and unmatched certs. (4) "
 
-                        " Mark original cert as broken"
-                        pass
-                    # If we can, we match it fully, if we can't, we match
-                    # it partially, generating matched=False certificates too.
+                        hours_to_match = new_claimed_hours/Decimal(2)
 
-                    track += certs_hours
+                        doer_cert = ContributionCertificate(
+                            type=DOER,
+                            transaction=cert1.transaction,
+                            comment_snapshot=cert1.comment_snapshot,
+                            hours=hours_to_match,
+                            matched=True,
+                            received_by=cert1.received_by,
+                            broken=False,
+                            parent=cert1,
+                        )
+                        doer_cert.save()
+                        investor_cert = ContributionCertificate(
+                            type=INVESTOR,
+                            transaction=cert2.transaction,
+                            comment_snapshot=cert2.comment_snapshot,
+                            hours=hours_to_match,
+                            matched=True,
+                            received_by=cert2.received_by,
+                            broken=False,
+                            parent=cert2,
+                        )
+                        investor_cert.save()
 
+                        hours_to_donate = (certs_hours-new_claimed_hours)/Decimal(2)
+
+                        doer_cert = ContributionCertificate(
+                            type=DOER,
+                            transaction=cert1.transaction,
+                            comment_snapshot=cert1.comment_snapshot,
+                            hours=hours_to_donate,
+                            matched=False,
+                            received_by=cert1.received_by,
+                            broken=False,
+                            parent=cert1,
+                        )
+                        doer_cert.save()
+                        investor_cert = ContributionCertificate(
+                            type=INVESTOR,
+                            transaction=cert2.transaction,
+                            comment_snapshot=cert2.comment_snapshot,
+                            hours=hours_to_donate,
+                            matched=False,
+                            received_by=cert2.received_by,
+                            broken=False,
+                            parent=cert2,
+                        )
+                        investor_cert.save()
+
+                        " Mark original cert as broken "
+
+                        cert1.broken = True; cert1.save()
+                        cert2.broken = True; cert2.save()
+
+                        " reduce number of hours covered "
+                        new_claimed_hours = Decimal(0.0)
+
+                        " Break the iteration "
+                        break
 
                 self.set_hours()
                 super(Comment, self).save(*args, **kwargs)
