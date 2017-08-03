@@ -726,8 +726,48 @@ class TestTopic(TestCase):
         -Should not be possible to change the declared time to smaller
         if there are investments already.-
         """
+
         self.assertEqual(
-            1,
-            1
+            self.comment.claimed_hours,
+            Decimal('1.5')
+        )
+        self.assertEqual(
+            self.comment.assumed_hours,
+            Decimal('6.5')
         )
 
+        self.comment.invest(0.1, 'eur', self.investor)
+
+        self.comment.text ="""
+        - {1.0},{?0.1} for coming up with basic class structure,
+        - {?2.5} for implementation,
+        - {?3.5} for testing.
+
+        Here is the result so far:
+        https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
+        """
+
+        self.comment.save()
+
+        self.assertEqual(
+            self.comment.claimed_hours,
+            Decimal('1.0')
+        )
+        self.assertTrue(
+            self.comment.assumed_hours-Decimal('6.1') < Decimal('1E-15')
+        )
+
+        self.assertEqual(
+            self.comment.invested(),
+            Decimal('0.1')
+        )
+
+        self.assertEqual(
+            self.comment.matched(),
+            Decimal('0.1')
+        )
+
+        self.assertEqual(
+            self.comment.donated(),
+            Decimal('0.0')
+        )
