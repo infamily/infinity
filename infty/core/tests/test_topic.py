@@ -636,7 +636,7 @@ class TestTopic(TestCase):
         self.assertEqual(self.comment2.donated(by=self.investor2),Decimal('1.0')/Decimal(2))
         self.assertEqual(self.comment2.donated(by=self.investor3),Decimal('6.0')/Decimal(2))
 
-        # .donated_hours by doer must be 4, or 1/2+1/2+6/2, in this case, cause one doer.
+        # .donated_hours by doer must be 4, or 1/2+1/2+6/2, as doer gets 50%.
         self.assertEqual(
             self.comment2.donated(by=self.doer),
             Decimal('4.0')
@@ -667,11 +667,55 @@ class TestTopic(TestCase):
         [----P---][P-][-F--][--------------FUTURE-----------------]
 
         """
+        self.assertEqual(self.comment.claimed_hours, Decimal('1.5'))
+        self.assertEqual(self.comment.assumed_hours, Decimal('6.5'))
+        self.assertEqual(self.comment.remains(), Decimal('8.0'))
+
+        self.tx1 = self.comment.invest(1.0, 'eur', self.investor)
+        self.assertEqual(self.comment.invested(), Decimal('1.0'))
+        self.assertEqual(self.comment.remains(), Decimal('7.0'))
+        self.assertEqual(self.comment.donated(), Decimal('0.0'))
+        self.assertEqual(self.comment.contributions(), 2)
 
         self.assertEqual(
-            1,
-            1
+            self.comment.claimed_hours - self.comment.matched(),
+            Decimal(0.5)
         )
+
+        self.assertEqual(
+            self.comment.assumed_hours - self.comment.donated(),
+            Decimal(6.5)
+        )
+
+        self.assertEqual(self.comment.remains(), Decimal('7.0'))
+
+        self.tx2 = self.comment.invest(1.0, 'eur', self.investor2)
+        self.assertEqual(self.comment.invested(), Decimal('2.0'))
+        self.assertEqual(self.comment.remains(), Decimal('6.0'))
+        self.assertEqual(self.comment.contributions(), 6)
+        self.assertEqual(self.comment.donated(), Decimal('0.5'))
+
+        self.tx3 = self.comment.invest(6.0, 'eur', self.investor3)
+        self.assertEqual(self.comment.invested(), Decimal('8.0'))
+        self.assertEqual(self.comment.remains(), Decimal('0.0'))
+        self.assertEqual(self.comment.donated(), Decimal('6.5'))
+
+
+        self.assertEqual(
+            self.comment.remains(),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            self.comment.matched(),
+            Decimal('1.5')
+        )
+
+        self.assertEqual(
+            self.comment.donated(),
+            Decimal('6.5')
+        )
+
 
     def test_redeclaration_of_less_time(self):
         """

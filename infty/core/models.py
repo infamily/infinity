@@ -257,7 +257,8 @@ class Comment(GenericModel):
                         cert2.broken = True; cert2.save()
 
                         " reduce number of hours covered "
-                        new_claimed_hours = Decimal(0.0)
+                        # new_claimed_hours = Decimal(0.0)
+                        new_claimed_hours -= hours_to_donate
 
                         " Break the iteration "
                         break
@@ -318,6 +319,10 @@ class Comment(GenericModel):
         snapshot.save()
 
         return snapshot
+
+    def contributions(self):
+        return ContributionCertificate.objects.filter(
+                comment_snapshot__comment=self).count()
 
     def matched(self, by=None):
         """
@@ -546,12 +551,26 @@ class Transaction(GenericModel):
         """ Hours matched up with claimed time. """
         paid_in_hours = self.payment_amount/self.hour_unit_cost
 
-        self.matched_hours = min(self.snapshot.claimed_hours, paid_in_hours)
+
+        # self.matched_hours = min(self.snapshot.claimed_hours, paid_in_hours)
+        remaining_claimed_time = self.comment.claimed_hours - self.comment.matched()
+        self.matched_hours = min(remaining_claimed_time, paid_in_hours)
 
         """ Hours not matched up.  """
-        self.donated_hours = min(self.snapshot.assumed_hours, paid_in_hours - self.matched_hours)
+        # self.donated_hours = min(self.snapshot.assumed_hours, paid_in_hours - self.matched_hours)
+        remaining_assumed_time = self.comment.assumed_hours - self.comment.donated()
+        self.donated_hours = min(remaining_assumed_time, paid_in_hours - self.matched_hours)
 
     def create_contribution_certificates(self):
+        """
+        Subject: comment's remaining claimed_time, and assumed_time.
+        ============================================================
+        remaining_claimed_time , remaining_assumed_time
+        """
+        remaining_claimed_time = self.comment.claimed_hours - self.comment.matched()
+        remaining_assumed_time = self.comment.assumed_hours - self.comment.donated()
+
+
 
         DOER = 0
         INVESTOR = 1
