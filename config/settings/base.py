@@ -281,3 +281,7 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+
+IPDB_APP_ID = '79f7f281'
+IPDB_KEY = 'e1a104a99a400f8963f502b1e33728ef'
+IPDB_ENDPOINT = ''

@@ -50,7 +50,7 @@ class Topic(GenericModel):
     to start with for people. We'll introduce the fields of 'STEP'
     (e.g., planning I/O, https://github.com/wefindx/StepIO) later.
     """
-    NEED = 0
+    NEED = 0 # Goal condition
     GOAL = 1
     IDEA = 2
     PLAN = 3
@@ -413,6 +413,8 @@ class CommentSnapshot(GenericModel):
     """
     Whenever comment is changed, or transaction is made,
     we have to store the comment content to permanent storage.
+
+    To be saved in BigchainDB, possibly e-mailed, and posted on social media.
     """
     comment = models.ForeignKey(Comment)
     text = models.TextField()
@@ -625,6 +627,9 @@ class ContributionCertificate(GenericModel):
     desired, as well as in blockchains, so as to have multi-method prov-
     ability. ( https://infty.xyz/goal/116/detail/?lang=en )
 
+    Additionally, users will be able to provide social media accounts to
+    post their updates of ContributionCertificates.
+
     Regarding the .matched property -- indicates if the time was matched.
       Instead of updating the record, we will create new contribution
       certificates. If a transaction certificate is updated, derived
@@ -650,3 +655,32 @@ class ContributionCertificate(GenericModel):
 
     broken = models.BooleanField(default=False)
     parent = models.ForeignKey('self', blank=True, null=True)
+
+
+    @classmethod
+    def user_matched(cls, user):
+        """
+        Returns amount of matched hours that a given user has accumulated.
+        """
+        return Decimal(
+            cls.objects.filter(
+                matched=True,
+                broken=False,
+                received_by=user).aggregate(
+                    total=Sum('hours')
+                ).get('total')
+            or 0)
+
+    @classmethod
+    def user_unmatched(cls, user):
+        """
+        Returns amount of matched hours that a given user has accumulated.
+        """
+        return Decimal(
+            cls.objects.filter(
+                matched=False,
+                broken=False,
+                received_by=user).aggregate(
+                    total=Sum('hours')
+                ).get('total')
+            or 0)

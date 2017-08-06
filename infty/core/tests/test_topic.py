@@ -247,6 +247,17 @@ class TestTopic(TestCase):
             Decimal('1.5')+Decimal('6.5')-Decimal('0.2')
         )
 
+        # Test the balances of the users.
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.1')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.1')
+        )
+
     def test_simple_investment_multiparty(self):
         """
         "Simple Investment Multiparty"
@@ -287,6 +298,21 @@ class TestTopic(TestCase):
         self.assertEqual(
             ContributionCertificate.objects.filter(comment_snapshot__comment=self.comment).count(),
             4
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.35')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.1')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor2),
+            Decimal('0.25')
         )
 
     def test_future_investment_one_investor(self):
@@ -379,48 +405,27 @@ class TestTopic(TestCase):
             Decimal('0.0')
         )
 
-
         # Both investor and doer should by now have zero matched time.
         self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    received_by=self.doer, matched=True).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(0.0)
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.0')
         )
 
         self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    received_by=self.investor, matched=True).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(0.0)
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.0')
         )
+
 
         # Both doer and investor should have '0.5' h each as 'unmatched'
-
         self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    received_by=self.doer, matched=False).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(0.5)
+            ContributionCertificate.user_unmatched(self.doer),
+            Decimal('0.5')
         )
 
         self.assertEqual(
-            Decimal(
-                ContributionCertificate.objects.filter(
-                    received_by=self.investor, matched=False).aggregate(
-                    total=Sum('hours')
-                ).get('total') or 0
-            ),
-            Decimal(0.5)
+            ContributionCertificate.user_unmatched(self.investor),
+            Decimal('0.5')
         )
 
         # Let's say, the doer updates comment to show progress.
@@ -528,6 +533,19 @@ class TestTopic(TestCase):
         )
 
 
+        # Doer has 0.2 matched hours
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.2')
+        )
+
+        # Investor has 0.2 matched hours
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.2')
+        )
+
+
     def test_mixed_present_future_investment_one_investor(self):
         """
         "Mixed Present-Future Investment one investor"
@@ -576,6 +594,18 @@ class TestTopic(TestCase):
         self.assertEqual(
             self.comment.remains(),
             Decimal('4.0')
+        )
+
+
+        # Balances:
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.75')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.75')
         )
 
 
@@ -641,6 +671,48 @@ class TestTopic(TestCase):
             self.comment2.donated(by=self.doer),
             Decimal('4.0')
         )
+
+        # Balances
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor2),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor3),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.doer),
+            Decimal('4.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor),
+            Decimal('0.5')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor2),
+            Decimal('0.5')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor3),
+            Decimal('3.0')
+        )
+
 
 
     def test_mixed_present_future_investment_multiparty(self):
@@ -716,6 +788,47 @@ class TestTopic(TestCase):
             Decimal('6.5')
         )
 
+        # Balances
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.75')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.5')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor2),
+            Decimal('0.25')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor3),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.doer),
+            Decimal('3.25')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor2),
+            Decimal('0.25')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor3),
+            Decimal('3.0')
+        )
+
 
     def test_redeclaration_of_less_time(self):
         """
@@ -769,5 +882,26 @@ class TestTopic(TestCase):
 
         self.assertEqual(
             self.comment.donated(),
+            Decimal('0.0')
+        )
+
+        # Balances
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.doer),
+            Decimal('0.05')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_matched(self.investor),
+            Decimal('0.05')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.doer),
+            Decimal('0.0')
+        )
+
+        self.assertEqual(
+            ContributionCertificate.user_unmatched(self.investor),
             Decimal('0.0')
         )
