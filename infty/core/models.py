@@ -110,9 +110,12 @@ class Comment(GenericModel):
             And create new ContributionCertificates if needed.
             """
 
+            # Interaction(self, obj)
+
             obj = Comment.objects.get(pk=self.pk)
             old = self.parse_hours(obj.text)
             new = self.parse_hours(self.text)
+
 
             # Monotonicity
             # 1. new (.claimed_hours+.assumed_hours) >= comment.invested()
@@ -131,7 +134,18 @@ class Comment(GenericModel):
             # Else, it is okay to proceed.
 
                 # Subjects:
-                new_claimed_hours = new['claimed_hours'] - obj.matched()
+                AMOUNT = new['claimed_hours'] - obj.matched()
+
+                # Taking snapshot
+                snapshot = self.create_snapshot()
+
+                # Recording interaction
+                ix = Interaction(
+                    comment=self,
+                    snapshot=snapshot,
+                    claimed_hours_to_match=AMOUNT,
+                )
+                ix.save()
 
                 """ Going in pairs over all unmatched, unbroken certificates
                 ContributionCertificates of the comment, and creating matched and unmatched children certificates.
@@ -163,13 +177,14 @@ class Comment(GenericModel):
                     certs_hours = cert1.hours + cert2.hours
 
 
-                    if new_claimed_hours >= certs_hours:
+                    if AMOUNT >= certs_hours:
 
                         " Create matched certs. (2) "
 
                         doer_cert = ContributionCertificate(
                             type=DOER,
                             transaction=cert1.transaction,
+                            interaction=ix,
                             comment_snapshot=cert1.comment_snapshot,
                             hours=cert1.hours,
                             matched=True,
@@ -181,6 +196,7 @@ class Comment(GenericModel):
                         investor_cert = ContributionCertificate(
                             type=INVESTOR,
                             transaction=cert2.transaction,
+                            interaction=ix,
                             comment_snapshot=cert2.comment_snapshot,
                             hours=cert2.hours,
                             matched=True,
@@ -196,16 +212,17 @@ class Comment(GenericModel):
                         cert2.broken = True; cert2.save()
 
                         " reduce number of hours covered "
-                        new_claimed_hours -= certs_hours
+                        AMOUNT -= certs_hours
 
-                    elif new_claimed_hours < certs_hours:
+                    elif AMOUNT < certs_hours:
                         " Create matched and unmatched certs. (4) "
 
-                        hours_to_match = new_claimed_hours/Decimal(2)
+                        hours_to_match = AMOUNT/Decimal(2)
 
                         doer_cert = ContributionCertificate(
                             type=DOER,
                             transaction=cert1.transaction,
+                            interaction=ix,
                             comment_snapshot=cert1.comment_snapshot,
                             hours=hours_to_match,
                             matched=True,
@@ -217,6 +234,7 @@ class Comment(GenericModel):
                         investor_cert = ContributionCertificate(
                             type=INVESTOR,
                             transaction=cert2.transaction,
+                            interaction=ix,
                             comment_snapshot=cert2.comment_snapshot,
                             hours=hours_to_match,
                             matched=True,
@@ -226,11 +244,12 @@ class Comment(GenericModel):
                         )
                         investor_cert.save()
 
-                        hours_to_donate = (certs_hours-new_claimed_hours)/Decimal(2)
+                        hours_to_donate = (certs_hours-AMOUNT)/Decimal(2)
 
                         doer_cert = ContributionCertificate(
                             type=DOER,
                             transaction=cert1.transaction,
+                            interaction=ix,
                             comment_snapshot=cert1.comment_snapshot,
                             hours=hours_to_donate,
                             matched=False,
@@ -242,6 +261,7 @@ class Comment(GenericModel):
                         investor_cert = ContributionCertificate(
                             type=INVESTOR,
                             transaction=cert2.transaction,
+                            interaction=ix,
                             comment_snapshot=cert2.comment_snapshot,
                             hours=hours_to_donate,
                             matched=False,
@@ -257,8 +277,8 @@ class Comment(GenericModel):
                         cert2.broken = True; cert2.save()
 
                         " reduce number of hours covered "
-                        # new_claimed_hours = Decimal(0.0)
-                        new_claimed_hours -= hours_to_donate
+                        # AMOUNT = Decimal(0.0)
+                        AMOUNT -= hours_to_donate
 
                         " Break the iteration "
                         break
@@ -522,9 +542,24 @@ class CurrencyPriceSnapshot(GenericModel):
     data = JSONField()
 
 
+class Interaction(GenericModel):
+    """
+    Interactions are a way to invest time, parts of comments.
+
+    They are actions of claiming time - claimed_hours, assumed_hours.
+    """
+
+    comment = models.ForeignKey(Comment)
+    snapshot = models.ForeignKey(CommentSnapshot)
+
+    claimed_hours_to_match = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+
+
 class Transaction(GenericModel):
     """
     Transactions are a way to invest money to claimed time and things.
+
+    They are actions of covering time - matched_hours, donated_hours.
     """
 
     comment = models.ForeignKey(Comment)
@@ -648,6 +683,7 @@ class ContributionCertificate(GenericModel):
 
     type = models.PositiveSmallIntegerField(CERTIFICATE_TYPES, default=DOER)
     transaction = models.ForeignKey(Transaction)
+    interaction = models.ForeignKey(Interaction, blank=True, null=True)
     comment_snapshot = models.ForeignKey(CommentSnapshot)
     hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     matched = models.BooleanField(default=True)
