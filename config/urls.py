@@ -15,6 +15,7 @@ urlpatterns = [
     # User management
     url(r'^users/', include('infty.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^api/', include('infty.api.urls', namespace='api')),
 
     # Your stuff: custom urls includes go here
 

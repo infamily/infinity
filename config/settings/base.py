@@ -49,6 +49,8 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'rest_framework', # DRF
+    'rest_framework_swagger',# Swagger
 ]
 
 # Apps specific for this project go here.
@@ -281,7 +283,11 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
-
-IPDB_APP_ID = '79f7f281'
-IPDB_KEY = 'e1a104a99a400f8963f502b1e33728ef'
-IPDB_ENDPOINT = ''
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+SWAGGER_BASE_URL = None
