@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from infty.core.models import Topic, Comment, Transaction, CommentSnapshot
+from infty.core.models import (Topic, Comment, Transaction, CommentSnapshot,
+    HourPriceSnapshot, CurrencyPriceSnapshot, Currency)
+from infty.users.models import User
 
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
@@ -27,12 +29,12 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all()) 
-    snapshot = serializers.SlugRelatedField(slug_field='comment', read_only=True)
-    hour_price = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    currency_price = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    payment_currency = serializers.SlugRelatedField(slug_field='label', read_only=True)
-    payment_recipient = serializers.SlugRelatedField(slug_field='name', read_only=True)
-    payment_sender = serializers.SlugRelatedField(slug_field='name', read_only=True)
+    snapshot = serializers.PrimaryKeyRelatedField (queryset=CommentSnapshot.objects.all())
+    hour_price = serializers.PrimaryKeyRelatedField(queryset=HourPriceSnapshot.objects.all())
+    currency_price = serializers.PrimaryKeyRelatedField(queryset=CurrencyPriceSnapshot.objects.all())
+    payment_currency = serializers.PrimaryKeyRelatedField(queryset=Currency.objects.all())
+    payment_recipient = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    payment_sender = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Transaction
