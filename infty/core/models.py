@@ -81,6 +81,9 @@ class Topic(GenericModel):
         related_name='parent_topics'
     )
 
+    def __str__(self):
+        return self.title
+
 
 class Comment(GenericModel):
     """
@@ -427,6 +430,9 @@ class Comment(GenericModel):
             tx.save()
 
             return tx
+
+    def __str__(self):
+        return "Comment for {}".format(self.topic)
 
 
 class CommentSnapshot(GenericModel):
