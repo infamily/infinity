@@ -448,6 +448,9 @@ class CommentSnapshot(GenericModel):
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     owner = models.ForeignKey(User)
 
+    def __str__(self):
+        return "Comment snapshot for {}".format(self.comment)
+
 
 HOUR_PRICE_SOURCES = {
     'FRED': 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
@@ -513,6 +516,12 @@ class Currency(GenericModel):
 
             return value
 
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        verbose_name_plural = "currencies"
+
 
 class HourPriceSnapshot(GenericModel):
     """
@@ -530,6 +539,9 @@ class HourPriceSnapshot(GenericModel):
     endpoint = models.TextField()
     data = JSONField()
 
+    def __str__(self):
+        return self.name
+
 
 class CurrencyPriceSnapshot(GenericModel):
     """
@@ -546,6 +558,9 @@ class CurrencyPriceSnapshot(GenericModel):
 
     endpoint = models.TextField()
     data = JSONField()
+
+    def __str__(self):
+        return self.name
 
 
 class Interaction(GenericModel):
