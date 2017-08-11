@@ -6,10 +6,11 @@ from infty.users.models import User
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
-    type = serializers.ChoiceField(choices = Topic.TOPIC_TYPES)
-    owner = serializers.ReadOnlyField(source='owner.username')
-    editors = serializers.ReadOnlyField(source='editors.username')
-    parents = serializers.HyperlinkedRelatedField(many = True, view_name='topic-detail', queryset=Topic.objects.all())
+    type = serializers.ChoiceField(choices = Topic.TOPIC_TYPES, required=False)
+    owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
+    editors = serializers.ReadOnlyField(source='editors.username', read_only=True)
+    parents = serializers.HyperlinkedRelatedField(many = True, view_name='topic-detail', 
+        queryset=Topic.objects.all(), required=False)
 
     class Meta:
         model = Topic
@@ -27,8 +28,8 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
-
-    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all()) 
+    
+    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField (queryset=CommentSnapshot.objects.all())
     hour_price = serializers.PrimaryKeyRelatedField(queryset=HourPriceSnapshot.objects.all())
     currency_price = serializers.PrimaryKeyRelatedField(queryset=CurrencyPriceSnapshot.objects.all())
@@ -38,7 +39,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ('comment', 'snapshot', 'hour_price', 'currency_price',
+        fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
             'payment_amount', 'payment_currency', 'payment_recipient',
             'payment_sender', 'hour_unit_cost', 'donated_hours', 'matched_hours')
 
