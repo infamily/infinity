@@ -81,6 +81,9 @@ class Topic(GenericModel):
         related_name='parent_topics'
     )
 
+    def __str__(self):
+        return self.title
+
 
 class Comment(GenericModel):
     """
@@ -428,6 +431,9 @@ class Comment(GenericModel):
 
             return tx
 
+    def __str__(self):
+        return "Comment for {}".format(self.topic)
+
 
 class CommentSnapshot(GenericModel):
     """
@@ -441,6 +447,9 @@ class CommentSnapshot(GenericModel):
     claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
     owner = models.ForeignKey(User)
+
+    def __str__(self):
+        return "Comment snapshot for {}".format(self.comment)
 
 
 HOUR_PRICE_SOURCES = {
@@ -507,6 +516,12 @@ class Currency(GenericModel):
 
             return value
 
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        verbose_name_plural = "currencies"
+
 
 class HourPriceSnapshot(GenericModel):
     """
@@ -524,6 +539,9 @@ class HourPriceSnapshot(GenericModel):
     endpoint = models.TextField()
     data = JSONField()
 
+    def __str__(self):
+        return self.name
+
 
 class CurrencyPriceSnapshot(GenericModel):
     """
@@ -540,6 +558,9 @@ class CurrencyPriceSnapshot(GenericModel):
 
     endpoint = models.TextField()
     data = JSONField()
+
+    def __str__(self):
+        return self.name
 
 
 class Interaction(GenericModel):

@@ -31,3 +31,11 @@ class TransactionAdmin(admin.ModelAdmin):
 @admin.register(ContributionCertificate)
 class ContributionCertificateAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(Currency)
+class CurrencyAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CurrencyPriceSnapshot)
+class CurrencyPriceSnapshotAdmin(admin.ModelAdmin):
+    pass
