@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^users/', include('infty.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^api/', include('infty.api.urls')),
+    url(r'^rest-auth/', include('rest_auth.urls')),
+    url(r'^rest-auth/registration/', include('rest_auth.registration.urls'))
 
     # Your stuff: custom urls includes go here
 
