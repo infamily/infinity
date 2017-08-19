@@ -10,7 +10,7 @@ from .base import *  # noqa
 # DEBUG
 # ------------------------------------------------------------------------------
 # Turn debug off so tests run faster
-DEBUG = False
+DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = False
 
 # SECRET CONFIGURATION
@@ -59,3 +59,12 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
         'django.template.loaders.app_directories.Loader',
     ], ],
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ],
+
+}
