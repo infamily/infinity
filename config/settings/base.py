@@ -51,7 +51,6 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',  # registration
     'rest_framework', # DRF
     'rest_framework.authtoken',
-    'rest_framework_swagger',# Swagger
     'rest_auth',
     'rest_auth.registration',
 ]
@@ -298,4 +297,3 @@ REST_FRAMEWORK = {
     )
 
 }
-SWAGGER_BASE_URL = None
