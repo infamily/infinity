@@ -6,7 +6,7 @@ from django.conf.urls import include, url
 
 urlpatterns = [
     # url(r'^$', schema_view, name='documentation'),
-    url(r'^', include('infty.api.v1.urls')),
+    url(r'^v1/', include('infty.api.v1.urls')),
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
 ]
