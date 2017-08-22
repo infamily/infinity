@@ -17,5 +17,3 @@ ipdb==0.10.3
 
 pytest-django==3.1.2
 pytest-sugar==0.8.0
-
-django-cors-headers==2.1.0

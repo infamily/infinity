@@ -51,7 +51,6 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',  # registration
     'rest_framework', # DRF
     'rest_framework.authtoken',
-    'rest_framework_swagger',# Swagger
     'rest_auth',
     'rest_auth.registration',
 ]
@@ -88,7 +87,7 @@ MIGRATION_MODULES = {
 # DEBUG
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = env.bool('DJANGO_DEBUG', False)
+DEBUG = True #env.bool('DJANGO_DEBUG', False)
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
