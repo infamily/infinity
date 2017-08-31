@@ -302,7 +302,8 @@ SWAGGER_BASE_URL = None
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS += [
-    'corsheaders'
+    'corsheaders',
+    'captcha'
 ]
 
 MIDDLEWARE += [
@@ -319,3 +320,7 @@ CORS_ALLOW_METHODS = (
     'POST',
     'PUT',
 )
+
+SOUTH_MIGRATION_MODULES = {
+    'captcha': 'captcha.south_migrations',
+}

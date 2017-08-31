@@ -5,6 +5,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import User
 
+from rest_framework import views
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
+from django.http import HttpResponse
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
@@ -43,3 +51,16 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
+
+class RestCaptchaView(views.APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    def get(self, request):
+        new_key = CaptchaStore.pick()
+        to_json_response = {
+            'key': new_key,
+            'image_url': captcha_image_url(new_key),
+        }
+        print(3)
+        print(to_json_response)
+        return HttpResponse(json.dumps(to_json_response), content_type='application/json')
