@@ -48,7 +48,7 @@ X_FRAME_OPTIONS = 'DENY'
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['.infty.xyz', '.wefindx.io'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['.infty.xyz', '.wefindx.io', '.wfx.io'])
 # END SITE CONFIGURATION
 
 # INSTALLED_APPS += ['gunicorn', ]
@@ -146,5 +146,3 @@ ADMIN_URL = env('DJANGO_ADMIN_URL')
 
 # Your production stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
-
-SWAGGER_BASE_URL = "https://test.wefindx.io/"
