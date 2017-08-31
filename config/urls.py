@@ -20,7 +20,8 @@ urlpatterns = [
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^captcha/new', views.RestCaptchaView.as_view())
+    url(r'^otp/singup/', views.OTPRegister.as_view()),
+    url(r'^otp/login/', views.OTPLogin.as_view())
 
 
     # Your stuff: custom urls includes go here
