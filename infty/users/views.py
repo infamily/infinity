@@ -66,7 +66,7 @@ class OTPRegister(views.APIView):
         }
         return HttpResponse(json.dumps(to_json_response), content_type='application/json')
     def post(self, request):
-        json_data = json.loads(request.body)
+        json_data = json.loads(request.body.decode('utf-8'))
         form = SignupForm(json_data)
         if form.is_valid():
             email = form.cleaned_data.get("email")
