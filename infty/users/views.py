@@ -1,10 +1,21 @@
 from django.core.urlresolvers import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
 
-from .models import User
+from rest_framework import views
+from rest_framework.authtoken.models import Token
 
+from captcha.helpers import captcha_image_url
+from captcha.models import CaptchaStore
+
+from .models import User, OneTimePassword
+from .forms import SignupForm, OneTimePasswordLoginForm
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
@@ -43,3 +54,33 @@ class UserListView(LoginRequiredMixin, ListView):
     # These next two lines tell the view to index lookups by username
     slug_field = 'username'
     slug_url_kwarg = 'username'
+
+class OTPRegister(views.APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    def get(self, request):
+        new_key = CaptchaStore.pick()
+        to_json_response = {
+            'key': new_key,
+            'image_url': captcha_image_url(new_key),
+        }
+        return HttpResponse(json.dumps(to_json_response), content_type='application/json')
+    def post(self, request):
+        json_data = json.loads(request.body.decode('utf-8'))
+        form = SignupForm(json_data)
+        if form.is_valid():
+            email = form.cleaned_data.get("email")
+            if email:
+                email=email.lower()
+                user, created = User.objects.get_or_create(email=email, username=email, is_active=True)
+                OneTimePassword.objects.filter(user=user, is_active=True).update(is_active=False)
+                password = OneTimePassword.objects.create(user=user)
+                token, created = Token.objects.get_or_create(user=user)
+                print("One Time Password", password.one_time_password)
+                return HttpResponse(json.dumps({'token': token.key}), content_type='application/json')
+        return HttpResponseBadRequest()
+
+class OTPLogin(views.APIView):
+    def post(self, request):
+        user = request.user
+        return HttpResponse()

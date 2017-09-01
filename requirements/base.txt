@@ -55,3 +55,5 @@ djangorestframework==3.6.3
 django-rest-auth==0.9.1
 
 django-cors-headers==2.1.0
+
+django-simple-captcha==0.5.5
