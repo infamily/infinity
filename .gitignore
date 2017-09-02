@@ -67,3 +67,4 @@ staticfiles/
 
 .cache/
 
+deploy/libcloud/linode/libcloud-key.txt

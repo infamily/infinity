@@ -1,0 +1,11 @@
+#!/bin/sh
+
+export DJANGO_READ_DOT_ENV_FILE=1
+
+env/bin/pip install -r requirements/production.txt
+env/bin/python manage.py migrate --no-input
+env/bin/python manage.py collectstatic --no-input
+
+sudo service test-celerybeat restart
+sudo service test-celeryworker restart
+sudo service test-web restart

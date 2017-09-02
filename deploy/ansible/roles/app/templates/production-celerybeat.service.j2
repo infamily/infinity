@@ -1,0 +1,17 @@
+[Unit]
+Description=Celerybeat Service
+After=network.target
+Requires={{ system_variant }}-celeryworker.service
+Requires={{ system_variant }}-celerybeat.service
+
+[Service]
+Type=simple
+User={{ system_user }}
+Group={{ system_group }}
+WorkingDirectory={{ approot }}
+ExecStart={{ approot }}/env/bin/celery -A server.apps.celery beat -l INFO
+EnvironmentFile={{ approot }}/.env
+
+[Install]
+WantedBy=multi-user.target
+

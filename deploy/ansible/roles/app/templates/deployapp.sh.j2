@@ -1,0 +1,9 @@
+#!/bin/sh
+cd {{ approot }}
+source env/bin/activate
+export CPLUS_INCLUDE_PATH=/usr/include/gdal
+export C_INCLUDE_PATH=/usr/include/gdal
+env/bin/pip install -r requirements/production.txt
+env/bin/pip install -r requirements/local.txt
+env/bin/pip install celery
+env/bin/pip install uwsgi

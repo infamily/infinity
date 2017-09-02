@@ -1,0 +1,19 @@
+- name: perform installation on all hosts
+  hosts: all
+  vars:
+   - admin_email: mindey@mindey.com
+   - system_group: ubuntu
+   - system_user: ubuntu
+   - system_variant: test # production
+   - app_name: server
+   - approot: "/home/{{ system_user }}/{{ app_name }}"
+   - pg_admin_user: postgres
+   - postgresql_role: "{{ system_user }}"
+   - postgresql_dbname: test_db
+   - pg_version: 9.5
+   - pg_cluster: main
+  roles:
+   - serverprepare
+   - nginxssl
+   - postgresql
+   - app

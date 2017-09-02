@@ -1,0 +1,11 @@
+server {
+        listen 80;
+        server_name  {{ inventory_hostname }};
+	location /.well-known{alias /var/www/html/.well-known;}
+	location / {
+	        return       301 https://$host$request_uri;
+	}
+        access_log /var/log/nginx/{{ inventory_hostname }}_access.log;
+        error_log /var/log/nginx/{{ inventory_hostname }}_error.log;
+}
+
