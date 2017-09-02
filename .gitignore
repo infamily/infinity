@@ -68,3 +68,5 @@ staticfiles/
 .cache/
 
 deploy/libcloud/linode/libcloud-key.txt
+deploy/ansible/roles/app/files/.ssh/id_rsa
+deploy/ansible/roles/app/files/.ssh/id_rsa.pub
