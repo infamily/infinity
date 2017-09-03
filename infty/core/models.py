@@ -16,9 +16,9 @@ class GenericModel(models.Model):
         abstract = True
 
 
-class Thing(GenericModel):
+class Item(GenericModel):
     """
-    F: Things are references to anything with respect to which we
+    F: Items are references to anything with respect to which we
     will formulate goals. To be implemented in blockchain db.
     """
     ASSET = 0
@@ -27,7 +27,7 @@ class Thing(GenericModel):
     EVENT = 3
     TOPIC = 4
 
-    THING_TYPES = [
+    ITEM_TYPES = [
         (ASSET, 'Asset'),
         (AGENT, 'Agent'),
         (PLACE, 'Place'),
@@ -35,7 +35,7 @@ class Thing(GenericModel):
         (TOPIC, 'Topic'),
     ]
 
-    type = models.PositiveSmallIntegerField(THING_TYPES, default=TOPIC)
+    type = models.PositiveSmallIntegerField(ITEM_TYPES, default=TOPIC)
 
 
 class Topic(GenericModel):
