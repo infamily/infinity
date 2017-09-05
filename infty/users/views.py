@@ -78,7 +78,12 @@ class OTPRegister(views.APIView):
                 token, created = Token.objects.get_or_create(user=user)
                 print("One Time Password", password.one_time_password)
                 return HttpResponse(json.dumps({'token': token.key}), content_type='application/json')
-        return HttpResponseBadRequest()
+        new_key = CaptchaStore.pick()
+        to_json_response = {
+            'key': new_key,
+            'image_url': captcha_image_url(new_key),
+        }
+        return HttpResponseBadRequest(json.dumps(to_json_response))
 
 class OTPLogin(views.APIView):
     def post(self, request):
