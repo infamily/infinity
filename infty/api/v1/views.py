@@ -4,6 +4,7 @@ from infty.core.models import Topic, Comment, CommentSnapshot, Transaction
 from infty.api.v1.serializers import *
 
 from rest_framework import viewsets, mixins
+from rest_framework import filters
 
 
 class CustomViewSet(mixins.CreateModelMixin,
@@ -22,6 +23,8 @@ class TopicViewSet(CustomViewSet):
 
     serializer_class = TopicSerializer
     queryset = Topic.objects.all()
+    search_fields = ['title']
+    filter_backends = (filters.SearchFilter,)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
