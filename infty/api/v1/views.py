@@ -11,6 +11,7 @@ class CustomViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    mixins.UpdateModelMixin,
                    mixins.ListModelMixin,
+                   mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     """
     A viewset that provides default `create()`, `retrieve()`, `update()`,
