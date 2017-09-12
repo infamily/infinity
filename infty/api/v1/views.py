@@ -35,6 +35,8 @@ class CommentViewSet(CustomViewSet):
 
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
+    search_fields = ['text']
+    filter_backends = (filters.SearchFilter,)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
