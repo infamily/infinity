@@ -18,7 +18,7 @@ class GenericModel(models.Model):
 
 class Type(GenericModel):
     """
-    A Type is a reference to a definition of a concept by its qualities:
+    A Type is a snapshot of a definition of a concept by its qualities:
 
     we often formulate goals with respect to classes of items, however,
     as soon as we conceptualize a class of items distinguished by shared
