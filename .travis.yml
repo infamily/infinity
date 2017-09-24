@@ -40,10 +40,8 @@ before_script:
 
 script:
   - ./manage.py test
+  - docker-compose -f production.yml build  # check our containers are able to build
 
 after_success:
-  - docker-compose -f production.yml build
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-      docker push $DOCKER_COMPANY/$DOCKER_REPO;
-    fi
+  - echo "OK"
+
