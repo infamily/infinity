@@ -88,17 +88,19 @@ class Topic(GenericModel):
     to start with for people. We'll introduce the fields of 'STEP'
     (e.g., planning I/O, https://github.com/wefindx/StepIO) later.
     """
-    NEED = 0 # Goal condition
-    GOAL = 1
-    IDEA = 2
-    PLAN = 3
-    TASK = 4
+    NEED = 0 # A condition
+    GOAL = 1 # Set of conditions
+    IDEA = 2 # A transformation
+    PLAN = 3 # Instance of Idea(s)
+    STEP = 4 # Decomposition of plan
+    TASK = 5 # Terminal step (action).
 
     TOPIC_TYPES = [
         (NEED, 'Need'),
         (GOAL, 'Goal'),
         (IDEA, 'Idea'),
         (PLAN, 'Plan'),
+        (STEP, 'Step'),
         (TASK, 'Task'),
     ]
 
