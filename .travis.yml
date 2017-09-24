@@ -1,4 +1,22 @@
-sudo: true
+sudo: required
+language: python
+cache: pip
+
+python:
+  - "3.5"
+
+services:
+  - docker
+
+addons:
+  postgresql: "9.6"
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DJANGO_SETTINGS_MODULE=config.settings.test
+    - DATABASE_URL=postgres:///localhost:5432/infty?user=postgres
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
@@ -6,6 +24,26 @@ before_install:
   - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
   - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
   - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
-language: python
-python:
-  - "3.5"
+
+  # update docker & docker-compose
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+install:
+  - pip install -r requirements/test.txt
+
+before_script:
+  - psql -c 'create database infty;' -U postgres
+
+script:
+  - ./manage.py test
+
+after_success:
+  - docker-compose -f production.yml build
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+      docker push $DOCKER_COMPANY/$DOCKER_REPO;
+    fi
