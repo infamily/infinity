@@ -98,7 +98,12 @@ FIXTURE_DIRS = (
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
+
+if SENDGRID_API_KEY:
+    EMAIL_BACKEND = "sgbackend.SendGridBackend"
+else:
+    EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
