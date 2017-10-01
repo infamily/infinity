@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -76,6 +78,13 @@ class OTPRegister(views.APIView):
                 OneTimePassword.objects.filter(user=user, is_active=True).update(is_active=False)
                 password = OneTimePassword.objects.create(user=user)
                 token, created = Token.objects.get_or_create(user=user)
+                send_mail(
+                    "{} - One-Time Password".format(
+                        settings.EMAIL_SUBJECT_PREFIX),
+                    password.one_time_password,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email]
+                )
                 print("One Time Password", password.one_time_password)
                 return HttpResponse(json.dumps({'token': token.key}), content_type='application/json')
         new_key = CaptchaStore.pick()
