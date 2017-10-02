@@ -45,4 +45,3 @@ script:
 
 after_success:
   - echo "OK"
-
