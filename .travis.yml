@@ -16,6 +16,8 @@ env:
     - DOCKER_COMPOSE_VERSION=1.16.1
     - DJANGO_SETTINGS_MODULE=config.settings.test
     - DATABASE_URL=postgres:///localhost:5432/infty?user=postgres
+    - DJANGO_READ_DOT_ENV_FILE=1
+    - DJANGO_DOT_ENV_FILE=.env_production
 
 before_install:
   - sudo apt-get update -qq
@@ -24,6 +26,9 @@ before_install:
                              liblcms1-dev libwebp-dev graphviz-dev firefox automake libtool libreadline6
                              libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev libssl-dev
                              libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv python-pip
+
+  # decrypt .env_production
+  - openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv -in .env_production.enc -out .env_production -d
 
   # update docker & docker-compose
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce

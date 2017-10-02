@@ -11,6 +11,20 @@ Infty Project
 :License: GPLv3
 
 
+Local (Development) installation
+--------------------------------
+todo:
+.env, DOT_ENV_FILE, READ_DOT_ENV_FILE
+
+
+Deployment
+-----------------------
+todo:
+travis encrypt-decrypt file
+deploy using docker
+etc
+
+
 Settings
 --------
 
