@@ -44,7 +44,7 @@ before_script:
   - psql -c 'create database infty;' -U postgres
 
 script:
-  - ./manage.py test
+  - ./manage.py test  # run tests
   - docker-compose -f production.yml build  # check our containers are able to build
 
 after_success:
