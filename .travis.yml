@@ -19,11 +19,12 @@ env:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
-  - sudo apt-get install -qq libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev
-  - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
-  - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
-  - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
+  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb libtiff4-dev libjpeg8-dev \
+                             libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev libjpeg8-dev libfreetype6-dev \
+                             liblcms1-dev libwebp-dev graphviz-dev firefox automake libtool libreadline6 \
+                             libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev libssl-dev \
+                             libbz2-dev wget curl llvm
+  - sudo apt-get install -qq python-setuptools python3-dev python-virtualenv python-pip
 
   # update docker & docker-compose
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
