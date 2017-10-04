@@ -53,7 +53,10 @@ script:
   # So the right way: to use Ansible Vault.
 
 after_success:
-  - echo "OK"
+  - echo "Build success..."
+  - echo "Push docker image to the Docker Hub..."
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push wefindx/infty:latest
 
 after_fail:
   - echo "Eto fiasko, bratan :("
