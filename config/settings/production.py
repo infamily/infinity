@@ -9,8 +9,6 @@ Production Configurations
 
 
 """
-import logging
-
 
 from .base import *  # noqa
 
@@ -136,13 +134,10 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': ROOT_DIR.file('django.log').name,
+            'filename': '/var/log/django.log',
         },
     },
 }
-
-# Custom Admin URL, use {% url 'admin:index' %}
-ADMIN_URL = env('DJANGO_ADMIN_URL')
 
 # Your production stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
