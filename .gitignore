@@ -68,8 +68,10 @@ staticfiles/
 .cache/
 
 deploy/libcloud/linode/libcloud-key.txt
-deploy/ansible/roles/app/files/.ssh/id_rsa
-deploy/ansible/roles/app/files/.ssh/id_rsa.pub
+
+deploy/ansible/roles/infty/files
+deploy/ansible/roles/infty/templates
+deploy/ansible/*.retry
 
 .env*
 !.env_production.enc
