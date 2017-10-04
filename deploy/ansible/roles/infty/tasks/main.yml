@@ -4,8 +4,8 @@
   docker_service:
     project_src: "{{ playbook_dir }}/../../"
     files:
-      - local.yml
-    build: yes
+      - production.yml
+    build: no
   register: output
 
 - debug:
