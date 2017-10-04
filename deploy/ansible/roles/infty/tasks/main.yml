@@ -1,0 +1,16 @@
+---
+
+- name: docker services from docker-compose.yml
+  docker_service:
+    project_src: "{{ playbook_dir }}/../../"
+    files:
+      - local.yml
+    build: yes
+  register: output
+
+- debug:
+    var: output
+
+#  - assert:
+#    that:
+#      - "web."
