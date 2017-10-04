@@ -69,8 +69,6 @@ staticfiles/
 
 deploy/libcloud/linode/libcloud-key.txt
 
-deploy/ansible/roles/infty/files
-deploy/ansible/roles/infty/templates
 deploy/ansible/*.retry
 
 .env*
