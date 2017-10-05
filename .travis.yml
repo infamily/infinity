@@ -46,6 +46,7 @@ install:
 
 script:
   - ./manage.py test  # run tests
+  - echo "" > .env_production  # dummy for build
   - docker-compose -f production.yml build  # build docker image
 
 after_success:
