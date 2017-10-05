@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - deploy/ansible/roles/infty
+    - deploy/ansible/roles/app

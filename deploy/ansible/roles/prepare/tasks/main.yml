@@ -20,15 +20,3 @@
     dest: "{{ base_dir }}/.env_production"
     decrypt: yes
     force: yes
-
-- name: up docker services
-  docker_service:
-    project_src: "{{ base_dir }}"
-    files:
-      - production.yml
-    build: no
-    pull: yes
-  register: output
-
-- debug:
-    var: output

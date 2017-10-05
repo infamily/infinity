@@ -3,5 +3,6 @@
 - name: application server
   hosts: all
   roles:
+    - roles/prepare
     - roles/nginx
-    - roles/infty
+    - roles/app
