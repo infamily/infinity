@@ -46,30 +46,19 @@ install:
 
 script:
   - ./manage.py test  # run tests
-#  - docker-compose -f production.yml build  # build docker image
-
-  # then upload build image on docker hub
-  # then run ansible playbook on remote (staging) host
-  # enjoy
-
-  # TODO:
-  # Now we are encrypt sensitive environment variables via travis
-  # but this non-effective because we will publish docker image to the public hub
-  # and it will contain DECRYPTED version of environment file.
-  #
-  # So the right way: to use Ansible Vault.
+  - docker-compose -f production.yml build  # build docker image
 
 after_success:
   - echo "Build success..."
   - echo "Push docker image to the Docker Hub..."
-#  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-#  - docker push wefindx/infty:latest
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker push wefindx/infty:latest
 
 after_fail:
   - echo "Eto fiasko, bratan :("
 
 deploy:
   provider: script
-  script: deploy/scripts/deploy.sh
+  script: ./deploy/scripts/deploy.sh
   on:
     branch: dockerize
