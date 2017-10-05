@@ -50,10 +50,12 @@ script:
   - docker-compose -f production.yml build  # build docker image
 
 after_success:
+  # todo: deploy only master branch
   - echo "Build success..."
   - echo "Push docker image to the Docker Hub..."
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push wefindx/infty:latest
+  - ./deploy/scripts/deploy.sh
 
 after_failure:
   - echo "Eto fiasko, bratan :("
