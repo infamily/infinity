@@ -34,7 +34,6 @@ services:
       DJANGO_SETTINGS_MODULE: config.settings.production
       DJANGO_READ_DOT_ENV_FILE: 1
       DJANGO_DOT_ENV_FILE: .env_production
-      DJANGO_SECRET_KEY: s-D-7v`vUdCgexWt=6edL97ff$pmjEUI17^hOjx6Ct;$O;m@v<
       DATABASE_URL: postgres://postgres@postgres:5432/postgres
       REDIS_URL: redis://redis:6379
       DJANGO_ADMIN_URL: ^admin/

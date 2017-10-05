@@ -71,5 +71,8 @@ deploy/libcloud/linode/libcloud-key.txt
 
 deploy/ansible/*.retry
 
+.vault_password.txt
 .env*
+
 !.env_production.enc
+!.env_production.vault
