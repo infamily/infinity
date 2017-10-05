@@ -2,6 +2,9 @@
 ENVIRONMENT=$1
 PRIVATE_KEY="~/.ssh/${ENVIRONMENT}"
 
+echo $(pwd)
+echo `ls`
+
 echo "Push docker image to the Docker Hub..."
 docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 docker push wefindx/infty:latest
