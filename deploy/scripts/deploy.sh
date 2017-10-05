@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-ansible-playbook -vv -i deploy/ansible/inventories/staging deploy/ansible/site.yml
+echo "Run ansible playbook..."
+ansible-playbook -vvvv -i deploy/ansible/inventories/staging deploy/ansible/site.yml
