@@ -52,7 +52,8 @@ script:
   - docker-compose -f production.yml build  # build docker image
 
 after_success:
-  # todo: deploy only master branch
+  # todo: trigger only on development branch and rebase "master" after success and then push images, etc.
+
   - echo "Build success..."
   - echo "Push docker image to the Docker Hub..."
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
