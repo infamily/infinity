@@ -4,7 +4,7 @@ echo "Run update packages list..."
 apt-get update
 
 echo "Install libraries..."
-apt-get install apt-transport-https ca-certificates curl software-properties-common
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
 echo "Download & add docker repository key..."
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -14,9 +14,17 @@ echo "Run update packages list..."
 apt-get update
 
 echo "Install docker..."
-apt-get install docker-ce
+apt-get install -y docker-ce
 
-echo "Install compose..."
-curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` > docker-compose
-chmod +x docker-compose
-mv docker-compose /usr/local/bin
+echo "Install python-pip..."
+apt-get install -y python-pip
+export LC_ALL=C
+
+echo "Upgrade python..."
+pip install --upgrade pip
+
+echo "Install docker-py"
+pip install docker-py>=1.7.0
+
+echo "Install docker-compose"
+pip install docker-compose>=1.16.1
