@@ -1,21 +1,7 @@
 ---
-#
-#- name: http server
-#  hosts: all
-#  roles:
-#    - matic-insurance.docker-nginx
-#
-#- name: database server
-#  hosts: all
-#  roles:
-#    - matic-insurance.docker-postgres
-#
-#- name: cache server
-#  hosts: all
-#  roles:
-#   - matic-insurance.docker-redis
 
 - name: application server
   hosts: all
   roles:
     - roles/infty
+    - roles/nginx
