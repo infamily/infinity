@@ -70,6 +70,7 @@ staticfiles/
 deploy/libcloud/linode/libcloud-key.txt
 
 deploy/ansible/*.retry
+deploy/ansible/roles/infty/files/*
 
 .vault_password.txt
 .env*
