@@ -1,16 +1,42 @@
 ---
 
+- name: copy github deploy key
+  copy:
+    src: files/id_rsa
+    dest: /root/.ssh/id_rsa
+    owner: root
+    group: root
+    mode: 0600
+
+- name: update code from repository
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ base_dir }}"
+    version: "{{ git_repo_tag }}"
+    update: yes
+    force: yes
+
+# because it is gitignored and doesn't absents with git:force
+- name: remove old production env file
+  file:
+    state: absent
+    path: "{{ base_dir }}/.env_production"
+
+- name: copy encrypted production env file
+  copy:
+    src: "../../.env_production.vault"
+    dest: "{{ base_dir }}/.env_production"
+    decrypt: yes
+    force: yes
+
 - name: docker services from docker-compose.yml
   docker_service:
-    project_src: "{{ playbook_dir }}/../../"
+    project_src: "{{ base_dir }}"
     files:
       - production.yml
     build: no
+    pull: yes
   register: output
 
 - debug:
     var: output
-
-#  - assert:
-#    that:
-#      - "web."
