@@ -44,12 +44,12 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 install:
-  - pip install -r requirements/test.txt
+#  - pip install -r requirements/test.txt
 
 script:
-  - ./manage.py test  # run tests
-  - echo "" > .env_production  # dummy for build
-  - docker-compose -f production.yml build  # build docker image
+#  - ./manage.py test  # run tests
+  - echo "" > .env_production  # dummy for building the image
+#  - docker-compose -f production.yml build  # build docker image
 
 after_success:
   - echo "Build success!"
