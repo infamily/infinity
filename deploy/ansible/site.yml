@@ -3,5 +3,5 @@
 - name: application server
   hosts: all
   roles:
-    - roles/infty
     - roles/nginx
+    - roles/infty

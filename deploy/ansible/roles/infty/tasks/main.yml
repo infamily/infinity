@@ -14,7 +14,7 @@
     state: absent
     path: "{{ base_dir }}/.env_production"
 
-- name: copy encrypted production env file
+- name: decrypt production env file
   copy:
     src: "../../.env_production.vault"
     dest: "{{ base_dir }}/.env_production"
