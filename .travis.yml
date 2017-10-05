@@ -57,6 +57,3 @@ after_success:
 
 after_failure:
   - echo "Eto fiasko, bratan :("
-
-after_script:
-  - ./deploy/scripts/deploy.sh
