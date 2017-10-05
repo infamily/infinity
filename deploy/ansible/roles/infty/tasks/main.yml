@@ -1,13 +1,5 @@
 ---
 
-- name: copy github deploy key
-  copy:
-    src: files/id_rsa
-    dest: /root/.ssh/id_rsa
-    owner: root
-    group: root
-    mode: 0600
-
 - name: update code from repository
   git:
     repo: "{{ git_repo }}"
