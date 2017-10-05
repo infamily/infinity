@@ -46,3 +46,5 @@ services:
       - web
     ports:
       - "80:80"
+    volumes:
+      - ./compose/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
