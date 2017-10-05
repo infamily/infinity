@@ -22,7 +22,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./compose/django/Dockerfile
+      dockerfile: ./compose/web/Dockerfile
       args:
         requirements_file: local.txt
     image: wefindx/infty:dev

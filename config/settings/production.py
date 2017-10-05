@@ -46,7 +46,7 @@ X_FRAME_OPTIONS = 'DENY'
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['.infty.xyz', '.wefindx.io', '.wfx.io'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost', '.infty.xyz', '.wefindx.io', '.wfx.io'])
 # END SITE CONFIGURATION
 
 # INSTALLED_APPS += ['gunicorn', ]

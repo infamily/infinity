@@ -22,7 +22,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./compose/django/Dockerfile
+      dockerfile: ./compose/web/Dockerfile
       args:
         requirements_file: production.txt
     image: wefindx/infty:latest
@@ -39,6 +39,8 @@ services:
       DJANGO_ADMIN_URL: ^admin/
     env_file:
       - .env_production
+    ports:
+      - "8000:8000"
 
   nginx:
     image: nginx:1.12.1
@@ -46,8 +48,10 @@ services:
       - web
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./compose/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./compose/nginx/sites-available:/etc/nginx/sites-available
+      - ./compose/nginx/conf.d:/etc/nginx/conf.d
+      - /var/log/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt
       - /etc/ssl/certs/

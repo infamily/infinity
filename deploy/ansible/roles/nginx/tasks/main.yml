@@ -2,5 +2,5 @@
 
 - name: template nginx servers
   template:
-    src: templates/https.conf.j2
-    dest: "{{ base_dir }}/compose/nginx/sites-available/default"
+    src: templates/web.conf.j2
+    dest: "{{ base_dir }}/compose/nginx/conf.d/web.conf"
