@@ -32,6 +32,10 @@ before_install:
   # decrypt ansible-vault password
   - openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv -in .vault_password.txt.enc -out .vault_password.txt -d
 
+  - echo $(pwd)
+  - echo `ls -la`
+
+
   # decrype & place deploy keys
   - ansible-vault decrypt staging.vault --output staging.key
   - mv staging.key ~/.ssh/staging
@@ -54,7 +58,7 @@ script:
 after_success:
   - echo "Build success!"
   - echo $(pwd)
-  - echo `ls`
+  - echo `ls -la`
 
 after_failure:
   - echo "Eto fiasko, bratan :("
