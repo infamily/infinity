@@ -1,4 +1,4 @@
 ---
 git_repo_tag: dockerize
 git_repo: git@github.com:wefindx/infty2.0.git
-base_dir: "/root/infty2.0"
+
