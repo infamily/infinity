@@ -19,6 +19,7 @@ explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
 
 Setup the node
 --------------
+NB!: ```ansible-galaxy install thefinn93.letsencrypt```
 ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
 
 
