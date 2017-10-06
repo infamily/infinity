@@ -17,25 +17,20 @@ WIP
 explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
 
 
+Setup the node
+--------------
+ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
+
+
 Deployment
------------------------
-Setup the node:
+----------
+ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml
 
-1. Install git
-2. Clone the repo
-3. Run ```utility/install_docker.sh``` for install docker & its stuff
-4. Run ```utility/install_certbot.sh``` for install certbot & obtain the SSL keys
-5. Run ```utility/setup_keys.sh``` for generate repository deploy key and setup public key to make possible
-CI server access the node
 
-* Add presented public key to the repo
-* Prepare deployment key pair and paste public key
-
-6. Trigger build
-
-travis encrypt-decrypt file
-deploy using docker
-etc
+Deployment from Travis
+----------------------
+You should to add public key (travis_rsa.pub, for e.g.) to the node's authorized_keys
+The encrypted (ansible-vault) private key (named travis_rsa.vault) should be added to the repo
 
 
 Settings
