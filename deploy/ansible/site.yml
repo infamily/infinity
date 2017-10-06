@@ -16,6 +16,11 @@
     - role: roles/docker
       when: run_scenario == "init"
 
-    - roles/prepare
-    - roles/nginx
-    - roles/app
+    - role: roles/prepare
+      when: run_scenario == "deploy"
+
+    - role: roles/nginx
+      when: run_scenario == "deploy"
+
+    - role: roles/app
+      when: run_scenario == "deploy"
