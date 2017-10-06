@@ -2,13 +2,7 @@
 ENVIRONMENT=$1
 PRIVATE_KEY="~/.ssh/${ENVIRONMENT}"
 
-echo $(pwd)
-echo `ls -la`
-
 openssl aes-256-cbc -K ${encrypted_da6636aa33f2_key} -iv ${encrypted_da6636aa33f2_iv} -in .vault_password.txt.enc -out .vault_password.txt -d
-
-echo $(pwd)
-echo `ls -la`
 
 echo "Push docker image to the Docker Hub..."
 docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
