@@ -4,5 +4,5 @@
   hosts: all
   roles:
     - roles/prepare
-    - roles/nginx
-    - roles/app
+#    - roles/nginx
+#    - roles/app

@@ -1,2 +1,3 @@
 ---
-# vars file for deploy/ansible/roles/prepare
+git_repo_tag: dockerize
+git_repo: git@github.com:wefindx/infty2.0.git
