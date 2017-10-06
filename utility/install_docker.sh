@@ -23,8 +23,10 @@ export LC_ALL=C
 echo "Upgrade python..."
 pip install --upgrade pip
 
-echo "Install docker-py"
+echo "Install docker-py..."
 pip install docker>=2.0.1
 
-echo "Install docker-compose"
+echo "Install docker-compose..."
 pip install docker-compose>=1.16.1
+
+echo "Done"
