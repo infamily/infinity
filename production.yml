@@ -52,4 +52,4 @@ services:
       - ./compose/nginx/conf.d:/etc/nginx/conf.d:ro
       - /var/log/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /etc/ssl/certs/:ro
+      - /etc/ssl/certs/:/etc/ssl/certs:ro
