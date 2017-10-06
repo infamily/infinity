@@ -13,13 +13,26 @@ Infty Project
 
 Local (Development) installation
 --------------------------------
-todo:
-.env, DOT_ENV_FILE, READ_DOT_ENV_FILE
+WIP
+explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
 
 
 Deployment
 -----------------------
-todo:
+Setup the node:
+
+1. Install git
+2. Clone the repo
+3. Run ```utility/install_docker.sh``` for install docker & its stuff
+4. Run ```utility/install_certbot.sh``` for install certbot & obtain the SSL keys
+5. Run ```utility/setup_keys.sh``` for generate repository deploy key and setup public key to make possible
+CI server access the node
+
+* Add presented public key to the repo
+* Prepare deployment key pair and paste public key
+
+6. Trigger build
+
 travis encrypt-decrypt file
 deploy using docker
 etc
