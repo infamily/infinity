@@ -29,6 +29,8 @@ before_install:
                              libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv python-pip
                              software-properties-common ansible
 
+  - ansible-galaxy install thefinn93.letsencrypt
+
   # decrypt ansible-vault password
   - openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv -in .vault_password.txt.enc -out .vault_password.txt -d
 
