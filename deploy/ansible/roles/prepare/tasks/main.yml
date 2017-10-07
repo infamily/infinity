@@ -20,3 +20,8 @@
     dest: "{{ base_dir }}/.env_production"
     decrypt: yes
     force: yes
+
+- name: ensure static files directory
+  file:
+    path: /var/www/static
+    state: directory
