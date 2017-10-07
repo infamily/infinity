@@ -19,6 +19,10 @@ env:
     - ANSIBLE_HOST_KEY_CHECKING=False
     - ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt
 
+branches:
+  only:
+  - development
+
 before_install:
   - sudo apt-add-repository -y ppa:ansible/ansible
   - sudo apt-get update -qq
