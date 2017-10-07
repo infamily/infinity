@@ -59,10 +59,12 @@ script:
 
 after_success:
   - echo "Build success"
-  - ./deploy/scripts/git-merge-push.sh
 
 after_failure:
   - echo "Eto fiasko, bratan :("
+
+before_deploy:
+  - ./deploy/scripts/git-merge-push.sh
 
 deploy:
   provider: script
