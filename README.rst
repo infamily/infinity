@@ -29,7 +29,7 @@ So the ```.env_production``` should be ENCRYPTED with password that stored in th
 
 Next, for example, to setup the node from "staging" inventory, run:
 
-* ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
+* ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
 
 
 
