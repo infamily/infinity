@@ -39,6 +39,8 @@ services:
       DJANGO_ADMIN_URL: ^admin/
     env_file:
       - .env_production
+    volumes:
+      - /var/www/static:/app/staticfiles
 
   nginx:
     image: nginx:1.12.1
@@ -53,3 +55,4 @@ services:
       - /var/log/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /etc/ssl/certs/:/etc/ssl/certs:ro
+      - /var/www/static:/var/www/static
