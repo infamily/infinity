@@ -58,7 +58,8 @@ script:
   - docker-compose -f production.yml build  # build docker image
 
 after_success:
-  - echo "Build success!"
+  - echo "Build success"
+  - ./deploy/scripts/git-merge-push.sh
 
 after_failure:
   - echo "Eto fiasko, bratan :("
