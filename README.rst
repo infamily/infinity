@@ -35,7 +35,7 @@ Next, for example, to setup the node from "staging" inventory, run:
 
 Deployment
 ----------
-ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml
+* ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml
 
 
 Deployment from Travis
