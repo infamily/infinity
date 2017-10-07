@@ -19,7 +19,7 @@ explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
 
 Setup the node
 --------------
-NB!: Install ```ansible-galaxy install thefinn93.letsencrypt```
+NB!: Install ```ansible-galaxy install thefinn93.letsencrypt``` (use at least ansible version 2.4.0.0)
 
 About ANSIBLE_VAULT_PASSWORD_FILE and .vault_password.txt
 This is the ansible-vault password file that should be presented and passed (with environment variable, for example)
