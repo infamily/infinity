@@ -77,7 +77,7 @@ class APITestCaseAuthorizedUser(APITestCase):
         self.transaction.save()
 
 
-class GetAPIRoot(APITestCase):
+class GetAPIRoot(APITestCaseAuthorizedUser):
 
     def test_can_access_api_root(self):
         response = self.client.get(reverse('topic-list'))
@@ -90,7 +90,7 @@ class CreateTopicList(APITestCaseAuthorizedUser):
 
         super(CreateTopicList, self).setUp()
 
-        self.topic_data = { 
+        self.topic_data = {
             'title': 'Test topic 1'
             }
 
@@ -109,7 +109,7 @@ class CreateTopicList(APITestCase):
 
     def setUp(self):
 
-        self.topic_data = { 
+        self.topic_data = {
             'title': 'Test topic 1'
             }
 
@@ -128,7 +128,7 @@ class CreateCommentList(APITestCaseAuthorizedUser):
 
         super(CreateCommentList, self).setUp()
 
-        self.comment_data = { 
+        self.comment_data = {
             'topic': self.topic_url,
             'text': 'Test comment text',
             'claimed_hours': 1.5,
@@ -150,7 +150,7 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
 
         super(CreateTransactionList, self).setUp()
 
-        self.transaction_data = { 
+        self.transaction_data = {
             'comment': self.comment_url,
             'snapshot': self.snapshot.pk,
             'hour_price': self.hprice.pk,
@@ -248,7 +248,7 @@ class UpdateTopic(APITestCaseAuthorizedUser):
             format="json"
         )
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
-    
+
     def test_invalid_update_channel(self):
 
         invalid_info = {
@@ -261,7 +261,7 @@ class UpdateTopic(APITestCaseAuthorizedUser):
             reverse('topic-detail', kwargs={'pk': self.topic.pk}),
             invalid_info,
             format="json")
-        
+
         self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -283,7 +283,7 @@ class UpdateComment(APITestCaseAuthorizedUser):
         )
 
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
-    
+
     def test_invalid_update_comment(self):
 
         invalid_info = {
@@ -297,9 +297,9 @@ class UpdateComment(APITestCaseAuthorizedUser):
             reverse('comment-detail', kwargs={'pk': self.comment.pk}),
             invalid_info,
             format="json")
-        
+
         self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+
 
 class UpdateTransaction(APITestCaseAuthorizedUser):
 
@@ -326,7 +326,7 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
         )
 
         self.assertEqual(self.response.status_code, status.HTTP_200_OK)
-    
+
     def test_invalid_update_transaction(self):
 
         invalid_info = {
@@ -347,5 +347,5 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
             reverse('transaction-detail', kwargs={'pk': self.transaction.pk}),
             invalid_info,
             format="json")
-        
+
         self.assertEqual(self.response.status_code, status.HTTP_400_BAD_REQUEST)

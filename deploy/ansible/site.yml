@@ -1,19 +1,26 @@
-- name: perform installation on all hosts
+---
+
+- name: application server
   hosts: all
   vars:
-   - admin_email: mindey@mindey.com
-   - system_group: ubuntu
-   - system_user: ubuntu
-   - system_variant: test # production
-   - app_name: server
-   - approot: "/home/{{ system_user }}/{{ app_name }}"
-   - pg_admin_user: postgres
-   - postgresql_role: "{{ system_user }}"
-   - postgresql_dbname: test_db
-   - pg_version: 9.5
-   - pg_cluster: main
+    run_scenario: "{{ scenario|default('deploy') }}"
+
   roles:
-   - serverprepare
-   - nginxssl
-   - postgresql
-   - app
+    - role: thefinn93.letsencrypt
+      letsencrypt_webroot_path: /var/www/html
+      letsencrypt_email: user@example.net
+      letsencrypt_cert_domains:
+        - test.wfx.io
+      when: run_scenario == "init"
+
+    - role: roles/docker
+      when: run_scenario == "init"
+
+    - role: roles/prepare
+      when: run_scenario == "deploy"
+
+    - role: roles/nginx
+      when: run_scenario == "deploy"
+
+    - role: roles/app
+      when: run_scenario == "deploy"

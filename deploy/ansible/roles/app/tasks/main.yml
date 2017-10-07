@@ -1,87 +1,12 @@
----
- - name: install application on behalf of {{ system_user }} user
-   block:
 
-     - name: copy the ssh keys for github
-       copy: src=files/.ssh dest=/home/{{ system_user }}/
-    
-     - name: chmod 600 id_rsa
-       file: path=/home/{{ system_user }}/.ssh/id_rsa mode=0600
-    
-     - name: git checkout
-       git: repo=ssh://git@github.com/wefindx/infty2.0.git dest={{ approot }} accept_hostkey=true
+- name: up docker services
+  docker_service:
+    project_src: "{{ base_dir }}"
+    files:
+      - production.yml
+    build: no
+    pull: yes
+  register: output
 
-     - name: upload .git/hooks/post-merge
-       copy: src=files/post-merge dest={{ approot }}/.git/hooks/
-
-     - name: chmod 755 post-merge
-       file: path={{ approot }}/.git/hooks/post-merge mode=0755
-
-     - name: add .env file
-       template: src=templates/env.j2 dest={{ approot }}/.env
-
-     - name: virtualenv -ppython3 env
-       shell: virtualenv -ppython3 {{ approot }}/env
-
-     - name: upload auxiliary deployment script
-       template: src=templates/deployapp.sh.j2 dest=/tmp/deployapp.sh
-
-     - name: run the uploaded script
-       shell: bash /tmp/deployapp.sh
-
-   become_user: "{{ system_user }}"
-   become: true
-
- - name: create log directory
-   file: path=/var/log/{{ system_variant }} state=directory owner={{ system_user }}
-   become: true
-
- - name: ensure uwsgi log file exists
-   copy:
-       content: ""
-       dest: /var/log/{{ system_variant }}/{{ system_variant }}-uwsgi.log 
-       force: no
-       group: "{{ system_group }}"
-       owner: "{{ system_user }}"
-       mode: 0644
-   become: true
-
- - name: add logrotate entry
-   copy: src=files/uwsgi-{{ system_variant }}-logrotate dest=/etc/logrotate.d/
-   become: true
-
- - name: generate /lib/systemd/system/{{ system_variant }}-celeryworker.service
-   template: src=templates/{{ system_variant }}-celeryworker.service.j2 dest=/lib/systemd/system/{{ system_variant }}-celeryworker.service
-   become: true
-
- - name: generate /lib/systemd/system/{{ system_variant }}-celerybeat.service
-   template: src=templates/{{ system_variant }}-celerybeat.service.j2 dest=/lib/systemd/system/{{ system_variant }}-celerybeat.service
-   become: true
-
- - name: generate /lib/systemd/system/{{ system_variant }}-web.service
-   template: src=templates/{{ system_variant }}-web.service.j2 dest=/lib/systemd/system/{{ system_variant }}-web.service
-   become: true
-
- - name: enable {{ system_variant }}-celeryworker
-   systemd: name={{ system_variant }}-celeryworker enabled=yes
-   become: true
-
- - name: restart {{ system_variant }}-celeryworker
-   systemd: name={{ system_variant }}-celeryworker state=restarted daemon_reload=yes
-   become: true
-
- - name: enable {{ system_variant }}-celerybeat
-   systemd: name={{ system_variant }}-celerybeat enabled=yes
-   become: true
-
- - name: restart {{ system_variant }}-celerybeat
-   systemd: name={{ system_variant }}-celerybeat state=restarted daemon_reload=yes 
-   become: true
-
- - name: enable {{ system_variant }}-web
-   systemd: name={{ system_variant }}-web enabled=yes
-   become: true
-
- - name: restart {{ system_variant }}-web
-   systemd: name={{ system_variant }}-web state=restarted daemon_reload=yes
-   become: true
+- debug:
+    var: output

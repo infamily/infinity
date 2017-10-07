@@ -1,0 +1,22 @@
+---
+
+- name: update code from repository
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ base_dir }}"
+    version: "{{ git_repo_tag }}"
+    update: yes
+    force: yes
+
+# because it is gitignored and doesn't absents with git:force
+- name: remove old production env file
+  file:
+    state: absent
+    path: "{{ base_dir }}/.env_production"
+
+- name: decrypt production env file
+  copy:
+    src: "../../.env_production.vault"
+    dest: "{{ base_dir }}/.env_production"
+    decrypt: yes
+    force: yes

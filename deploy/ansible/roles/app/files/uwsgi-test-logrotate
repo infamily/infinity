@@ -1,7 +1,0 @@
-"/var/log/production/*.log" {
-    copytruncate
-    daily
-    rotate 5
-    compress
-    missingok
-}

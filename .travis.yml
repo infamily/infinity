@@ -1,11 +1,75 @@
-sudo: true
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
-  - sudo apt-get install -qq libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev
-  - sudo apt-get install -qq graphviz-dev python-setuptools python3-dev python-virtualenv python-pip
-  - sudo apt-get install -qq firefox automake libtool libreadline6 libreadline6-dev libreadline-dev
-  - sudo apt-get install -qq libsqlite3-dev libxml2 libxml2-dev libssl-dev libbz2-dev wget curl llvm
+sudo: required
 language: python
+cache: pip
+
 python:
   - "3.5"
+
+services:
+  - docker
+
+addons:
+  postgresql: "9.6"
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.16.1
+    - DJANGO_SETTINGS_MODULE=config.settings.test
+    - DATABASE_URL=postgres:///localhost:5432/postgres?user=postgres
+    - ANSIBLE_HOST_KEY_CHECKING=False
+    - ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt
+
+branches:
+  only:
+  - development
+  except:
+  - master
+
+before_install:
+  - sudo apt-add-repository -y ppa:ansible/ansible
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb libtiff4-dev libjpeg8-dev
+                             libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev libjpeg8-dev libfreetype6-dev
+                             liblcms1-dev libwebp-dev graphviz-dev firefox automake libtool libreadline6
+                             libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev libssl-dev
+                             libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv python-pip
+                             software-properties-common ansible
+
+  - ansible-galaxy install thefinn93.letsencrypt
+
+  # decrypt ansible-vault password
+  - openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv -in .vault_password.txt.enc -out .vault_password.txt -d
+
+  # decrypt & place deploy keys
+  - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
+  - mv travis_rsa.key ~/.ssh/travis_rsa
+
+   # update docker & docker-compose
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+install:
+  - pip install -r requirements/test.txt
+
+script:
+  - ./manage.py test  # run tests
+  - echo "" > .env_production  # dummy for building the image
+  - docker-compose -f production.yml build  # build docker image
+
+after_success:
+  - echo "Build success"
+
+after_failure:
+  - echo "Eto fiasko, bratan :("
+
+before_deploy:
+  - ./deploy/scripts/git-merge-push.sh
+
+deploy:
+  provider: script
+  script: ./deploy/scripts/deploy.sh travis_rsa
+  on:
+    all_branches: true

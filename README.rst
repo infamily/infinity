@@ -11,6 +11,39 @@ Infty Project
 :License: GPLv3
 
 
+Local (Development) installation
+--------------------------------
+WIP
+explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
+
+
+Setup the node
+--------------
+NB!: Install ```ansible-galaxy install thefinn93.letsencrypt```
+
+About ANSIBLE_VAULT_PASSWORD_FILE and .vault_password.txt
+This is the ansible-vault password file that should be presented and passed (with environment variable, for example)
+for decryption ```.env_production.vault``` on the production server.
+
+So the ```.env_production``` should be ENCRYPTED with password that stored in the ```.vault_password.txt``` file.
+
+Next, for example, to setup the node from "staging" inventory, run:
+
+* ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
+
+
+
+Deployment
+----------
+* ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml
+
+
+Deployment from Travis
+----------------------
+You should to add public key (travis_rsa.pub, for e.g.) to the node's authorized_keys
+The encrypted (ansible-vault) private key (named travis_rsa.vault) should be added to the repo
+
+
 Settings
 --------
 

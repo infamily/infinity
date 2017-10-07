@@ -9,6 +9,9 @@ Local settings
 - Add django-extensions as app
 """
 
+import os
+import socket
+
 from .base import *  # noqa
 
 # DEBUG
@@ -34,7 +37,6 @@ EMAIL_SUBJECT_PREFIX = env('DJANGO_EMAIL_SUBJECT_PREFIX', default='[WFX]')
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 
-
 # CACHING
 # ------------------------------------------------------------------------------
 CACHES = {
@@ -51,8 +53,7 @@ INSTALLED_APPS += ['debug_toolbar', ]
 
 INTERNAL_IPS = ['127.0.0.1', '10.0.2.2', ]
 
-import socket
-import os
+
 # tricks to have debug toolbar when developing with docker
 if os.environ.get('USE_DOCKER') == 'yes':
     ip = socket.gethostbyname(socket.gethostname())
@@ -75,10 +76,10 @@ INSTALLED_APPS += [
 # ------------------------------------------------------------------------------
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-########## CELERY
+# CELERY
 # In development, all tasks will be executed locally by blocking until the task returns
 CELERY_ALWAYS_EAGER = True
-########## END CELERY
+# END CELERY
 
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
