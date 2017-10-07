@@ -23,6 +23,10 @@
 
     - role: roles/nginx
       when: run_scenario == "deploy"
+      tags:
+        - nginx
 
     - role: roles/app
       when: run_scenario == "deploy"
+      tags:
+        - app
