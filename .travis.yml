@@ -22,6 +22,8 @@ env:
 branches:
   only:
   - development
+  except:
+  - master
 
 before_install:
   - sudo apt-add-repository -y ppa:ansible/ansible
