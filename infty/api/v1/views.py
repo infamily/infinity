@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, generics, views
 
 from infty.core.models import Topic, Comment, CommentSnapshot, Transaction
@@ -22,6 +23,7 @@ class CustomViewSet(mixins.CreateModelMixin,
 
 class TopicViewSet(CustomViewSet):
 
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = TopicSerializer
     queryset = Topic.objects.all()
     search_fields = ['title']
