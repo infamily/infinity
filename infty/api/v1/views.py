@@ -7,6 +7,8 @@ from infty.api.v1.serializers import *
 from rest_framework import viewsets, mixins
 from rest_framework import filters
 
+from .pagination_classes import StandardResultsSetPagination
+
 
 class CustomViewSet(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
@@ -23,8 +25,9 @@ class CustomViewSet(mixins.CreateModelMixin,
 
 class TopicViewSet(CustomViewSet):
 
-    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = TopicSerializer
+    pagination_class = StandardResultsSetPagination
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Topic.objects.all()
     search_fields = ['title']
     filter_backends = (filters.SearchFilter,)
