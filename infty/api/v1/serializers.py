@@ -28,7 +28,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
-    
+
     comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField (queryset=CommentSnapshot.objects.all())
     hour_price = serializers.PrimaryKeyRelatedField(queryset=HourPriceSnapshot.objects.all())
@@ -42,6 +42,3 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
             'payment_amount', 'payment_currency', 'payment_recipient',
             'payment_sender', 'hour_unit_cost', 'donated_hours', 'matched_hours')
-
-
-
