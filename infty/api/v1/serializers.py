@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from infty.core.models import (Topic, Comment, Transaction, CommentSnapshot,
-    HourPriceSnapshot, CurrencyPriceSnapshot, Currency)
+from infty.core.models import (
+    Topic,
+    Comment,
+    Currency,
+    Transaction,
+    CommentSnapshot,
+    HourPriceSnapshot,
+    CurrencyPriceSnapshot
+)
 from infty.users.models import User
 
 

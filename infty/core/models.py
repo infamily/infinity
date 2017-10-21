@@ -7,6 +7,9 @@ from infty.users.models import User
 from django.contrib.postgres.fields import JSONField
 
 from django.db.models import Sum
+from django.db.models.signals import pre_save
+
+from .signals import _topic_pre_save, _comment_pre_save
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -31,25 +34,29 @@ class Type(GenericModel):
          behave in certain ways, without even caring about specific
          identities (Items), only caring about qualities (Type).
 
-    We create and use Types like concepts, to express and define abstract goals.
+    We create and use Types like concepts, to express and define abstract
+    goals.
 
-    Types will work like situational "Concept Snapshots" -- just like gloassaries
-    help book authors to be precise in their books, the Types will help authors of
-    goals to be precise about the *type of things* (Items) we want to exist.
+    Types will work like situational "Concept Snapshots" -- just like
+    gloassaries help book authors to be precise in their books, the Types
+    will help authors of goals to be precise about the *type of things*
+    (Items) we want to exist.
 
-    NOTE: we could use other close approximations, like "Term", "Concept", "Word", etc.,
-    the choice to use "Type" is chosen to encourage people to create them, rather than
-    use existing conceptions. Also, it is natural to say "Item Type", but not so "Item Term".
+    NOTE: we could use other close approximations, like "Term", "Concept",
+    "Word", etc., the choice to use "Type" is chosen to encourage people
+    to create them, rather than use existing conceptions. Also, it is
+    natural to say "Item Type", but not so "Item Term".
 
-    This model will be used to store snapshots of concepts, found in various dictionaries
-    and ontologies, that the user will be able to use to look up for a type, or create one's own.
+    This model will be used to store snapshots of concepts, found in
+    various dictionaries and ontologies, that the user will be able to use
+    to look up for a type, or create one's own.
     """
-    code_name = models.CharField(max_length=10) # E.g., Q - for WikiData concept, a codename per ontology
-    code_number = models.IntegerField()         # E.g., the ID of the concept in the dictionary itself.
+    code_name = models.CharField(max_length=10)
+    code_number = models.IntegerField()
 
-    endpoint = models.TextField()               # e.g., https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q1&format=json
-    data = JSONField()                          # e.g., the actual concept definition content
-    data_format_name = models.TextField()       # e.g., "WikiData-API-Response v.1.0"
+    endpoint = models.TextField()
+    data = JSONField()
+    data_format_name = models.TextField()
 
     def __str__(self):
         return self.pk
@@ -781,3 +788,8 @@ class ContributionCertificate(GenericModel):
                     total=Sum('hours')
                 ).get('total')
             or 0)
+
+
+pre_save.connect(_topic_pre_save, sender=Topic)
+pre_save.connect(_comment_pre_save, sender=Comment)
+

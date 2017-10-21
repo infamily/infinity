@@ -10,18 +10,21 @@ from rest_framework import filters
 from .pagination_classes import StandardResultsSetPagination
 
 
-class CustomViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.ListModelMixin,
-                   mixins.DestroyModelMixin,
-                   viewsets.GenericViewSet):
+class CustomViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        mixins.UpdateModelMixin,
+        mixins.ListModelMixin,
+        mixins.DestroyModelMixin,
+        viewsets.GenericViewSet
+    ):
     """
-    A viewset that provides default `create()`, `retrieve()`, `update()`,
-    `partial_update()` and `list()` actions.
+    A viewset that provides default `create()`, `retrieve()`,
+    `update()`, `partial_update()` and `list()` actions.
     We don't use `destroy()` yet.
     """
     pass
+
 
 class TopicViewSet(CustomViewSet):
 
