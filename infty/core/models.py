@@ -7,6 +7,9 @@ from infty.users.models import User
 from django.contrib.postgres.fields import JSONField
 
 from django.db.models import Sum
+from django.db.models.signals import pre_save
+
+from .signals import _topic_pre_save, _comment_pre_save
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -785,3 +788,8 @@ class ContributionCertificate(GenericModel):
                     total=Sum('hours')
                 ).get('total')
             or 0)
+
+
+pre_save.connect(_topic_pre_save, sender=Topic)
+pre_save.connect(_comment_pre_save, sender=Comment)
+
