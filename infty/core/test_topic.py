@@ -13,21 +13,48 @@ class TestTopic(TestCase):
             owner=self.user_writer
         )
 
+        self.topic2 = Topic.objects.create(
+            title='.:en:This is incredible',
+            body='.:en\nThe world is modifyable',
+            owner=self.user_writer
+        )
+
+        self.topic2.save()
+
+
     def test_topic_values(self):
         self.assertEqual(
             self.topic.title,
             '.:en:This is incredible'
         )
 
-    def test_body_values(self):
+    def test_topic_body_values(self):
         self.assertEqual(
             self.topic.body,
             '.:en\nThe world is modifyable'
         )
 
-    def test_body_values(self):
+    def test_topic_lang_values(self):
         self.assertEqual(
             self.topic.languages,
+            ['en']
+        )
+
+    def test_topic2_values(self):
+        self.assertEqual(
+            self.topic2.title,
+            '.:en:This is incredible'
+        )
+
+    def test_topic2_body_values(self):
+        self.assertEqual(
+            self.topic2.body,
+            '.:en\nThe world is modifyable'
+        )
+
+    def test_topic2_lang_values(self):
+        self.assertEqual(
+            self.topic2.languages,
             ['en']
         )
 
@@ -44,14 +71,16 @@ class TestComment(TestCase):
 
         self.comment = Comment.objects.create(
             topic = self.topic,
-            text='How is it going?',
+            text='''.:en
+{?1.5}, as we need to choose, etc.''',
             owner=self.user_writer,
         )
+        self.comment.save()
 
     def test_comment(self):
         self.assertEqual(
             self.comment.text,
-            '.:en\nHow is it going?'
+            '''.:en\n{?1.5}, as we need to choose, etc.'''
         )
 
     def test_languages(self):

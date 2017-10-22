@@ -798,6 +798,6 @@ class ContributionCertificate(GenericModel):
             or 0)
 
 
-pre_save.connect(_topic_pre_save, sender=Topic)
-pre_save.connect(_comment_pre_save, sender=Comment)
+pre_save.connect(_topic_pre_save, sender=Topic, weak=False)
+pre_save.connect(_comment_pre_save, sender=Comment, weak=False)
 
