@@ -22,8 +22,10 @@ def _topic_pre_save(sender, instance, *args, **kwargs):
         instance.body = splitter.convert(body)
 
     if isinstance(langs, dict):
-        print('could not load languages, langs is not a dict')
         instance.languages = list(langs.keys())
+    else:
+        print('could not load languages, langs is not a dict')
+        instance.languages = []
 
 
 def _comment_pre_save(sender, instance, *args, **kwargs):
@@ -33,5 +35,7 @@ def _comment_pre_save(sender, instance, *args, **kwargs):
     splitted = splitter.convert(text)
 
     if isinstance(text, dict):
-        print('could not load languages, text is not a dict')
         instance.languages = list(text.keys())
+    else:
+        print('could not load languages, text is not a dict')
+        instance.languages = []
