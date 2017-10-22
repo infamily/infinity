@@ -25,6 +25,12 @@ class TestTopic(TestCase):
             '.:en\nThe world is modifyable'
         )
 
+    def test_body_values(self):
+        self.assertEqual(
+            self.topic.languages,
+            ['en']
+        )
+
 class TestComment(TestCase):
 
     def setUp(self):
@@ -46,4 +52,10 @@ class TestComment(TestCase):
         self.assertEqual(
             self.comment.text,
             '.:en\nHow is it going?'
+        )
+
+    def test_languages(self):
+        self.assertEqual(
+            self.comment.languages,
+            ['en']
         )
