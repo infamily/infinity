@@ -60,7 +60,7 @@ class CommentViewSet(CustomViewSet):
         serializer.save(owner=self.request.user)
 
     def get_queryset(self):
-        qs = super(TopicViewSet, self).get_queryset()
+        qs = super(CommentViewSet, self).get_queryset()
 
         lang = self.request.query_params.get('lang', None)
 
