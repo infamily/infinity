@@ -5,11 +5,13 @@ from decimal import Decimal
 from django.db import models
 from infty.users.models import User
 from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField
 
 from django.db.models import Sum
 from django.db.models.signals import pre_save
 
 from .signals import _topic_pre_save, _comment_pre_save
+
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -94,6 +96,8 @@ class Topic(GenericModel):
     by AI planning community. Also 'TASK' is much more tangible thing
     to start with for people. We'll introduce the fields of 'STEP'
     (e.g., planning I/O, https://github.com/wefindx/StepIO) later.
+
+    Note: order of languages is preserved, in the order of input.
     """
     NEED = 0 # A condition
     GOAL = 1 # Set of conditions
@@ -127,6 +131,7 @@ class Topic(GenericModel):
         symmetrical=False,
         related_name='parent_topics'
     )
+    languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def __str__(self):
         return self.title
@@ -138,6 +143,8 @@ class Comment(GenericModel):
 
     Note: the reason why we need a separate model for Comment,
     is because comments should not have multiple editors.
+
+    Note: order of languages is preserved, in the order of input.
     """
 
     topic = models.ForeignKey(Topic)
@@ -147,6 +154,7 @@ class Comment(GenericModel):
     assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
 
     owner = models.ForeignKey(User)
+    languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def save(self, *args, **kwargs):
         """

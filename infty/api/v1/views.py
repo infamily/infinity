@@ -38,6 +38,16 @@ class TopicViewSet(CustomViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+    def get_queryset(self):
+        qs = super(TopicViewSet, self).get_queryset()
+
+        lang = self.request.query_params.get('lang', None)
+
+        if lang:
+            return qs.filter(languages__contains=[lang])
+
+        return qs
+
 
 class CommentViewSet(CustomViewSet):
 
@@ -48,6 +58,16 @@ class CommentViewSet(CustomViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def get_queryset(self):
+        qs = super(TopicViewSet, self).get_queryset()
+
+        lang = self.request.query_params.get('lang', None)
+
+        if lang:
+            return qs.filter(languages__contains=[lang])
+
+        return qs
 
 
 class TransactionViewSet(CustomViewSet):
