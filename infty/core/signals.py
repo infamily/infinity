@@ -16,19 +16,22 @@ def _topic_pre_save(sender, instance, *args, **kwargs):
         if lang in title.keys() and lang in body.keys():
             langs[lang] = True
 
-    instance.title = splitter.convert(title, title=True).strip()
+    instance.title = splitter.convert(title, title=True)
 
     if body:
-        instance.body = splitter.convert(body).strip()
+        instance.body = splitter.convert(body)
 
-    instance.languages = list(langs.keys())
+    if isinstance(langs, dict):
+        print('could not load languages, langs is not a dict')
+        instance.languages = list(langs.keys())
 
 
 def _comment_pre_save(sender, instance, *args, **kwargs):
 
     """ Create or preserve language tags for comment text. """
     text = splitter.split(instance.text)
-    splitted = splitter.convert(text).strip()
-    if splitted.startswith('\r\n'):
-        instance.text = splitted[2:]
-    instance.languages = list(text.keys())
+    splitted = splitter.convert(text)
+
+    if isinstance(text, dict):
+        print('could not load languages, text is not a dict')
+        instance.languages = list(text.keys())
