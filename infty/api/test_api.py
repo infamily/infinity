@@ -36,7 +36,7 @@ class APITestCaseAuthorizedUser(APITestCase):
         self.comment = Comment(
             topic=self.topic,
             text='Test comment text',
-            owner=self.testuser
+            owner=self.testuser,
         )
         self.comment.save()
         self.comment_url = reverse('comment-detail', kwargs={'pk':self.comment.pk})
@@ -91,13 +91,14 @@ class CreateTopicList(APITestCaseAuthorizedUser):
         super(CreateTopicList, self).setUp()
 
         self.topic_data = {
-            'title': 'Test topic 1'
+            'title': 'Test topic 1',
             }
 
         self.response = self.client.post(
             reverse('topic-list'),
             self.topic_data,
-            format="json")
+            format="json"
+        )
 
     def test_can_create_topic(self):
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
@@ -110,13 +111,14 @@ class CreateTopicList(APITestCase):
     def setUp(self):
 
         self.topic_data = {
-            'title': 'Test topic 1'
+            'title': 'Test topic 1',
             }
 
         self.response = self.client.post(
             reverse('topic-list'),
             self.topic_data,
-            format="json")
+            format="json"
+        )
 
     def test_cannot_create_topic(self):
         self.assertEqual(self.response.status_code, status.HTTP_403_FORBIDDEN)
@@ -130,15 +132,14 @@ class CreateCommentList(APITestCaseAuthorizedUser):
 
         self.comment_data = {
             'topic': self.topic_url,
-            'text': 'Test comment text',
-            'claimed_hours': 1.5,
-            'assumed_hours': 6.5,
+            'text': 'Test comment text {1.5}, {?6.5}',
             }
 
         self.response = self.client.post(
             reverse('comment-list'),
             self.comment_data,
-            format="json")
+            format="json"
+        )
 
     def test_can_create_comment(self):
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
