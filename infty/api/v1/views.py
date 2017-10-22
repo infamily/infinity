@@ -7,7 +7,10 @@ from infty.api.v1.serializers import *
 from rest_framework import viewsets, mixins
 from rest_framework import filters
 
-from .pagination_classes import StandardResultsSetPagination
+from .pagination_classes import (
+    StandardResultsSetPagination,
+    LargeResultsSetPagination
+)
 
 
 class CustomViewSet(
@@ -52,6 +55,8 @@ class TopicViewSet(CustomViewSet):
 class CommentViewSet(CustomViewSet):
 
     serializer_class = CommentSerializer
+    pagination_class = LargeResultsSetPagination
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Comment.objects.all()
     search_fields = ['text']
     filter_backends = (filters.SearchFilter,)
