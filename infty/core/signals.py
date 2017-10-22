@@ -9,6 +9,7 @@ def _topic_pre_save(sender, instance, *args, **kwargs):
         body = splitter.split(instance.body)
     except Exception as e:
         print(e)
+        body = None
 
     langs = OrderedDict()
     for lang in list(title.keys()) + list(body.keys()) if body else []:
