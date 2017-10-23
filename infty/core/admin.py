@@ -1,21 +1,9 @@
 from django.contrib import admin
-from django import forms
 
 from infty.core.models import *
+from infty.core.forms import TopicForm
 
 # Register your models here.
-
-class TopicForm(forms.ModelForm):
-
-    type = forms.ChoiceField(
-        choices=Topic.TOPIC_TYPES,
-        initial=Topic.IDEA
-    )
-
-    class Meta:
-        model = Topic
-        exclude = []
-
 
 class TopicModelAdmin(admin.ModelAdmin):
     form = TopicForm
