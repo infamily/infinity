@@ -1,11 +1,17 @@
 from django.contrib import admin
+
 from infty.core.models import *
+from infty.core.forms import TopicForm
 
 # Register your models here.
 
+class TopicModelAdmin(admin.ModelAdmin):
+    form = TopicForm
+
+
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
-    pass
+    form = TopicForm
 
 
 @admin.register(Comment)
