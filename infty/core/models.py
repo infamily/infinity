@@ -87,7 +87,7 @@ class Item(GenericModel):
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def __str__(self):
-        return str(self.pk)
+        return '[{}] {}'.format(dict(self.ITEM_TYPES).get(self.type), self.pk)
 
 
 class Topic(GenericModel):
@@ -139,7 +139,7 @@ class Topic(GenericModel):
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def __str__(self):
-        return self.title
+        return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
 
 
 class Comment(GenericModel):
