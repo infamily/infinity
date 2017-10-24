@@ -10,7 +10,9 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models import Sum
 from django.db.models.signals import pre_save
 
-from .signals import _topic_pre_save, _comment_pre_save
+from .signals import (
+    _type_pre_save, _item_pre_save, _topic_pre_save, _comment_pre_save
+)
 
 
 class GenericModel(models.Model):
@@ -53,15 +55,13 @@ class Type(GenericModel):
     various dictionaries and ontologies, that the user will be able to use
     to look up for a type, or create one's own.
     """
-    code_name = models.CharField(max_length=10)
-    code_number = models.IntegerField()
+    definition = models.TextField(null=False, blank=False)
 
-    endpoint = models.TextField()
-    data = JSONField()
-    data_format_name = models.TextField()
+    source = models.TextField(null=True, blank=True)
+    languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def __str__(self):
-        return self.pk
+        return str(self.pk)
 
 
 class Item(GenericModel):
@@ -73,17 +73,22 @@ class Item(GenericModel):
     AGENT = 1
     PLACE = 2
     EVENT = 3
-    TOPIC = 4
 
     ITEM_TYPES = [
         (ASSET, 'Asset'),
         (AGENT, 'Agent'),
         (PLACE, 'Place'),
         (EVENT, 'Event'),
-        (TOPIC, 'Topic'),
     ]
 
-    type = models.PositiveSmallIntegerField(ITEM_TYPES, default=TOPIC)
+    type = models.PositiveSmallIntegerField(ITEM_TYPES, default=AGENT)
+
+    description = models.TextField(null=False, blank=False)
+    languages = ArrayField(models.CharField(max_length=2), blank=True)
+
+    def __str__(self):
+        return str(self.pk)
+
 
 class Topic(GenericModel):
     """
@@ -798,5 +803,7 @@ class ContributionCertificate(GenericModel):
             or 0)
 
 
+pre_save.connect(_type_pre_save, sender=Type, weak=False)
+pre_save.connect(_item_pre_save, sender=Item, weak=False)
 pre_save.connect(_topic_pre_save, sender=Topic, weak=False)
 pre_save.connect(_comment_pre_save, sender=Comment, weak=False)
