@@ -1,9 +1,20 @@
 from django.contrib import admin
 
 from infty.core.models import *
-from infty.core.forms import TopicForm
+from infty.core.forms import TopicForm, ItemForm
 
 # Register your models here.
+
+@admin.register(Type)
+class TypeAdmin(admin.ModelAdmin):
+    pass
+
+class ItemModelAdmin(admin.ModelAdmin):
+    form = ItemForm
+
+@admin.register(Item)
+class TopicAdmin(admin.ModelAdmin):
+    form = ItemForm
 
 class TopicModelAdmin(admin.ModelAdmin):
     form = TopicForm
