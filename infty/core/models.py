@@ -75,7 +75,7 @@ class Item(GenericModel):
     EVENT = 3
 
     ITEM_TYPES = [
-        (ASSET, 'Asset'),
+        (ASSET, 'Thing'),
         (AGENT, 'Agent'),
         (PLACE, 'Place'),
         (EVENT, 'Event'),
