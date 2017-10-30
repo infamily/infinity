@@ -1,7 +1,14 @@
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, generics, views
 
-from infty.core.models import Topic, Comment, CommentSnapshot, Transaction
+from infty.core.models import (
+    Topic,
+    Comment,
+    CommentSnapshot,
+    Interaction,
+    Transaction,
+    ContributionCertificate
+)
 from infty.api.v1.serializers import *
 
 from rest_framework import viewsets, mixins
@@ -27,6 +34,18 @@ class CustomViewSet(
     We don't use `destroy()` yet.
     """
     pass
+
+
+class TypeViewSet(CustomViewSet):
+
+    serializer_class = TypeSerializer
+    queryset = Type.objects.all()
+
+
+class ItemViewSet(CustomViewSet):
+
+    serializer_class = ItemSerializer
+    queryset = Item.objects.all()
 
 
 class TopicViewSet(CustomViewSet):
@@ -75,9 +94,19 @@ class CommentViewSet(CustomViewSet):
         return qs
 
 
+class InteractionViewSet(CustomViewSet):
+
+    serializer_class = InteractionSerializer
+    queryset = Interaction.objects.all()
+
+
 class TransactionViewSet(CustomViewSet):
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
 
+class ContributionViewSet(CustomViewSet):
+
+    serializer_class = ContributionSerializer
+    queryset = ContributionCertificate.objects.all()
