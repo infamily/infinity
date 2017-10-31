@@ -19,6 +19,21 @@ class User(AbstractUser):
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
 
+class CryptoKeypair(models.Model):
+    IPDB = 0
+
+    KEY_TYPES = [
+        (IPDB, 'IPDB'),
+    ]
+
+    user = models.ForeignKey(User)
+    type = models.PositiveSmallIntegerField(KEY_TYPES, default=IPDB)
+    private_key = models.TextField(null=True, blank=True)
+    public_key = models.TextField(null=False, blank=False)
+    created_date = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated_date = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+
 class OneTimePassword(models.Model):
     user = models.ForeignKey(User)
     one_time_password = models.CharField(max_length=64, default=get_random_string)
