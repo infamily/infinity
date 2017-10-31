@@ -1,4 +1,5 @@
 # Create your models here.
+import json
 from re import finditer
 from decimal import Decimal
 
@@ -9,11 +10,20 @@ from django.contrib.postgres.fields import ArrayField
 
 from django.db.models import Sum
 from django.db.models.signals import pre_save
+from django.core import serializers
 
 from .signals import (
-    _type_pre_save, _item_pre_save, _topic_pre_save, _comment_pre_save
+    _type_pre_save,
+    _item_pre_save,
+    _topic_pre_save,
+    _comment_pre_save
 )
 
+def instance_to_save_dict(instance):
+    return json.loads(
+        serializers.serialize(
+            'json', [instance], ensure_ascii=False)[1:-1]
+    )
 
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
@@ -138,8 +148,30 @@ class Topic(GenericModel):
     )
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
+    def create_snapshot(self):
+
+        snapshot = TopicSnapshot(
+            topic=self,
+            data=instance_to_save_dict(self)
+        )
+
+        snapshot.save()
+
+        return snapshot
+
     def __str__(self):
         return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
+
+
+class TopicSnapshot(GenericModel):
+    """
+    Whenever topic is changed, we store its here, and a copy in BigChainDB.
+    """
+    data = JSONField()
+    topic = models.ForeignKey(Topic)
+
+    def __str__(self):
+        return "Topic snapshot for {}".format(self.topic)
 
 
 class Comment(GenericModel):
@@ -393,10 +425,7 @@ class Comment(GenericModel):
 
         snapshot = CommentSnapshot(
             comment=self,
-            text=self.text,
-            claimed_hours=self.claimed_hours,
-            assumed_hours=self.assumed_hours,
-            owner=self.owner
+            data=instance_to_save_dict(self)
         )
 
         snapshot.save()
@@ -502,11 +531,9 @@ class CommentSnapshot(GenericModel):
 
     To be saved in BigchainDB, possibly e-mailed, and posted on social media.
     """
+
+    data = JSONField()
     comment = models.ForeignKey(Comment)
-    text = models.TextField()
-    claimed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    assumed_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    owner = models.ForeignKey(User)
 
     def __str__(self):
         return "Comment snapshot for {}".format(self.comment)
