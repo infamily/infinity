@@ -11,6 +11,7 @@ router.register(r'transactions', views.TransactionViewSet)
 
 
 urlpatterns = [
+    url('^$', views.schema_view),
     url(r'^', include(router.urls)),
 ]
 
