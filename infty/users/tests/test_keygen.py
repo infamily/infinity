@@ -1,6 +1,5 @@
 from test_plus.test import TestCase
 from infty.users.models import CryptoKeypair
-from bigchaindb_driver.crypto import generate_keypair
 
 class TestKeygen(TestCase):
 
@@ -15,28 +14,15 @@ class TestKeygen(TestCase):
         )
 
     def test_create_ipdb_key(self):
-        alice = generate_keypair()
-        IPDB = 0
-
-        keypair = CryptoKeypair(
-            user=self.trader,
-            type=IPDB,
-            private_key=alice.private_key,
-            public_key=alice.public_key
-        )
-        keypair.save()
 
         self.assertEqual(
-            keypair.public_key,
-            alice.public_key
+            True,
+            CryptoKeypair.objects.filter(user=self.trader).count() > 0
         )
 
         self.assertEqual(
-            keypair.private_key,
-            alice.private_key
+            True,
+            len(
+                CryptoKeypair.objects.filter(
+                    user=self.trader).first().private_key) > 5
         )
-
-
-
-
-

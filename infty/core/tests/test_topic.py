@@ -156,7 +156,10 @@ class TestTopic(TestCase):
             Decimal('8.0')
         )
 
-
+    def test_topic_saved_to_bigchaindb(self):
+        # signed by user who
+        # it's easier if all users have at least one keypair.
+        pass
 
 
     """
