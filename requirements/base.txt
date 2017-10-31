@@ -51,7 +51,7 @@ django-filter==1.0.4
 
 
 # Your custom requirements go here
-djangorestframework==3.6.3
+djangorestframework==3.7.1
 django-rest-auth==0.9.1
 
 django-cors-headers==2.1.0
