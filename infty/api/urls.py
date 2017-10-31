@@ -1,12 +1,11 @@
 from django.conf import settings
 from django.conf.urls import include, url
 
-# from rest_framework_swagger.views import get_swagger_view
-# schema_view = get_swagger_view(title='Infinity API documentation', url=settings.SWAGGER_BASE_URL)
+from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
-    # url(r'^$', schema_view, name='documentation'),
     url(r'^v1/', include('infty.api.v1.urls')),
+    url(r'^v1/docs/', include_docs_urls(title='WeFindX API')),
     url(r'^api-auth/', include('rest_framework.urls',
                                namespace='rest_framework')),
 ]

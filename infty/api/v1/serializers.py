@@ -120,4 +120,4 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Interaction
-        fields = ('url', 'transaction', 'comment_snapshot', 'hours', 'matched', 'received_by')
+        fields = ('url', 'transaction', 'comment_snapshot', 'received_by')
