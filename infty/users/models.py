@@ -1,3 +1,5 @@
+from bigchaindb_driver.crypto import generate_keypair
+
 from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -18,6 +20,25 @@ class User(AbstractUser):
 
     def get_absolute_url(self):
         return reverse('users:detail', kwargs={'username': self.username})
+
+    def save(self, *args, **kwargs):
+        """
+        Also do some things during the creation of user.
+        """
+        super(User, self).save(*args, **kwargs)
+
+        IPDB = 0
+
+        my = generate_keypair()
+
+        keypair = CryptoKeypair(
+            user=self,
+            type=IPDB,
+            private_key=my.private_key,
+            public_key=my.public_key
+        )
+        keypair.save()
+
 
 class CryptoKeypair(models.Model):
     IPDB = 0
