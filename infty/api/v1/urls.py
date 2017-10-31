@@ -15,6 +15,7 @@ router.register(r'contributions', views.ContributionViewSet)
 
 
 urlpatterns = [
+    url('^$', views.schema_view),
     url(r'^', include(router.urls)),
 ]
 
