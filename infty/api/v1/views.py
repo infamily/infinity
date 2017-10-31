@@ -2,7 +2,14 @@ from rest_framework.decorators import renderer_classes, api_view, permission_cla
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, generics, views, schemas, response, renderers
 
-from infty.core.models import Topic, Comment, CommentSnapshot, Transaction
+from infty.core.models import (
+    Topic,
+    Comment,
+    CommentSnapshot,
+    Interaction,
+    Transaction,
+    ContributionCertificate
+)
 from infty.api.v1.serializers import *
 
 from rest_framework import viewsets, mixins
@@ -14,7 +21,18 @@ from .pagination_classes import (
 )
 
 
-schema_generator = schemas.SchemaGenerator(title='Bookings API')
+schema_generator = schemas.SchemaGenerator(title='WeFindX API')
+
+@api_view()
+@renderer_classes([renderers.CoreJSONRenderer])
+@permission_classes((IsAuthenticatedOrReadOnly,))
+def schema_view(request):
+    """
+    Explicit schema view
+    http://www.django-rest-framework.org/api-guide/schemas/#using-an-explicit-schema-view
+    """
+    schema = schema_generator.get_schema(request)
+    return response.Response(schema)
 
 
 class CustomViewSet(
@@ -31,6 +49,18 @@ class CustomViewSet(
     We don't use `destroy()` yet.
     """
     pass
+
+
+class TypeViewSet(CustomViewSet):
+
+    serializer_class = TypeSerializer
+    queryset = Type.objects.all()
+
+
+class ItemViewSet(CustomViewSet):
+
+    serializer_class = ItemSerializer
+    queryset = Item.objects.all()
 
 
 class TopicViewSet(CustomViewSet):
@@ -79,20 +109,19 @@ class CommentViewSet(CustomViewSet):
         return qs
 
 
+class InteractionViewSet(CustomViewSet):
+
+    serializer_class = InteractionSerializer
+    queryset = Interaction.objects.all()
+
+
 class TransactionViewSet(CustomViewSet):
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
 
-@api_view()
-@renderer_classes([renderers.CoreJSONRenderer])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-def schema_view(request):
-    """
-    Explicit schema view
-    http://www.django-rest-framework.org/api-guide/schemas/#using-an-explicit-schema-view
-    """
-    schema = schema_generator.get_schema(request)
-    return response.Response(schema)
+class ContributionViewSet(CustomViewSet):
 
+    serializer_class = ContributionSerializer
+    queryset = ContributionCertificate.objects.all()

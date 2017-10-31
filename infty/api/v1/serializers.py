@@ -1,16 +1,34 @@
 from rest_framework import serializers
 from infty.core.models import (
+    Type,
+    Item,
     Topic,
     Comment,
     Currency,
     Transaction,
+    Interaction,
     CommentSnapshot,
     HourPriceSnapshot,
-    CurrencyPriceSnapshot
+    CurrencyPriceSnapshot,
+    ContributionCertificate
 )
 from infty.users.models import User
 
 from langsplit import splitter
+
+
+class TypeSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Type
+        fields = ('url', 'definition', 'source', 'languages')
+
+
+class ItemSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Item
+        fields = ('url', 'type', 'description', 'languages')
 
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
@@ -67,6 +85,16 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner')
 
 
+class InteractionSerializer(serializers.HyperlinkedModelSerializer):
+
+    comment = serializers.HyperlinkedRelatedField(view_name='interaction-detail', queryset=Comment.objects.all())
+    snapshot = serializers.PrimaryKeyRelatedField (queryset=CommentSnapshot.objects.all())
+
+    class Meta:
+        model = Interaction
+        fields = ('url', 'comment', 'snapshot', 'claimed_hours_to_match')
+
+
 class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
@@ -82,3 +110,14 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
             'payment_amount', 'payment_currency', 'payment_recipient',
             'payment_sender', 'hour_unit_cost', 'donated_hours', 'matched_hours')
+
+
+class ContributionSerializer(serializers.HyperlinkedModelSerializer):
+
+    transaction = serializers.HyperlinkedRelatedField(view_name='transaction-detail', queryset=Transaction.objects.all())
+    comment_snapshot = serializers.HyperlinkedRelatedField(view_name='comment-snapshot-detail', queryset=CommentSnapshot.objects.all())
+    received_by = serializers.ReadOnlyField(source='received_by.username')
+
+    class Meta:
+        model = Interaction
+        fields = ('url', 'transaction', 'comment_snapshot', 'received_by')
