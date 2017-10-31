@@ -59,4 +59,5 @@ django-cors-headers==2.1.0
 django-simple-captcha==0.5.5
 six==1.11.0
 langsplit==0.1.6
+coreapi==2.3.3
 bigchaindb-driver==0.4.1
