@@ -13,6 +13,6 @@ class Command(BaseCommand):
                 continue
 
             CryptoKeypair.make_one(user=user).save()
-                print('- created key for user {}.'.format(user.username))
+            print('- created key for user {}.'.format(user.username))
 
         print('Done.')
