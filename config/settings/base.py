@@ -107,9 +107,9 @@ if SENDGRID_API_KEY:
 else:
     EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
-IPDB_API_ROOT = env('IPDB_API_ROOT')
-IPDB_APP_ID = env('IPDB_APP_ID')
-IPDB_APP_KEY = env('IPDB_APP_KEY')
+IPDB_API_ROOT = env('IPDB_API_ROOT', default='')
+IPDB_APP_ID = env('IPDB_APP_ID', default='')
+IPDB_APP_KEY = env('IPDB_APP_KEY', default='')
 
 
 
