@@ -4,7 +4,9 @@ from re import finditer
 from decimal import Decimal
 
 from django.db import models
+from django.conf import settings
 from infty.users.models import User
+from infty.users.models import CryptoKeypair
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields import ArrayField
 
@@ -19,6 +21,59 @@ from .signals import (
     _comment_pre_save
 )
 
+import bigchaindb_driver
+
+bdb = bigchaindb_driver.BigchainDB(
+    settings.IPDB_API_ROOT,
+    headers={
+        'app_id': settings.IPDB_APP_ID,
+        'app_key': settings.IPDB_APP_KEY
+    }
+)
+
+def blockchain_save(user, data, blockchain=False):
+
+    if blockchain in dict(CryptoKeypair.KEY_TYPES).keys():
+
+        cryptokey_qs = CryptoKeypair.objects.filter(
+            user=user,
+            type=blockchain,
+            private_key__isnull=False
+        )
+
+        if not cryptokey_qs.exists():
+            keypair = CryptoKeypair.make_one(user=user)
+            keypair.save()
+        else:
+            keypair = cryptokey_qs.last()
+
+        tx = bdb.transactions.prepare(
+            operation='CREATE',
+            signers=keypair.public_key,
+            asset={'data': data},
+        )
+
+        signed_tx = bdb.transactions.fulfill(
+            tx,
+            private_keys=keypair.private_key
+        )
+
+        sent_tx = bdb.transactions.send(signed_tx)
+
+        txid = sent_tx['id']
+
+        # Try 100 times till completion.
+        trials = 0
+
+        while trials < 100:
+            try:
+                if bdb.transactions.status(txid).get('status') == 'valid':
+                    return txid
+            except bigchaindb_driver.exceptions.NotFoundError:
+                    trials += 1
+        return None
+
+
 def instance_to_save_dict(instance):
     return json.loads(
         serializers.serialize(
@@ -28,6 +83,14 @@ def instance_to_save_dict(instance):
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class GenericSnapshot(GenericModel):
+    blockchain = models.PositiveSmallIntegerField(blank=True, null=True)
+    blockchain_tx = models.TextField(blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -148,14 +211,16 @@ class Topic(GenericModel):
     )
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
-    def create_snapshot(self):
+    def create_snapshot(self, blockchain=True):
 
         snapshot = TopicSnapshot(
             topic=self,
             data=instance_to_save_dict(self)
         )
 
-        snapshot.save()
+        IPDB = 0
+
+        snapshot.save(blockchain=IPDB)
 
         return snapshot
 
@@ -163,7 +228,7 @@ class Topic(GenericModel):
         return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
 
 
-class TopicSnapshot(GenericModel):
+class TopicSnapshot(GenericSnapshot):
     """
     Whenever topic is changed, we store its here, and a copy in BigChainDB.
     """
@@ -172,6 +237,23 @@ class TopicSnapshot(GenericModel):
 
     def __str__(self):
         return "Topic snapshot for {}".format(self.topic)
+
+    def save(self, blockchain=False, *args, **kwargs):
+        """
+        Save in a blockchain ID= blockchain.
+        """
+
+        if not isinstance(blockchain, bool):
+            if isinstance(blockchain, int):
+                txid = blockchain_save(
+                    user=self.topic.owner,
+                    blockchain=blockchain,
+                    data=self.data
+                )
+                self.blockchain = blockchain
+                self.blockchain_tx = txid
+
+        super(TopicSnapshot, self).save(*args, **kwargs)
 
 
 class Comment(GenericModel):
@@ -421,14 +503,16 @@ class Comment(GenericModel):
             'assumed_hours': assumed_hours,
         }
 
-    def create_snapshot(self):
+    def create_snapshot(self, blockchain=True):
 
         snapshot = CommentSnapshot(
             comment=self,
             data=instance_to_save_dict(self)
         )
 
-        snapshot.save()
+        IPDB = 0
+
+        snapshot.save(blockchain=IPDB)
 
         return snapshot
 
@@ -524,7 +608,7 @@ class Comment(GenericModel):
         return "Comment for {}".format(self.topic)
 
 
-class CommentSnapshot(GenericModel):
+class CommentSnapshot(GenericSnapshot):
     """
     Whenever comment is changed, or transaction is made,
     we have to store the comment content to permanent storage.
@@ -538,6 +622,22 @@ class CommentSnapshot(GenericModel):
     def __str__(self):
         return "Comment snapshot for {}".format(self.comment)
 
+    def save(self, blockchain=False, *args, **kwargs):
+        """
+        Save in a blockchain ID= blockchain.
+        """
+
+        if not isinstance(blockchain, bool):
+            if isinstance(blockchain, int):
+                txid = blockchain_save(
+                    user=self.comment.owner,
+                    blockchain=blockchain,
+                    data=self.data
+                )
+                self.blockchain = blockchain
+                self.blockchain_tx = txid
+
+        super(CommentSnapshot, self).save(*args, **kwargs)
 
 HOUR_PRICE_SOURCES = {
     'FRED': 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
@@ -610,7 +710,7 @@ class Currency(GenericModel):
         verbose_name_plural = "currencies"
 
 
-class HourPriceSnapshot(GenericModel):
+class HourPriceSnapshot(GenericSnapshot):
     """
     We need average price of human labor.
 
@@ -630,7 +730,7 @@ class HourPriceSnapshot(GenericModel):
         return self.name
 
 
-class CurrencyPriceSnapshot(GenericModel):
+class CurrencyPriceSnapshot(GenericSnapshot):
     """
     We need the prices of currencies.
 

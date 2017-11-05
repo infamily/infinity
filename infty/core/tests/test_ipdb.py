@@ -1,7 +1,5 @@
 import requests, json
 
-from django.conf import settings
-
 from decimal import Decimal
 from test_plus.test import TestCase
 from infty.core.models import (
@@ -10,6 +8,7 @@ from infty.core.models import (
     TopicSnapshot,
     CommentSnapshot
 )
+
 
 class TestChain(TestCase):
 
@@ -28,34 +27,31 @@ class TestChain(TestCase):
             body='implement class that autogenerates users',
             owner=self.thinker,
         )
-        try:
-            self.topic.create_snapshot()
-            self.topic.save()
-        except Exception as e:
-            print(e)
+
+        self.topic.create_snapshot(blockchain=0)
+        self.topic.save()
 
         self.assertEqual(
             TopicSnapshot.objects.filter(topic=self.topic).count(),
             1
         )
 
-        self.assertEqual(
-            settings.IPDB_APP_ID,
-            '79f7f281'
+        self.comment = Comment(
+            topic=self.topic,
+            text="""
+            - {1.5},{?0.5} for coming up with basic class structure,
+            - {?2.5} for implementation,
+            - {?3.5} for testing.
+
+            Here is the result so far:
+            https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
+            """,
+            owner=self.doer
         )
+        self.comment.save()
+        self.comment.create_snapshot(blockchain=0)
 
-
-#   def test_comment_to_blockchain(self):
-#       self.comment = Comment(
-#           topic=self.topic,
-#           text="""
-#           - {1.5},{?0.5} for coming up with basic class structure,
-#           - {?2.5} for implementation,
-#           - {?3.5} for testing.
-
-#           Here is the result so far:
-#           https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
-#           """,
-#           owner=self.doer
-#       )
-#       self.comment.save()
+        self.assertEqual(
+            CommentSnapshot.objects.filter(comment=self.comment).count(),
+            1
+        )
