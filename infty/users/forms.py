@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 from .models import OneTimePassword
 
@@ -16,7 +17,7 @@ class SignupForm(forms.Form):
             email = cleaned_data.get("email").lower()
             today = timezone.now().date()
             otp_generation_nmb = OneTimePassword.objects.filter(user__email=email, created__gte=today).count()
-            if otp_generation_nmb > 3:
+            if otp_generation_nmb > settings.OTP_GENERATION_LIMIT:
                 raise forms.ValidationError("You have reached a limit for one-time-password generating for today! Try again tomorrow!")
         return cleaned_data
 
