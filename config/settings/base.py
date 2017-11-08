@@ -332,3 +332,6 @@ CORS_ALLOW_METHODS = (
 SOUTH_MIGRATION_MODULES = {
     'captcha': 'captcha.south_migrations',
 }
+
+
+OTP_GENERATION_LIMIT = 10
