@@ -218,9 +218,10 @@ class Topic(GenericModel):
             data=instance_to_save_dict(self)
         )
 
-        IPDB = 0
+        # blockchain:
+        # blockchain = 0 => IPDB
 
-        snapshot.save(blockchain=IPDB)
+        snapshot.save(blockchain=blockchain)
 
         return snapshot
 
@@ -503,16 +504,17 @@ class Comment(GenericModel):
             'assumed_hours': assumed_hours,
         }
 
-    def create_snapshot(self, blockchain=True):
+    def create_snapshot(self, blockchain=False):
 
         snapshot = CommentSnapshot(
             comment=self,
             data=instance_to_save_dict(self)
         )
 
-        IPDB = 0
+        # blockchain:
+        # blockchain = 0 => IPDB
 
-        snapshot.save(blockchain=IPDB)
+        snapshot.save(blockchain=blockchain)
 
         return snapshot
 
