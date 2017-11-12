@@ -55,24 +55,6 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     parents = serializers.HyperlinkedRelatedField(many = True, view_name='topic-detail',
         queryset=Topic.objects.all(), required=False)
 
-    def get_title(self, obj):
-        lang = self.context['request'].query_params.get('lang')
-
-        if lang:
-            split = splitter.split(obj.title, title=True)
-            return split.get(lang) or 'languages: {}'.format(list(split.keys()))
-
-        return obj.title
-
-    def get_body(self, obj):
-        lang = self.context['request'].query_params.get('lang')
-
-        if lang:
-            split = splitter.split(obj.body)
-            return split.get(lang) or 'languages: {}'.format(list(split.keys()))
-
-        return obj.body
-
     class Meta:
         model = Topic
         fields = ('url', 'type', 'title', 'body', 'owner', 'editors', 'parents')
