@@ -7,6 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
 
+
 @python_2_unicode_compatible
 class User(AbstractUser):
 
@@ -27,23 +28,16 @@ class User(AbstractUser):
         """
         super(User, self).save(*args, **kwargs)
 
-        IPDB = 0
-
-        my = generate_keypair()
-
-        keypair = CryptoKeypair(
-            user=self,
-            type=IPDB,
-            private_key=my.private_key,
-            public_key=my.public_key
-        )
-        keypair.save()
+        CryptoKeypair.make_one(user=self).save()
 
 
 class CryptoKeypair(models.Model):
-    IPDB = 0
+
+    NONE = 0
+    IPDB = 1
 
     KEY_TYPES = [
+        (NONE, 'None'),
         (IPDB, 'IPDB'),
     ]
 
@@ -53,6 +47,24 @@ class CryptoKeypair(models.Model):
     public_key = models.TextField(null=False, blank=False)
     created_date = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated_date = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    @classmethod
+    def make_one(cls, user, key_type=0, save_private=True):
+        pair = generate_keypair()
+
+        keypair = CryptoKeypair(
+            user=user,
+            type=key_type,
+            private_key=pair.private_key if save_private else None,
+            public_key=pair.public_key
+        )
+
+        if not save_private:
+            setattr(keypair, '_tmp_private_key', pair.private_key)
+        else:
+            setattr(keypair, '_tmp_private_key', None)
+
+        return keypair
 
 
 class OneTimePassword(models.Model):

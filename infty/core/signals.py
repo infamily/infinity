@@ -47,6 +47,13 @@ def _topic_pre_save(sender, instance, *args, **kwargs):
 
     instance.languages = list(langs.keys())
 
+def _topic_post_save(sender, instance, created, *args, **kwargs):
+    """
+    Create topic snapshot in blockchain, if requested.
+    """
+    if instance.blockchain:
+        instance.create_snapshot(blockchain=instance.blockchain)
+
 def _comment_pre_save(sender, instance, *args, **kwargs):
 
     """ Create or preserve language tags for comment text. """
@@ -58,3 +65,10 @@ def _comment_pre_save(sender, instance, *args, **kwargs):
         instance.languages = list(text.keys())
     else:
         instance.languages = []
+
+def _comment_post_save(sender, instance, created, *args, **kwargs):
+    """
+    Create comment snapshot in blockchain, if requested.
+    """
+    if instance.blockchain:
+        instance.create_snapshot(blockchain=instance.blockchain)

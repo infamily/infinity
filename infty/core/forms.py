@@ -1,6 +1,7 @@
 from django import forms
 
-from infty.core.models import Item, Topic
+from infty.core.models import Item, Topic, Comment
+from infty.users.models import CryptoKeypair
 
 
 class ItemForm(forms.ModelForm):
@@ -22,6 +23,23 @@ class TopicForm(forms.ModelForm):
         initial=Topic.IDEA
     )
 
+    blockchain = forms.ChoiceField(
+        choices=CryptoKeypair.KEY_TYPES,
+        initial=False
+    )
+
     class Meta:
         model = Topic
+        exclude = []
+
+
+class CommentForm(forms.ModelForm):
+
+    blockchain = forms.ChoiceField(
+        choices=CryptoKeypair.KEY_TYPES,
+        initial=False
+    )
+
+    class Meta:
+        model = Comment
         exclude = []
