@@ -33,9 +33,11 @@ class User(AbstractUser):
 
 class CryptoKeypair(models.Model):
 
-    IPDB = 0
+    NONE = 0
+    IPDB = 1
 
     KEY_TYPES = [
+        (NONE, 'None'),
         (IPDB, 'IPDB'),
     ]
 

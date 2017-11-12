@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from infty.core.models import *
-from infty.core.forms import TopicForm, ItemForm
+from infty.core.forms import TopicForm, CommentForm, ItemForm
 
 # Register your models here.
 
@@ -9,15 +9,14 @@ from infty.core.forms import TopicForm, ItemForm
 class TypeAdmin(admin.ModelAdmin):
     pass
 
+
 class ItemModelAdmin(admin.ModelAdmin):
     form = ItemForm
+
 
 @admin.register(Item)
 class TopicAdmin(admin.ModelAdmin):
     form = ItemForm
-
-class TopicModelAdmin(admin.ModelAdmin):
-    form = TopicForm
 
 
 @admin.register(Topic)
@@ -27,7 +26,7 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    pass
+    form = CommentForm
 
 
 @admin.register(CommentSnapshot)
@@ -49,9 +48,11 @@ class TransactionAdmin(admin.ModelAdmin):
 class ContributionCertificateAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(Currency)
 class CurrencyAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(CurrencyPriceSnapshot)
 class CurrencyPriceSnapshotAdmin(admin.ModelAdmin):

@@ -12,13 +12,16 @@ from django.contrib.postgres.fields import ArrayField
 
 from django.db.models import Sum
 from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.core import serializers
 
 from .signals import (
     _type_pre_save,
     _item_pre_save,
     _topic_pre_save,
-    _comment_pre_save
+    _comment_pre_save,
+    _topic_post_save,
+    _comment_post_save
 )
 
 import bigchaindb_driver
@@ -83,6 +86,13 @@ def instance_to_save_dict(instance):
 class GenericModel(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+class GenericOptions(models.Model):
+    blockchain = models.PositiveSmallIntegerField(
+        CryptoKeypair.KEY_TYPES, default=False)
 
     class Meta:
         abstract = True
@@ -163,7 +173,7 @@ class Item(GenericModel):
         return '[{}] {}'.format(dict(self.ITEM_TYPES).get(self.type), self.pk)
 
 
-class Topic(GenericModel):
+class Topic(GenericModel, GenericOptions):
     """
     Y: Main content type, to include fields of all infty types.
 
@@ -211,15 +221,12 @@ class Topic(GenericModel):
     )
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
-    def create_snapshot(self, blockchain=True):
+    def create_snapshot(self, blockchain=False):
 
         snapshot = TopicSnapshot(
             topic=self,
             data=instance_to_save_dict(self)
         )
-
-        # blockchain:
-        # blockchain = 0 => IPDB
 
         snapshot.save(blockchain=blockchain)
 
@@ -244,20 +251,19 @@ class TopicSnapshot(GenericSnapshot):
         Save in a blockchain ID= blockchain.
         """
 
-        if not isinstance(blockchain, bool):
-            if isinstance(blockchain, int):
-                txid = blockchain_save(
-                    user=self.topic.owner,
-                    blockchain=blockchain,
-                    data=self.data
-                )
-                self.blockchain = blockchain
-                self.blockchain_tx = txid
+        if blockchain:
+            txid = blockchain_save(
+                user=self.topic.owner,
+                blockchain=blockchain,
+                data=self.data
+            )
+            self.blockchain = blockchain
+            self.blockchain_tx = txid
 
         super(TopicSnapshot, self).save(*args, **kwargs)
 
 
-class Comment(GenericModel):
+class Comment(GenericModel, GenericOptions):
     """
     X: Comments are the place to discuss and claim time and things.
 
@@ -315,7 +321,7 @@ class Comment(GenericModel):
                 AMOUNT = new['claimed_hours'] - obj.matched()
 
                 # Taking snapshot
-                snapshot = self.create_snapshot()
+                snapshot = self.create_snapshot(blockchain=self.blockchain)
 
                 # Recording interaction
                 ix = Interaction(
@@ -511,9 +517,6 @@ class Comment(GenericModel):
             data=instance_to_save_dict(self)
         )
 
-        # blockchain:
-        # blockchain = 0 => IPDB
-
         snapshot.save(blockchain=blockchain)
 
         return snapshot
@@ -588,7 +591,7 @@ class Comment(GenericModel):
 
             amount = AMOUNT / VALUE['in_hours']
 
-            snapshot = self.create_snapshot()
+            snapshot = self.create_snapshot(blockchain=self.blockchain)
 
             tx = Transaction(
                 comment=self,
@@ -629,15 +632,14 @@ class CommentSnapshot(GenericSnapshot):
         Save in a blockchain ID= blockchain.
         """
 
-        if not isinstance(blockchain, bool):
-            if isinstance(blockchain, int):
-                txid = blockchain_save(
-                    user=self.comment.owner,
-                    blockchain=blockchain,
-                    data=self.data
-                )
-                self.blockchain = blockchain
-                self.blockchain_tx = txid
+        if blockchain:
+            txid = blockchain_save(
+                user=self.comment.owner,
+                blockchain=blockchain,
+                data=self.data
+            )
+            self.blockchain = blockchain
+            self.blockchain_tx = txid
 
         super(CommentSnapshot, self).save(*args, **kwargs)
 
@@ -936,3 +938,5 @@ pre_save.connect(_type_pre_save, sender=Type, weak=False)
 pre_save.connect(_item_pre_save, sender=Item, weak=False)
 pre_save.connect(_topic_pre_save, sender=Topic, weak=False)
 pre_save.connect(_comment_pre_save, sender=Comment, weak=False)
+post_save.connect(_topic_post_save, sender=Topic, weak=False)
+post_save.connect(_comment_post_save, sender=Comment, weak=False)
