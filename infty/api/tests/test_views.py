@@ -21,7 +21,7 @@ class TopicCreateTestCase(APITestCase):
 
         self.assertEqual(rv.status_code, 201)
 
-    def test_create_topic_instane_field_ok(self):
+    def test_create_topic_instance_fields_ok(self):
         self.client.post(reverse('topic-list'), data={
             'title': 'Test title',
             'body': 'Test body',
