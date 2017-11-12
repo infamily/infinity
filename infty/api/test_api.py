@@ -240,7 +240,8 @@ class UpdateTopic(APITestCaseAuthorizedUser):
 
         valid_info = {
             'title': 'Test topic 1',
-            "body": "Updated body"
+            'body': "Updated body",
+            'type':  Topic.NEED,
         }
 
         self.response = self.client.put(

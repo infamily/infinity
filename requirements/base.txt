@@ -29,7 +29,7 @@ argon2-cffi==16.3.0
 # For user registration, either via email or social
 # Well-built with regular release cycles!
 django-allauth==0.32.0
-
+django-autofixture==0.12.1
 
 # Python-PostgreSQL Database Adapter
 psycopg2==2.7.1

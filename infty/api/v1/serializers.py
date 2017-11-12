@@ -31,33 +31,29 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'type', 'description', 'languages')
 
 
-class TopicSerializer(serializers.HyperlinkedModelSerializer):
+class LangSplitField(serializers.CharField):
+    """Langsplit CharField"""
+    def to_internal_value(self, data):
+        return super(LangSplitField, self).to_internal_value(data)
 
-    title = serializers.SerializerMethodField()
-    body = serializers.SerializerMethodField()
-    type = serializers.ChoiceField(choices = Topic.TOPIC_TYPES, required=False)
+    def to_representation(self, value):
+        lang = self.context['request'].query_params.get('lang')
+
+        if lang:
+            split = splitter.split(value, title=True)
+            return split.get(lang) or 'languages: {}'.format(list(split.keys()))
+
+        return value
+
+
+class TopicSerializer(serializers.HyperlinkedModelSerializer):
+    title = LangSplitField(required=True)
+    body = LangSplitField(required=True)
+    type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=True)
     owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
     editors = serializers.ReadOnlyField(source='editors.username', read_only=True)
-    parents = serializers.HyperlinkedRelatedField(many = True, view_name='topic-detail', 
+    parents = serializers.HyperlinkedRelatedField(many = True, view_name='topic-detail',
         queryset=Topic.objects.all(), required=False)
-
-    def get_title(self, obj):
-        lang = self.context['request'].query_params.get('lang')
-
-        if lang:
-            split = splitter.split(obj.title, title=True)
-            return split.get(lang) or 'languages: {}'.format(list(split.keys()))
-
-        return obj.title
-
-    def get_body(self, obj):
-        lang = self.context['request'].query_params.get('lang')
-
-        if lang:
-            split = splitter.split(obj.body)
-            return split.get(lang) or 'languages: {}'.format(list(split.keys()))
-
-        return obj.body
 
     class Meta:
         model = Topic
