@@ -23,8 +23,8 @@ class TopicCreateTestCase(APITestCase):
 
     def test_create_topic_instance_fields_ok(self):
         self.client.post(reverse('topic-list'), data={
-            'title': 'Test title',
-            'body': 'Test body',
+            'title': '.:en:Test title',
+            'body': '.:en\nTest body',
             'type': Topic.IDEA,
         })
 
