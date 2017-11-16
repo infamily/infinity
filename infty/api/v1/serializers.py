@@ -57,7 +57,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ('url', 'type', 'title', 'body', 'owner', 'editors', 'parents')
+        fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors', 'parents')
 
 
 
@@ -78,7 +78,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner')
+        fields = ('id', 'url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner')
 
 
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
