@@ -1,6 +1,7 @@
 from rest_framework.decorators import renderer_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, generics, views, schemas, response, renderers
+from django_filters.rest_framework import DjangoFilterBackend
 
 from infty.core.models import (
     Topic,
@@ -70,7 +71,8 @@ class TopicViewSet(CustomViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Topic.objects.all()
     search_fields = ['title']
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -93,7 +95,10 @@ class CommentViewSet(CustomViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Comment.objects.all()
     search_fields = ['text']
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+
+    filter_fields = ('topic',)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
