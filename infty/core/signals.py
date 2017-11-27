@@ -4,14 +4,25 @@ from collections import OrderedDict
 def _type_pre_save(sender, instance, *args, **kwargs):
 
     """ Create or preserve language tags for Type definition. """
-    definition = splitter.split(instance.definition)
 
-    instance.definition = splitter.convert(definition)
+    name = splitter.split(instance.name, title=True)
+    try:
+        definition = splitter.split(instance.definition)
+    except Exception as e:
+        print(e)
+        definition = None
 
-    if isinstance(definition, dict):
-        instance.languages = list(definition.keys())
-    else:
-        instance.languages = []
+    langs = OrderedDict()
+    for lang in list(name.keys()) + list(definition.keys()) if definition else []:
+        if lang in name.keys() and lang in definition.keys():
+            langs[lang] = True
+
+    instance.name = splitter.convert(name, title=True).strip()
+
+    if definition:
+        instance.definition = splitter.convert(definition)
+
+    instance.languages = list(langs.keys())
 
 def _item_pre_save(sender, instance, *args, **kwargs):
 

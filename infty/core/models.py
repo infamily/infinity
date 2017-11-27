@@ -137,14 +137,27 @@ class Type(GenericModel):
     This model will be used to store snapshots of concepts, found in
     various dictionaries and ontologies, that the user will be able to use
     to look up for a type, or create one's own.
+
+    This will also include the concepts, and their labels, where each
+    label and definition can be multilingual.
     """
+    name = models.TextField(null=False, blank=False)
     definition = models.TextField(null=False, blank=False)
+
+    category = models.BooleanField(default=False)
 
     source = models.TextField(null=True, blank=True)
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
+    parents = models.ManyToManyField(
+        'self',
+        blank=True,
+        symmetrical=False,
+        related_name='parent_types'
+    )
+
     def __str__(self):
-        return str(self.pk)
+        return '[{}] {}'.format(self.pk, self.name)
 
 
 class Item(GenericModel):
@@ -204,6 +217,11 @@ class Topic(GenericModel, GenericOptions):
     ]
 
     type = models.PositiveSmallIntegerField(TOPIC_TYPES, default=TASK)
+    categories = models.ManyToManyField(
+        Type,
+        related_name='topic_categories',
+        blank=True
+    )
     title = models.TextField()
     body = models.TextField(null=True, blank=True)
 
