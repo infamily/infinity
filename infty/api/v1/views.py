@@ -57,6 +57,15 @@ class TypeViewSet(CustomViewSet):
     serializer_class = TypeSerializer
     queryset = Type.objects.all()
 
+    def get_queryset(self):
+        qs = super(TypeViewSet, self).get_queryset()
+
+        lang = self.request.query_params.get('lang', None)
+
+        if lang:
+            return qs.filter(languages__contains=[lang])
+
+        return qs
 
 class ItemViewSet(CustomViewSet):
 
