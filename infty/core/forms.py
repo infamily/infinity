@@ -1,6 +1,6 @@
 from django import forms
 
-from infty.core.models import Item, Topic, Comment
+from infty.core.models import Item, Type, Topic, Comment
 from infty.users.models import CryptoKeypair
 
 

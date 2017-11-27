@@ -57,7 +57,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors', 'parents', 'languages')
+        fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors', 'parents', 'categories', 'languages')
 
 
 
