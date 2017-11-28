@@ -87,7 +87,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
-    text = serializers.SerializerMethodField()
+    text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(view_name='topic-detail', queryset=Topic.objects.all())
     owner = serializers.ReadOnlyField(source='owner.username')
 
