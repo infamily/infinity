@@ -6,10 +6,12 @@ from infty.users.models import CryptoKeypair
 
 class ItemForm(forms.ModelForm):
 
-    type = forms.ChoiceField(
-        choices=Item.ITEM_TYPES,
-        initial=Item.AGENT
+    role = forms.ChoiceField(
+        choices=Item.ITEM_ROLES,
+        initial=Item.ASSET
     )
+
+    identifiers = forms.CharField()
 
     class Meta:
         model = Item

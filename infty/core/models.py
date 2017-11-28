@@ -170,20 +170,23 @@ class Item(GenericModel):
     PLACE = 2
     EVENT = 3
 
-    ITEM_TYPES = [
+    ITEM_ROLES = [
         (ASSET, 'Thing'),
         (AGENT, 'Agent'),
         (PLACE, 'Place'),
         (EVENT, 'Event'),
     ]
 
-    type = models.PositiveSmallIntegerField(ITEM_TYPES, default=AGENT)
+    role = models.PositiveSmallIntegerField(ITEM_ROLES, default=ASSET)
+    concept = models.ForeignKey(Type, null=False, blank=False)
 
+    identifiers = models.TextField(null=False, blank=False)
     description = models.TextField(null=False, blank=False)
+
     languages = ArrayField(models.CharField(max_length=2), blank=True)
 
     def __str__(self):
-        return '[{}] {}'.format(dict(self.ITEM_TYPES).get(self.type), self.pk)
+        return '[{}] {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk)
 
 
 class Topic(GenericModel, GenericOptions):
