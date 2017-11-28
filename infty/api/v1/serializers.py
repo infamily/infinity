@@ -45,7 +45,7 @@ class ItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Item
-        fields = ('url', 'type', 'description', 'languages')
+        fields = ('url', 'role', 'description', 'languages')
 
 
 class TopicCategoriesField(serializers.RelatedField):
