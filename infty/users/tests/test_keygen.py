@@ -15,7 +15,7 @@ class TestKeygen(TestCase):
     def test_name_correct(self):
         self.assertEqual(
             self.trader.username,
-            'trader'
+            'Trader@75A23485'
         )
 
     def test_create_ipdb_keypair(self):
