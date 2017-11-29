@@ -1,3 +1,5 @@
+import hashlib
+
 from bigchaindb_driver.crypto import generate_keypair
 
 from django.contrib.auth.models import AbstractUser
@@ -26,6 +28,15 @@ class User(AbstractUser):
         """
         Also do some things during the creation of user.
         """
+
+        if self.email:
+            name, domain = self.email.lower().split('@')
+
+            user_hash = hashlib.sha1(
+                self.email.encode('utf-8')).hexdigest()[:8]
+
+            self.name = "{}@{}".format(name.title(), user_hash.upper())
+
         super(User, self).save(*args, **kwargs)
 
         CryptoKeypair.make_one(user=self).save()
