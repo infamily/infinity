@@ -35,7 +35,7 @@ class User(AbstractUser):
             user_hash = hashlib.sha1(
                 self.email.encode('utf-8')).hexdigest()[:8]
 
-            self.name = "{}@{}".format(name.title(), user_hash.upper())
+            self.username = "{}@{}".format(name.title(), user_hash.upper())
 
         super(User, self).save(*args, **kwargs)
 

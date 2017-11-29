@@ -70,8 +70,8 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
     body = LangSplitField(required=True)
     type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=True)
-    owner = serializers.ReadOnlyField(source='owner.name', read_only=True)
-    editors = serializers.ReadOnlyField(source='editors.name', read_only=True)
+    owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
+    editors = serializers.ReadOnlyField(source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(
         many = True,
         view_name='topic-detail',
@@ -89,7 +89,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(view_name='topic-detail', queryset=Topic.objects.all())
-    owner = serializers.ReadOnlyField(source='owner.name')
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     def get_text(self, obj):
         lang = self.context['request'].query_params.get('lang')
@@ -135,9 +135,10 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     transaction = serializers.HyperlinkedRelatedField(view_name='transaction-detail', queryset=Transaction.objects.all())
-    comment_snapshot = serializers.HyperlinkedRelatedField(view_name='comment-snapshot-detail', queryset=CommentSnapshot.objects.all())
-    received_by = serializers.ReadOnlyField(source='received_by.name')
+    # comment_snapshot = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=CommentSnapshot.objects.all())
+    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=CommentSnapshot.objects.all())
+    received_by = serializers.ReadOnlyField(source='received_by.username')
 
     class Meta:
         model = Interaction
-        fields = ('url', 'transaction', 'comment_snapshot', 'received_by')
+        fields = ('url', 'transaction', 'comment', 'received_by')
