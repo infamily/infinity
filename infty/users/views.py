@@ -97,4 +97,4 @@ class OTPRegister(views.APIView):
 class OTPLogin(views.APIView):
     def post(self, request):
         user = request.user
-        return HttpResponse()
+        return HttpResponse(json.dumps({'username': user.username}), content_type='application/json')
