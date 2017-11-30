@@ -27,7 +27,7 @@ class OneTimePasswordLoginForm(forms.Form):
         self.email = email
         super(OneTimePasswordLoginForm, self).__init__(*args, **kwargs)
     def clean(self):
-        cleaned_data = cleaned_data = super(OneTimePasswordLoginForm, self).clean()
+        cleaned_data = super(OneTimePasswordLoginForm, self).clean()
         otp = cleaned_data.get("one_time_password")
         email = self.email
         otp_obj = OneTimePassword.objects.filter(user__email=email, is_active=True, is_used=False).last()
