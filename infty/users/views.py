@@ -74,7 +74,7 @@ class OTPRegister(views.APIView):
             email = form.cleaned_data.get("email")
             if email:
                 email=email.lower()
-                user, created = User.objects.get_or_create(email=email, username=email, is_active=True)
+                user, created = User.objects.get_or_create(email=email, is_active=True)
                 OneTimePassword.objects.filter(user=user, is_active=True).update(is_active=False)
                 password = OneTimePassword.objects.create(user=user)
                 token, created = Token.objects.get_or_create(user=user)
