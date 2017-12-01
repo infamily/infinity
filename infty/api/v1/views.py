@@ -89,6 +89,11 @@ class TopicViewSet(CustomViewSet):
     def get_queryset(self):
         qs = super(TopicViewSet, self).get_queryset()
 
+        TYPE = self.request.query_params.get('type', None)
+
+        if TYPE:
+            qs = qs.filter(type=TYPE)
+
         lang = self.request.query_params.get('lang', None)
 
         if lang:
