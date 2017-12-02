@@ -1,72 +1,29 @@
-from django.db import models
-
-from django.contrib.postgres.fields import JSONField
-
-import json
-import bigchaindb_driver
-from re import finditer
 from decimal import Decimal
 
+from django.db import models
+from django.db.models import Sum
+from django.contrib.postgres.fields import JSONField
+from django.utils.translation import ugettext_lazy as _
 
-bdb = bigchaindb_driver.BigchainDB(
-    settings.IPDB_API_ROOT,
-    headers={
-        'app_id': settings.IPDB_APP_ID,
-        'app_key': settings.IPDB_APP_KEY
-    }
-)
-
-def blockchain_save(user, data, blockchain=False):
-
-    if blockchain in dict(CryptoKeypair.KEY_TYPES).keys():
-
-        cryptokey_qs = CryptoKeypair.objects.filter(
-            user=user,
-            type=blockchain,
-            private_key__isnull=False
-        )
-
-        if not cryptokey_qs.exists():
-            keypair = CryptoKeypair.make_one(user=user)
-            keypair.save()
-        else:
-            keypair = cryptokey_qs.last()
-
-        tx = bdb.transactions.prepare(
-            operation='CREATE',
-            signers=keypair.public_key,
-            asset={'data': data},
-        )
-
-        signed_tx = bdb.transactions.fulfill(
-            tx,
-            private_keys=keypair.private_key
-        )
-
-        sent_tx = bdb.transactions.send(signed_tx)
-
-        txid = sent_tx['id']
-
-        # Try 100 times till completion.
-        trials = 0
-
-        while trials < 100:
-            try:
-                if bdb.transactions.status(txid).get('status') == 'valid':
-                    return txid
-            except bigchaindb_driver.exceptions.NotFoundError:
-                    trials += 1
-        return None
+from infty.generic.models import GenericModel
+from infty.users.models import User
+from infty.transactions.utils import blockchain_save
 
 
+class GenericSnapshot(GenericModel):
+    blockchain = models.PositiveSmallIntegerField(blank=True, null=True)
+    blockchain_tx = models.TextField(blank=True, null=True)
+
+    class Meta:
+        abstract = True
 
 
 class TopicSnapshot(GenericSnapshot):
     """
     Whenever topic is changed, we store its here, and a copy in BigChainDB.
     """
+    topic = models.ForeignKey('core.Topic')
     data = JSONField()
-    topic = models.ForeignKey(Topic)
 
     def __str__(self):
         return "Topic snapshot for {}".format(self.topic)
@@ -75,7 +32,6 @@ class TopicSnapshot(GenericSnapshot):
         """
         Save in a blockchain ID= blockchain.
         """
-
         if blockchain:
             txid = blockchain_save(
                 user=self.topic.owner,
@@ -85,7 +41,11 @@ class TopicSnapshot(GenericSnapshot):
             self.blockchain = blockchain
             self.blockchain_tx = txid
 
-        super(TopicSnapshot, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = _("Topic Snapshot")
+        verbose_name_plural = _("Topic Snapshots")
 
 
 class CommentSnapshot(GenericSnapshot):
@@ -95,9 +55,8 @@ class CommentSnapshot(GenericSnapshot):
 
     To be saved in BigchainDB, possibly e-mailed, and posted on social media.
     """
-
+    comment = models.ForeignKey('core.Comment')
     data = JSONField()
-    comment = models.ForeignKey(Comment)
 
     def __str__(self):
         return "Comment snapshot for {}".format(self.comment)
@@ -106,7 +65,6 @@ class CommentSnapshot(GenericSnapshot):
         """
         Save in a blockchain ID= blockchain.
         """
-
         if blockchain:
             txid = blockchain_save(
                 user=self.comment.owner,
@@ -116,36 +74,27 @@ class CommentSnapshot(GenericSnapshot):
             self.blockchain = blockchain
             self.blockchain_tx = txid
 
-        super(CommentSnapshot, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
-HOUR_PRICE_SOURCES = {
-    'FRED': 'https://api.stlouisfed.org/fred/series/observations?series_id=CES0500000003&api_key=0a90ca7b5204b2ed6e998d9f6877187e&limit=1&sort_order=desc&file_type=json'
-}
-
-CURRENCY_PRICE_SOURCES = {
-    'FIXER': 'https://api.fixer.io/latest?base=eur'
-}
+    class Meta:
+        verbose_name = _("Topic Snapshot")
+        verbose_name_plural = _("Topic Snapshots")
 
 
 class Currency(GenericModel):
     """
     Currency labels, e.g. 'EUR', 'CNY', 'USD'.
     """
-    label = models.CharField(max_length=10)
+    label = models.CharField(max_length=16)
 
-    def save(self, *args, **kwargs):
-        """
-        Save in upper case.
-        """
-        self.label = self.label.upper()
-        super(Currency, self).save(*args, **kwargs)
-
-    def in_hours(self,
-                 hour_price_obj=None,
-                 currency_price_obj=None,
-                 hour_price_source='FRED',
-                 currency_price_source='FIXER',
-                 objects=False):
+    def in_hours(
+            self,
+            hour_price_obj=None,
+            currency_price_obj=None,
+            hour_price_source='FRED',
+            currency_price_source='FIXER',
+            objects=False
+        ):
         """
         Compute the value of currency in hours.
         """
@@ -160,9 +109,8 @@ class Currency(GenericModel):
                 name=currency_price_source
             ).last()
 
-        if hour_price_obj.name =='FRED' and \
-            currency_price_obj.name=='FIXER':
-
+        if hour_price_obj.name == 'FRED' and \
+            currency_price_obj.name == 'FIXER':
 
             rates = currency_price_obj.data['rates']
             rates[currency_price_obj.base.label] = 1.
@@ -185,8 +133,16 @@ class Currency(GenericModel):
     def __str__(self):
         return self.label
 
+    def save(self, *args, **kwargs):
+        """
+        Save in upper case.
+        """
+        self.label = self.label.upper()
+        return super().save(*args, **kwargs)
+
     class Meta:
-        verbose_name_plural = "currencies"
+        verbose_name = _("Currency")
+        verbose_name_plural = _("Currencies")
 
 
 class HourPriceSnapshot(GenericSnapshot):
@@ -208,6 +164,10 @@ class HourPriceSnapshot(GenericSnapshot):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Hour Price Snapshot")
+        verbose_name_plural = _("Hour Price Snapshots")
+
 
 class CurrencyPriceSnapshot(GenericSnapshot):
     """
@@ -228,6 +188,10 @@ class CurrencyPriceSnapshot(GenericSnapshot):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Currency Price Snapshot")
+        verbose_name_plural = _("Currency Price Snapshots")
+
 
 class Interaction(GenericModel):
     """
@@ -236,10 +200,19 @@ class Interaction(GenericModel):
     They are actions of claiming time - claimed_hours, assumed_hours.
     """
 
-    comment = models.ForeignKey(Comment)
+    comment = models.ForeignKey('core.Comment')
     snapshot = models.ForeignKey(CommentSnapshot)
 
-    claimed_hours_to_match = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    claimed_hours_to_match = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
+
+    class Meta:
+        verbose_name = _("Interaction")
+        verbose_name_plural = _("Interactions")
 
 
 class Transaction(GenericModel):
@@ -249,38 +222,49 @@ class Transaction(GenericModel):
     They are actions of covering time - matched_hours, donated_hours.
     """
 
-    comment = models.ForeignKey(Comment)
+    comment = models.ForeignKey('core.Comment')
     snapshot = models.ForeignKey(CommentSnapshot)
     hour_price = models.ForeignKey(HourPriceSnapshot)
     currency_price = models.ForeignKey(CurrencyPriceSnapshot)
 
-    payment_amount = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    payment_amount = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
     payment_currency = models.ForeignKey(Currency)
     payment_recipient = models.ForeignKey(User, related_name='recipient')
     payment_sender = models.ForeignKey(User, related_name='sender')
-    hour_unit_cost = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    hour_unit_cost = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
 
-    donated_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-    matched_hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
-
-    def save(self, *args, **kwargs):
-        """
-        Save comment created date to parent object.
-        """
-        self.set_hours()
-        super(Transaction, self).save(*args, **kwargs)
-        self.create_contribution_certificates()
+    donated_hours = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
+    matched_hours = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
 
     def set_hours(self):
-        """ Hours matched up with claimed time. """
-        paid_in_hours = self.payment_amount/self.hour_unit_cost
-
+        # Hours matched up with claimed time.
+        paid_in_hours = self.payment_amount / self.hour_unit_cost
 
         # self.matched_hours = min(self.snapshot.claimed_hours, paid_in_hours)
         remaining_claimed_time = self.comment.claimed_hours - self.comment.matched()
         self.matched_hours = min(remaining_claimed_time, paid_in_hours)
 
-        """ Hours not matched up.  """
+        # Hours not matched up.
         # self.donated_hours = min(self.snapshot.assumed_hours, paid_in_hours - self.matched_hours)
         remaining_assumed_time = self.comment.assumed_hours - self.comment.donated()
         self.donated_hours = min(remaining_assumed_time, paid_in_hours - self.matched_hours)
@@ -291,53 +275,56 @@ class Transaction(GenericModel):
         ============================================================
         remaining_claimed_time , remaining_assumed_time
         """
-        remaining_claimed_time = self.comment.claimed_hours - self.comment.matched()
-        remaining_assumed_time = self.comment.assumed_hours - self.comment.donated()
-
-
-
-        DOER = 0
-        INVESTOR = 1
+        # remaining_claimed_time = self.comment.claimed_hours - self.comment.matched()
+        # remaining_assumed_time = self.comment.assumed_hours - self.comment.donated()
 
         if self.matched_hours:
-            doer_cert = ContributionCertificate(
-                type=DOER,
+            ContributionCertificate.objects.create(
+                type=ContributionCertificate.DOER,
                 transaction=self,
                 comment_snapshot=self.snapshot,
-                hours=self.matched_hours/Decimal(2.),
+                hours=self.matched_hours / Decimal(2.),
                 matched=True,
                 received_by=self.payment_recipient,
             )
-            doer_cert.save()
-            investor_cert = ContributionCertificate(
-                type=INVESTOR,
+            ContributionCertificate.objects.create(
+                type=ContributionCertificate.INVESTOR,
                 transaction=self,
                 comment_snapshot=self.snapshot,
-                hours=self.matched_hours/Decimal(2.),
+                hours=self.matched_hours / Decimal(2.),
                 matched=True,
                 received_by=self.payment_sender,
             )
-            investor_cert.save()
 
         if self.donated_hours:
-            doer_cert = ContributionCertificate(
-                type=DOER,
+            ContributionCertificate.objects.create(
+                type=ContributionCertificate.DOER,
                 transaction=self,
                 comment_snapshot=self.snapshot,
-                hours=self.donated_hours/Decimal(2.),
+                hours=self.donated_hours / Decimal(2.),
                 matched=False,
                 received_by=self.payment_recipient,
             )
-            doer_cert.save()
-            investor_cert = ContributionCertificate(
-                type=INVESTOR,
+            ContributionCertificate.objects.create(
+                type=ContributionCertificate.INVESTOR,
                 transaction=self,
                 comment_snapshot=self.snapshot,
                 hours=self.donated_hours/Decimal(2.),
                 matched=False,
                 received_by=self.payment_sender,
             )
-            investor_cert.save()
+
+    def save(self, *args, **kwargs):
+        """
+        Save comment created date to parent object.
+        """
+        self.set_hours()
+        super().save(*args, **kwargs)
+        self.create_contribution_certificates()
+
+    class Meta:
+        verbose_name = _("Transaction")
+        verbose_name_plural = _("Transactions")
 
 
 class ContributionCertificate(GenericModel):
@@ -364,21 +351,25 @@ class ContributionCertificate(GenericModel):
     INVESTOR = 1
 
     CERTIFICATE_TYPES = [
-        (DOER, 'DOER'),
-        (INVESTOR, 'INVESTOR'),
+        (DOER, _('DOER')),
+        (INVESTOR, _('INVESTOR')),
     ]
 
     type = models.PositiveSmallIntegerField(CERTIFICATE_TYPES, default=DOER)
     transaction = models.ForeignKey(Transaction)
     interaction = models.ForeignKey(Interaction, blank=True, null=True)
     comment_snapshot = models.ForeignKey(CommentSnapshot)
-    hours = models.DecimalField(default=0.,decimal_places=8,max_digits=20,blank=False)
+    hours = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False
+    )
     matched = models.BooleanField(default=True)
     received_by = models.ForeignKey(User)
 
     broken = models.BooleanField(default=False)
     parent = models.ForeignKey('self', blank=True, null=True)
-
 
     @classmethod
     def user_matched(cls, user):
@@ -407,3 +398,7 @@ class ContributionCertificate(GenericModel):
                     total=Sum('hours')
                 ).get('total')
             or 0)
+
+    class Meta:
+        verbose_name = _("Contribution Certificate")
+        verbose_name_plural = _("Contribution Certificates")

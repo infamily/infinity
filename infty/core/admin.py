@@ -1,13 +1,12 @@
 from django.contrib import admin
 
-from infty.core.models import *
-from infty.core.forms import TopicForm, CommentForm, InstanceForm
+from infty.core.models import Type, Instance, Topic, Comment
+from infty.core.forms import TypeForm, InstanceForm, TopicForm, CommentForm
 
-# Register your models here.
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
-    pass
+    form = TypeForm
 
 
 @admin.register(Instance)

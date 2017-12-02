@@ -13,11 +13,3 @@ class GenericModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class GenericSnapshot(GenericModel):
-    blockchain = models.PositiveSmallIntegerField(blank=True, null=True)
-    blockchain_tx = models.TextField(blank=True, null=True)
-
-    class Meta:
-        abstract = True

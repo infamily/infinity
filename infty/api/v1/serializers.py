@@ -1,9 +1,14 @@
+from langsplit import splitter
+
 from rest_framework import serializers
+
 from infty.core.models import (
     Type,
-    Item,
+    Instance,
     Topic,
     Comment,
+)
+from infty.transactions.models import (
     Currency,
     Transaction,
     Interaction,
@@ -13,8 +18,6 @@ from infty.core.models import (
     ContributionCertificate
 )
 from infty.users.models import User
-
-from langsplit import splitter
 
 
 class LangSplitField(serializers.CharField):
@@ -41,10 +44,10 @@ class TypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'name', 'definition', 'source', 'languages')
 
 
-class ItemSerializer(serializers.HyperlinkedModelSerializer):
+class InstanceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = Item
+        model = Instance
         fields = ('url', 'role', 'description', 'languages')
 
 
@@ -68,8 +71,8 @@ class CategoriesField(serializers.RelatedField):
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
-    body = LangSplitField(required=True)
-    type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=True)
+    body = LangSplitField(required=False)
+    type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=False)
     owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
     editors = serializers.ReadOnlyField(source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(

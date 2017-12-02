@@ -16,7 +16,7 @@ class SignupForm(forms.Form):
             #django-allauth lowers emails
             email = cleaned_data.get("email").lower()
             today = timezone.now().date()
-            otp_generation_nmb = OneTimePassword.objects.filter(user__email=email, created__gte=today).count()
+            otp_generation_nmb = OneTimePassword.objects.filter(user__email=email, created_date__gte=today).count()
             if otp_generation_nmb > settings.OTP_GENERATION_LIMIT:
                 raise forms.ValidationError("You have reached a limit for one-time-password generating for today! Try again tomorrow!")
         return cleaned_data

@@ -4,6 +4,13 @@ from infty.core.models import Type, Instance, Topic, Comment
 from infty.users.models import CryptoKeypair
 
 
+class TypeForm(forms.ModelForm):
+
+    class Meta:
+        model = Type
+        exclude = []
+
+
 class InstanceForm(forms.ModelForm):
 
     role = forms.ChoiceField(

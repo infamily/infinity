@@ -1,41 +1,60 @@
 from decimal import Decimal
 from re import finditer
+from langsplit import splitter
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Sum
-from django.db.models.signals import pre_save
-from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+import django.db.models.options as options
 
 from infty.generic.models import GenericModel
 from infty.users.models import User, CryptoKeypair
-from infty.transactions.models import (
-    TopicSnapshot,
-    CommentSnapshot,
-    ContributionCertificate,
-    Currency,
-    Transaction,
-)
-from infty.core.utils import instance_to_save_dict
-from infty.core.signals import (
-    _type_pre_save,
-    _item_pre_save,
-    _topic_pre_save,
-    _comment_pre_save,
-    _topic_post_save,
-    _comment_post_save
+from infty.transactions.mixins import (
+    TopicTransactionMixin,
+    CommentTransactionMixin
 )
 
 
-class GenericLanguagesModel(GenericModel):
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('translation_fields',)
+
+
+class GenericTranslationModel(GenericModel):
     languages = ArrayField(models.CharField(max_length=2), blank=True)
+
+    def save(self, *args, **kwargs):
+        translation_fields = getattr(self._meta, 'translation_fields', ())
+        lang_keys = []
+        for translation_field, translation_title in translation_fields:
+            try:
+                field_data = splitter.split(
+                    getattr(self, translation_field),
+                    title=translation_title
+                )
+                if field_data:
+                    setattr(
+                        self,
+                        translation_field,
+                        splitter.convert(
+                            field_data,
+                            title=translation_title
+                        ).strip()
+                    )
+                    lang_keys.append(field_data.keys())
+            except Exception:
+                pass
+
+        self.languages = list(
+            set.intersection(
+                *[set(key_pair) for key_pair in lang_keys]
+            )
+        )
+        return super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
 
 
-class Type(GenericLanguagesModel):
+class Type(GenericTranslationModel):
     """
     A Type is a snapshot of a definition of a concept by its qualities:
 
@@ -87,8 +106,16 @@ class Type(GenericLanguagesModel):
     def __str__(self):
         return '[{}] {}'.format(self.pk, self.name)
 
+    class Meta:
+        translation_fields = (
+            ('name', True),
+            ('definition', False),
+        )
+        verbose_name = _("Type")
+        verbose_name_plural = _("Types")
 
-class Instance(GenericLanguagesModel):
+
+class Instance(GenericTranslationModel):
     """
     F: Instances are references to anything with respect to which we
     will formulate goals. To be implemented in blockchain db.
@@ -114,8 +141,15 @@ class Instance(GenericLanguagesModel):
     def __str__(self):
         return '[{}] {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk)
 
+    class Meta:
+        translation_fields = (
+            ('description', False),
+        )
+        verbose_name = _("Instance")
+        verbose_name_plural = _("Instances")
 
-class Topic(GenericLanguagesModel):
+
+class Topic(TopicTransactionMixin, GenericTranslationModel):
     """
     Y: Main content type, to include fields of all infty types.
 
@@ -169,18 +203,24 @@ class Topic(GenericLanguagesModel):
 
     blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
 
-    def create_snapshot(self, blockchain=False):
-        return TopicSnapshot(
-            blockchain=blockchain,
-            topic=self,
-            data=instance_to_save_dict(self)
-        ).create()
-
     def __str__(self):
         return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.blockchain:
+            self.create_snapshot(blockchain=self.blockchain)
 
-class Comment(GenericLanguagesModel):
+    class Meta:
+        translation_fields = (
+            ('title', True),
+            ('body', False),
+        )
+        verbose_name = _("Topic")
+        verbose_name_plural = _("Topics")
+
+
+class Comment(CommentTransactionMixin, GenericTranslationModel):
     """
     X: Comments are the place to discuss and claim time and things.
 
@@ -189,7 +229,6 @@ class Comment(GenericLanguagesModel):
 
     Note: order of languages is preserved, in the order of input.
     """
-
     topic = models.ForeignKey(Topic)
     text = models.TextField()
 
@@ -215,135 +254,38 @@ class Comment(GenericLanguagesModel):
         claimed_hours = Decimal(0.0)
         assumed_hours = Decimal(0.0)
 
-        for m in finditer('\{([^}]+)\}', text):
+        for m in finditer(r'\{([^}]+)\}', text):
             token = m.group(1)
             if token:
                 if token[0] == '?':
                     try:
                         hours = float(token[1:])
                         assumed_hours += Decimal(hours)
-                    except:
+                    except Exception:
                         pass
                 else:
                     try:
                         hours = float(token)
                         claimed_hours += Decimal(hours)
-                    except:
+                    except Exception:
                         pass
         return {
             'claimed_hours': claimed_hours,
             'assumed_hours': assumed_hours,
         }
 
-    def create_snapshot(self, blockchain=False):
-
-        snapshot = CommentSnapshot(
-            comment=self,
-            data=instance_to_save_dict(self)
-        )
-
-        snapshot.save(blockchain=blockchain)
-
-        return snapshot
-
-    def contributions(self):
-        return ContributionCertificate.objects.filter(
-                comment_snapshot__comment=self
-            ).count()
-
-    def matched(self, by=None):
-        """
-        Hours matched.
-        """
-        if by:
-            return Decimal(ContributionCertificate.objects.filter(
-                comment_snapshot__comment=self, matched=True, broken=False, received_by=by).aggregate(
-                total=Sum('hours')
-            ).get('total') or 0)
-
-        return Decimal(ContributionCertificate.objects.filter(
-            comment_snapshot__comment=self, matched=True, broken=False).aggregate(
-            total=Sum('hours')
-        ).get('total') or 0)
-
-    def donated(self, by=None):
-        """
-        Hours donated.
-        """
-        if by:
-            return Decimal(ContributionCertificate.objects.filter(
-                comment_snapshot__comment=self, matched=False, broken=False, received_by=by).aggregate(
-                total=Sum('hours')
-            ).get('total') or 0)
-
-
-        return Decimal(ContributionCertificate.objects.filter(
-            comment_snapshot__comment=self, matched=False, broken=False).aggregate(
-            total=Sum('hours')
-        ).get('total') or 0)
-
-    def invested(self):
-        """
-        Hours invested.  = self.matched() + self.donated()
-        """
-
-        return Decimal(ContributionCertificate.objects.filter(
-            comment_snapshot__comment=self, broken=False).aggregate(
-            total=Sum('hours')
-        ).get('total') or 0)
-
-    def remains(self):
-        """
-        Hours in comment, not yet covered by investment.
-        """
-        return self.claimed_hours + self.assumed_hours - self.invested()
-
-    def invest(self, hour_amount, payment_currency_label, investor):
-        """
-        Investing into .claimed_time, and .assumed_time.
-        Generating Transaction, ContributionCertificates for
-        comment owner, and investor.
-        """
-
-        AMOUNT = min(Decimal(hour_amount), self.remains())
-
-        CURRENCY = Currency.objects.get(
-            label=payment_currency_label.upper()
-        )
-
-        VALUE = CURRENCY.in_hours(objects=True)
-
-        if AMOUNT:
-
-            amount = AMOUNT / VALUE['in_hours']
-
-            snapshot = self.create_snapshot(blockchain=self.blockchain)
-
-            tx = Transaction(
-                comment=self,
-                snapshot=snapshot,
-                hour_price=VALUE['hour_price_snapshot'],
-                currency_price=VALUE['currency_price_snapshot'],
-
-                payment_amount=amount,
-                payment_currency=CURRENCY,
-                payment_recipient=self.owner,
-                payment_sender=investor,
-                hour_unit_cost=Decimal(1.)/VALUE['in_hours'],
-            )
-            tx.save()
-
-            return tx
-
     def __str__(self):
         return "Comment for {}".format(self.topic)
 
+    def save(self, *args, **kwargs):
+        self.proceed_interaction()
+        super().save(*args, **kwargs)
+        if self.blockchain:
+            self.create_snapshot(blockchain=self.blockchain)
 
-
-
-pre_save.connect(_type_pre_save, sender=Type, weak=False)
-pre_save.connect(_item_pre_save, sender=Instance, weak=False)
-pre_save.connect(_topic_pre_save, sender=Topic, weak=False)
-pre_save.connect(_comment_pre_save, sender=Comment, weak=False)
-post_save.connect(_topic_post_save, sender=Topic, weak=False)
-post_save.connect(_comment_post_save, sender=Comment, weak=False)
+    class Meta:
+        translation_fields = (
+            ('text', False),
+        )
+        verbose_name = _("Comment")
+        verbose_name_plural = _("Comments")
