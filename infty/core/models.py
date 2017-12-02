@@ -43,6 +43,7 @@ class GenericTranslationModel(GenericModel):
             except Exception:
                 pass
 
+        # TODO ordering issue
         self.languages = list(
             set.intersection(
                 *[set(key_pair) for key_pair in lang_keys]
