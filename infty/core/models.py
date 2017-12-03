@@ -45,8 +45,8 @@ class GenericTranslationModel(GenericModel):
 
         # TODO ordering issue
         self.languages = list(
-            set.intersection(
-                *[set(key_pair) for key_pair in lang_keys]
+            frozenset.intersection(
+                *[frozenset(key_pair) for key_pair in lang_keys]
             )
         )
         return super().save(*args, **kwargs)
