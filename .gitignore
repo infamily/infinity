@@ -49,6 +49,8 @@ htmlcov
 *.swp
 *.swo
 
+*.vscode
+
 # npm
 node_modules/
 

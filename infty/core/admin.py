@@ -1,22 +1,17 @@
 from django.contrib import admin
 
-from infty.core.models import *
-from infty.core.forms import TopicForm, CommentForm, ItemForm
+from infty.core.models import Type, Instance, Topic, Comment
+from infty.core.forms import TypeForm, InstanceForm, TopicForm, CommentForm
 
-# Register your models here.
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
-    pass
+    form = TypeForm
 
 
-class ItemModelAdmin(admin.ModelAdmin):
-    form = ItemForm
-
-
-@admin.register(Item)
-class TopicAdmin(admin.ModelAdmin):
-    form = ItemForm
+@admin.register(Instance)
+class InstanceModelAdmin(admin.ModelAdmin):
+    form = InstanceForm
 
 
 @admin.register(Topic)
@@ -27,33 +22,3 @@ class TopicAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     form = CommentForm
-
-
-@admin.register(CommentSnapshot)
-class CommentAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(HourPriceSnapshot)
-class HourPriceSnapshotAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(ContributionCertificate)
-class ContributionCertificateAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(Currency)
-class CurrencyAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(CurrencyPriceSnapshot)
-class CurrencyPriceSnapshotAdmin(admin.ModelAdmin):
-    pass
