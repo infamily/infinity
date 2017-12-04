@@ -1,18 +1,22 @@
 # Create your tests here.
-import requests, json
 from decimal import Decimal
+import json
+
 from test_plus.test import TestCase
+
+from django.db.models import Sum
+
 from infty.core.models import (
     Topic,
     Comment,
+)
+from infty.transactions.models import (
     Currency,
     HourPriceSnapshot,
     CurrencyPriceSnapshot,
-    CommentSnapshot,
-    Transaction,
     ContributionCertificate
 )
-from django.db.models import Sum
+
 
 class TestTopic(TestCase):
 

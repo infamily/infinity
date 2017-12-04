@@ -1,20 +1,27 @@
 from django import forms
 
-from infty.core.models import Item, Type, Topic, Comment
+from infty.core.models import Type, Instance, Topic, Comment
 from infty.users.models import CryptoKeypair
 
 
-class ItemForm(forms.ModelForm):
+class TypeForm(forms.ModelForm):
+
+    class Meta:
+        model = Type
+        exclude = []
+
+
+class InstanceForm(forms.ModelForm):
 
     role = forms.ChoiceField(
-        choices=Item.ITEM_ROLES,
-        initial=Item.ASSET
+        choices=Instance.ITEM_ROLES,
+        initial=Instance.THING
     )
 
     identifiers = forms.CharField()
 
     class Meta:
-        model = Item
+        model = Instance
         exclude = []
 
 

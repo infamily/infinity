@@ -34,7 +34,7 @@ class TestKeygen(TestCase):
         )
 
     def test_create_ipdb_keypair_not_saving_private_key(self):
-        keypair = CryptoKeypair.make_one(
+        keypair = CryptoKeypair.objects.make_one(
             user=self.trader, save_private=False
         )
         keypair.save()
@@ -49,7 +49,7 @@ class TestKeygen(TestCase):
         )
 
     def test_create_ipdb_keypair_with_saving_private_key(self):
-        keypair = CryptoKeypair.make_one(user=self.trader)
+        keypair = CryptoKeypair.objects.make_one(user=self.trader)
         keypair.save()
 
         self.assertTrue(

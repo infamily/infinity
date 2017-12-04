@@ -59,10 +59,10 @@ THIRD_PARTY_APPS = [
 
 # Apps specific for this project go here.
 LOCAL_APPS = [
-    # custom users app
-    'infty.users.apps.UsersConfig',
-    'infty.core.apps.CoreConfig',
-    # Your stuff: custom apps go here
+    'infty.generic',
+    'infty.users',
+    'infty.core',
+    'infty.transactions',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

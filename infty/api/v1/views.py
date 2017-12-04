@@ -1,28 +1,45 @@
 from rest_framework.decorators import renderer_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import viewsets, generics, views, schemas, response, renderers
+from rest_framework import (
+    viewsets,
+    schemas,
+    response,
+    renderers,
+    mixins,
+    filters
+)
+
 from django_filters.rest_framework import DjangoFilterBackend
 
 from infty.core.models import (
+    Type,
+    Instance,
     Topic,
     Comment,
-    CommentSnapshot,
+)
+from infty.transactions.models import (
     Interaction,
     Transaction,
     ContributionCertificate
 )
-from infty.api.v1.serializers import *
+from infty.api.v1.serializers import (
+    TypeSerializer,
+    InstanceSerializer,
+    TopicSerializer,
+    CommentSerializer,
 
-from rest_framework import viewsets, mixins
-from rest_framework import filters
-
-from .pagination_classes import (
+    InteractionSerializer,
+    TransactionSerializer,
+    ContributionSerializer,
+)
+from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
     LargeResultsSetPagination
 )
 
 
 schema_generator = schemas.SchemaGenerator(title='WeFindX API')
+
 
 @api_view()
 @renderer_classes([renderers.CoreJSONRenderer])
@@ -67,10 +84,10 @@ class TypeViewSet(CustomViewSet):
 
         return qs
 
-class ItemViewSet(CustomViewSet):
+class InstanceViewSet(CustomViewSet):
 
-    serializer_class = ItemSerializer
-    queryset = Item.objects.all()
+    serializer_class = InstanceSerializer
+    queryset = Instance.objects.all()
 
 
 class TopicViewSet(CustomViewSet):

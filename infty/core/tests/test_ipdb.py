@@ -1,12 +1,14 @@
-import requests, json
+import requests
+import json
 
-from decimal import Decimal
 from test_plus.test import TestCase
 from infty.core.models import (
     Topic,
     Comment,
+)
+from infty.transactions.models import (
     TopicSnapshot,
-    CommentSnapshot
+    CommentSnapshot,
 )
 
 
@@ -27,16 +29,16 @@ class TestChain(TestCase):
             body='implement class that autogenerates users',
             owner=self.thinker,
         )
- 
+
         #self.topic.create_snapshot(blockchain=1)
         self.topic.create_snapshot(blockchain=False)
         self.topic.save()
- 
+
         self.assertEqual(
             TopicSnapshot.objects.filter(topic=self.topic).count(),
             1
         )
- 
+
         self.comment = Comment(
             topic=self.topic,
             text="""
@@ -52,7 +54,7 @@ class TestChain(TestCase):
         self.comment.save()
         #self.comment.create_snapshot(blockchain=1)
         self.comment.create_snapshot(blockchain=False)
- 
+
         self.assertEqual(
             CommentSnapshot.objects.filter(comment=self.comment).count(),
             1
