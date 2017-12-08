@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
+from django.contrib.postgres.fields import ArrayField
 
 from infty.generic.models import GenericModel, GenericManager
 
@@ -91,3 +92,18 @@ class OneTimePassword(GenericModel):
 
     def __str__(self):
         return self.user.username
+
+
+class MemberOrganization(GenericModel):
+    identifiers = models.TextField()
+    domains = ArrayField(models.CharField(max_length=80), blank=True)
+
+    def __str__(self):
+        return "{}: {}".format(
+            self.identifiers,
+            ', '.join(self.domains)
+        )
+
+    class Meta:
+        verbose_name = _("Member organization")
+        verbose_name_plural = _("Member organizations")

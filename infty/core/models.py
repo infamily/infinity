@@ -140,7 +140,7 @@ class Instance(GenericTranslationModel):
     description = models.TextField()
 
     def __str__(self):
-        return '[{}] {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk)
+        return '[{}] {}: {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk, self.identifiers)
 
     class Meta:
         translation_fields = (
@@ -204,6 +204,8 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
 
     blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
 
+    is_draft = models.BooleanField(default=False)
+
     def __str__(self):
         return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
 
@@ -219,6 +221,7 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
         )
         verbose_name = _("Topic")
         verbose_name_plural = _("Topics")
+        ordering = ('-pk',)
 
 
 class Comment(CommentTransactionMixin, GenericTranslationModel):
@@ -238,6 +241,8 @@ class Comment(CommentTransactionMixin, GenericTranslationModel):
 
     owner = models.ForeignKey(User)
     blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
+
+    parent = models.ForeignKey('self', null=True, blank=True)
 
     def set_hours(self):
 
