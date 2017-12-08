@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import User, OneTimePassword
+from .models import User, OneTimePassword, MemberOrganization
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -38,9 +38,16 @@ class MyUserAdmin(AuthUserAdmin):
     list_display = ('username', 'name', 'is_superuser')
     search_fields = ['name']
 
+
 @admin.register(OneTimePassword)
 class OneTimePasswordAdmin(admin.ModelAdmin):
     list_display = [field.name for field in OneTimePassword._meta.fields]
 
     class Meta:
         model = OneTimePassword
+
+
+@admin.register(MemberOrganization)
+class MemberOrganizationAdmin(admin.ModelAdmin):
+    class Meta:
+        model = MemberOrganization
