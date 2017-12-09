@@ -34,6 +34,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY', default=';2sEAsau;l^I9*[1AY72:G4XeIpjjM;kV
 DEFAULT_FROM_EMAIL = env('DJANGO_DEFAULT_FROM_EMAIL',
                          default='INFINITY <noreply@inf.li>')
 EMAIL_SUBJECT_PREFIX = env('DJANGO_EMAIL_SUBJECT_PREFIX', default='[WFX]')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SERVER_EMAIL = env('DJANGO_SERVER_EMAIL', default=DEFAULT_FROM_EMAIL)
 
 
