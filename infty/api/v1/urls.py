@@ -19,6 +19,6 @@ router.register(r'contributions', views.ContributionViewSet)
 urlpatterns = [
     url('^$', views.schema_view),
     url(r'^', include(router.urls)),
-    url(r'^otp/signup/', OTPRegister.as_view()),
-    url(r'^otp/login/', OTPLogin.as_view())
+    url(r'^otp/signup/', OTPRegister.as_view(), name="otp-signup"),
+    url(r'^otp/login/', OTPLogin.as_view(), name="otp-login")
 ]
