@@ -28,7 +28,7 @@ class LangSplitField(serializers.CharField):
     def to_representation(self, value):
         lang = self.context['request'].query_params.get('lang')
 
-        if lang:
+        if lang and value:
             split = splitter.split(value, title=True)
             return split.get(lang) or 'languages: {}'.format(list(split.keys()))
 
@@ -81,7 +81,6 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         queryset=Topic.objects.all(),
         required=False
     )
-    categories = CategoriesField(many=True, read_only=True)
 
     class Meta:
         model = Topic
