@@ -72,6 +72,7 @@ class CustomViewSet(
 class TypeViewSet(CustomViewSet):
 
     serializer_class = TypeSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Type.objects.all()
 
     def get_queryset(self):
