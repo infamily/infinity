@@ -87,11 +87,17 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors', 'parents', 'categories', 'languages', 'is_draft')
 
 
+class CommentOwner(serializers.CharField):
+
+    def to_representation(self, value):
+        return {"id": value.pk, "username": value.username}
+
+
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(view_name='topic-detail', queryset=Topic.objects.all())
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = CommentOwner(read_only=True)
 
     def get_text(self, obj):
         lang = self.context['request'].query_params.get('lang')
