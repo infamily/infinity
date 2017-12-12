@@ -1,9 +1,9 @@
 import hashlib
+
 from infty.users.models import MemberOrganization
 
 
 def organizations_domains_hashes(salt):
-    hashes = str()
     domains = set()
 
     for member in MemberOrganization.objects.all():

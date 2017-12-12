@@ -6,7 +6,11 @@ from captcha.conf import settings
 from django.test import override_settings
 from django.core.urlresolvers import reverse
 
-from infty.users.models import User, OneTimePassword
+from infty.users.models import (
+    User,
+    OneTimePassword,
+    MemberOrganization
+)
 
 settings.CAPTCHA_TEST_MODE = True
 
@@ -16,6 +20,10 @@ class APITestCaseCustom(APITestCase):
 
     def setUp(self):
 
+        self.organization = MemberOrganization.objects.create(
+            identifiers="Test Organization",
+            domains=['test.com'],
+        )
         self.email = "test@test.com"
         self.password = "password_for_test"
         self.testuser = User.objects.create_user(username=self.email, email=self.email)
@@ -39,13 +47,17 @@ class OTPSignupTestCase(APITestCaseCustom):
         response = self.client.post(self.otp_signup_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_cannnot_create_otp_wo_email(self):
+    def test_cannot_create_otp_wo_membership(self):
+        data = {"email": 'test@other.com', "captcha_0": "abc", "captcha_1": "passed"}
+        response = self.client.post(self.otp_signup_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_cannot_create_otp_wo_email(self):
         data = {"email": "", "captcha_0": "abc", "captcha_1": "abc"}
         response = self.client.post(self.otp_signup_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_cannot_create_otp_over_the_limit(self):
-        #add 3 more otp creation for today (default limit is 3)
         for _ in range(3):
             OneTimePassword.objects.create(user=self.testuser, is_active=False)
 
