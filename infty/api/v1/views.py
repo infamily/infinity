@@ -18,6 +18,7 @@ from infty.core.models import (
     Comment,
 )
 from infty.transactions.models import (
+    Currency,
     Interaction,
     Transaction,
     ContributionCertificate
@@ -28,6 +29,7 @@ from infty.api.v1.serializers import (
     TopicSerializer,
     CommentSerializer,
 
+    CurrencyListSerializer,
     InteractionSerializer,
     TransactionCreateSerializer,
     TransactionListSerializer,
@@ -145,6 +147,11 @@ class CommentViewSet(CustomViewSet):
             return qs.filter(languages__contains=[lang])
 
         return qs
+
+
+class CurrencyViewSet(CustomViewSet):
+    serializer_class = CurrencyListSerializer
+    queryset = Currency.objects.all()
 
 
 class InteractionViewSet(CustomViewSet):
