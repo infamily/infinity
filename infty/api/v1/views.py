@@ -29,7 +29,8 @@ from infty.api.v1.serializers import (
     CommentSerializer,
 
     InteractionSerializer,
-    TransactionSerializer,
+    TransactionCreateSerializer,
+    TransactionListSerializer,
     ContributionSerializer,
 )
 from infty.api.v1.pagination_classes import (
@@ -154,8 +155,13 @@ class InteractionViewSet(CustomViewSet):
 
 class TransactionViewSet(CustomViewSet):
 
-    serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return TransactionCreateSerializer
+
+        return TransactionListSerializer
 
 
 class ContributionViewSet(CustomViewSet):

@@ -42,7 +42,17 @@ class APITestCaseAuthorizedUser(APITestCase):
 
         self.comment = Comment(
             topic=self.topic,
-            text='Test comment text',
+            # 1. time spent inside "{...}" brackets
+            # 2. estimates of future time needed inside "{?...}"
+            # 3. declared work result - the content of comment
+            text="""
+            - {1.5},{?0.5} for coming up with basic class structure,
+            - {?2.5} for implementation,
+            - {?13.5} for testing.
+
+            Here is the result so far:
+            https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
+            """,
             owner=self.testuser,
         )
         self.comment.save()
@@ -144,16 +154,9 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
     def test_can_create_comment(self):
         transaction_data = {
             'comment': self.comment_url,
-            'snapshot': self.snapshot.pk,
-            'hour_price': self.hprice.pk,
-            'currency_price': self.cprice.pk,
             'payment_amount': 10,
             'payment_currency': self.usd.pk,
-            'payment_recipient': self.testuser.pk,
             'payment_sender': self.testuser.pk,
-            'hour_unit_cost': 1,
-            'donated_hours': 1,
-            'matched_hours': 1
         }
         response = self.client.post(
             reverse('transaction-list'),
