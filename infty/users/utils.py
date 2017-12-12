@@ -7,7 +7,7 @@ def organizations_domains_hashes(salt):
     domains = set()
 
     for member in MemberOrganization.objects.all():
-        for domain in domains.union(member.domains):
+        for domain in member.domains:
 
             domain_hash = hashlib.sha1(
                 (salt+domain).encode('utf-8')
