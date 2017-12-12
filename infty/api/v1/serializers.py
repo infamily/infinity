@@ -1,6 +1,7 @@
 from langsplit import splitter
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from infty.core.models import (
     Type,
@@ -123,7 +124,35 @@ class InteractionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'comment', 'snapshot', 'claimed_hours_to_match')
 
 
-class TransactionSerializer(serializers.HyperlinkedModelSerializer):
+class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
+
+    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
+    payment_currency = serializers.PrimaryKeyRelatedField(queryset=Currency.objects.all())
+    payment_sender = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Transaction
+        fields = ('comment', 'payment_amount', 'payment_currency', 'payment_sender')
+
+    def create(self, validated_data):
+        comment = validated_data.get('comment')
+        amount = validated_data['payment_amount']
+        currency_label = validated_data['payment_currency'].label
+        sender = validated_data['payment_sender']
+
+        tx = comment.invest(
+            hour_amount=amount,
+            payment_currency_label=currency_label,
+            investor=sender,
+        )
+
+        if not tx:
+            raise ValidationError('Bad data')
+
+        return tx
+
+
+class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField (queryset=CommentSnapshot.objects.all())
@@ -138,7 +167,6 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
             'payment_amount', 'payment_currency', 'payment_recipient',
             'payment_sender', 'hour_unit_cost', 'donated_hours', 'matched_hours')
-
 
 class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 

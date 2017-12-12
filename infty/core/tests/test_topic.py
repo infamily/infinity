@@ -30,7 +30,7 @@ class TestTopic(TestCase):
 
         # Let's say we have the hour price, and currency prices
         # collected periodically:
-        # 
+        #
         # - HourPriceSnapshot
         # - CurrencyPriceSnapshot0
 
@@ -203,7 +203,7 @@ class TestTopic(TestCase):
 
         # As part of transaction, the ContributionCertificates
         # are generated to both parties - the doer, and investor.
-        # For thinker -- will add the option to auto-generate 
+        # For thinker -- will add the option to auto-generate
         # first comment with amount of time claimed to write the topic.
 
         # Generated amount is approximately equal to amount purchased.
@@ -225,7 +225,7 @@ class TestTopic(TestCase):
             ContributionCertificate.objects.filter(transaction=self.tx).last().hours,
         )
 
-        # Both parts of the transaction should be 
+        # Both parts of the transaction should be
         self.assertTrue(
             (ContributionCertificate.objects.filter(transaction=self.tx).first().hours-Decimal(0.1)) < Decimal('1E-28')
         )
@@ -370,7 +370,7 @@ class TestTopic(TestCase):
         (4) invalidate parent certificates.
         """
 
-        # We have correct initial state: 
+        # We have correct initial state:
         self.assertEqual(
             self.comment2.claimed_hours,
             Decimal(0.0)
