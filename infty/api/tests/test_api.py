@@ -339,3 +339,10 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
             format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class GetcCurrenciesList(APITestCaseAuthorizedUser):
+
+    def test_get_all_transactions(self):
+        response = self.client.get(reverse('currency-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
