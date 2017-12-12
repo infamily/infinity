@@ -137,14 +137,15 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         comment = validated_data.get('comment')
         amount = validated_data['payment_amount']
-        currency_label = validated_data['payment_currency'].label
+        currency = validated_data['payment_currency']
         sender = validated_data['payment_sender']
 
         tx = comment.invest(
             hour_amount=amount,
-            payment_currency_label=currency_label,
+            payment_currency_label=currency.label.lower(),
             investor=sender,
         )
+
 
         if not tx:
             raise ValidationError('Bad data')
