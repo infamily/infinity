@@ -114,6 +114,12 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner', 'languages', 'matched', 'donated', 'remains', 'parent')
 
 
+
+class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Currency
+        fields = ('id', 'label',)
+
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(view_name='interaction-detail', queryset=Comment.objects.all())
