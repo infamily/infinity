@@ -6,6 +6,7 @@ from django.views.generic import DetailView, ListView, RedirectView, UpdateView
 
 from rest_framework import status
 from rest_framework.response import Response
+from infty.users.utils import organizations_domains_hashes
 
 try:
     import json
@@ -64,13 +65,16 @@ class UserListView(LoginRequiredMixin, ListView):
 class OTPRegister(views.APIView):
     authentication_classes = ()
     permission_classes = ()
+
     def get(self, request):
         new_key = CaptchaStore.pick()
         to_json_response = {
             'key': new_key,
             'image_url': captcha_image_url(new_key),
+            'membership': organizations_domains_hashes(new_key),
         }
         return Response(to_json_response)
+
     def post(self, request):
         json_data = json.loads(request.body.decode('utf-8'))
         form = SignupForm(json_data)
@@ -95,6 +99,7 @@ class OTPRegister(views.APIView):
         to_json_response = {
             'key': new_key,
             'image_url': captcha_image_url(new_key),
+            'membership': organizations_domains_hashes(new_key),
         }
         return Response(to_json_response, status=status.HTTP_400_BAD_REQUEST)
 
