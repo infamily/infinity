@@ -211,4 +211,4 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ContributionCertificate
-        fields = ('type', 'url', 'interaction', 'transaction', 'received_by', 'comment_snapshot', 'broken')
+        fields = ('type', 'url', 'interaction', 'transaction', 'received_by', 'comment_snapshot', 'broken', 'parent')
