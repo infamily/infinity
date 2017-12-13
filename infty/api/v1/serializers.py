@@ -114,6 +114,14 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner', 'languages', 'matched', 'donated', 'remains', 'parent')
 
 
+class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+
+    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
+
+    class Meta:
+        model = CommentSnapshot
+        fields = ('id', 'comment', 'data',)
+
 
 class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -178,10 +186,10 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     transaction = serializers.HyperlinkedRelatedField(view_name='transaction-detail', queryset=Transaction.objects.all())
-    # comment_snapshot = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=CommentSnapshot.objects.all())
-    comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=CommentSnapshot.objects.all())
+    interaction = serializers.HyperlinkedRelatedField(view_name='interaction-detail', queryset=Interaction.objects.all())
+    comment_snapshot = serializers.HyperlinkedRelatedField(view_name='commentsnapshot-detail', queryset=CommentSnapshot.objects.all())
     received_by = serializers.ReadOnlyField(source='received_by.username')
 
     class Meta:
-        model = Interaction
-        fields = ('url', 'transaction', 'comment', 'received_by')
+        model = ContributionCertificate
+        fields = ('type', 'url', 'interaction', 'transaction', 'received_by', 'comment_snapshot', 'broken')

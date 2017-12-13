@@ -21,7 +21,8 @@ from infty.transactions.models import (
     Currency,
     Interaction,
     Transaction,
-    ContributionCertificate
+    ContributionCertificate,
+    CommentSnapshot,
 )
 from infty.api.v1.serializers import (
     TypeSerializer,
@@ -34,6 +35,7 @@ from infty.api.v1.serializers import (
     TransactionCreateSerializer,
     TransactionListSerializer,
     ContributionSerializer,
+    CommentSnapshotSerializer,
 )
 from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
@@ -164,6 +166,9 @@ class InteractionViewSet(CustomViewSet):
 class TransactionViewSet(CustomViewSet):
 
     queryset = Transaction.objects.all()
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('comment',)
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -173,6 +178,18 @@ class TransactionViewSet(CustomViewSet):
 
 
 class ContributionViewSet(CustomViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('transaction',)
 
     serializer_class = ContributionSerializer
     queryset = ContributionCertificate.objects.all()
+
+
+class CommentSnapshotViewSet(CustomViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('comment',)
+
+    serializer_class = CommentSnapshotSerializer
+    queryset = CommentSnapshot.objects.all()

@@ -16,6 +16,7 @@ router.register(r'transactions', views.TransactionViewSet)
 router.register(r'interactions', views.InteractionViewSet)
 router.register(r'contributions', views.ContributionViewSet)
 
+router.register(r'comment_snapshots', views.CommentSnapshotViewSet)
 
 urlpatterns = [
     url('^$', views.schema_view),
