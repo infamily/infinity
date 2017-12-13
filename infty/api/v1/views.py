@@ -21,7 +21,10 @@ from infty.transactions.models import (
     Currency,
     Interaction,
     Transaction,
-    ContributionCertificate
+    ContributionCertificate,
+    CommentSnapshot,
+    HourPriceSnapshot,
+    CurrencyPriceSnapshot,
 )
 from infty.api.v1.serializers import (
     TypeSerializer,
@@ -34,6 +37,9 @@ from infty.api.v1.serializers import (
     TransactionCreateSerializer,
     TransactionListSerializer,
     ContributionSerializer,
+    CommentSnapshotSerializer,
+    HourPriceSnapshotSerializer,
+    CurrencyPriceSnapshotSerializer,
 )
 from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
@@ -116,6 +122,7 @@ class TopicViewSet(CustomViewSet):
         if TYPE:
             qs = qs.filter(type=TYPE)
 
+
         lang = self.request.query_params.get('lang', None)
 
         if lang:
@@ -164,6 +171,9 @@ class InteractionViewSet(CustomViewSet):
 class TransactionViewSet(CustomViewSet):
 
     queryset = Transaction.objects.all()
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('comment',)
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -173,6 +183,30 @@ class TransactionViewSet(CustomViewSet):
 
 
 class ContributionViewSet(CustomViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('transaction',)
 
     serializer_class = ContributionSerializer
     queryset = ContributionCertificate.objects.all()
+
+
+class CommentSnapshotViewSet(CustomViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('comment',)
+
+    serializer_class = CommentSnapshotSerializer
+    queryset = CommentSnapshot.objects.all()
+
+
+class HourPriceSnapshotViewSet(CustomViewSet):
+
+    serializer_class = HourPriceSnapshotSerializer
+    queryset = HourPriceSnapshot.objects.all()
+
+
+class CurrencyPriceSnapshotViewSet(CustomViewSet):
+
+    serializer_class = CurrencyPriceSnapshotSerializer
+    queryset = CurrencyPriceSnapshot.objects.all()
