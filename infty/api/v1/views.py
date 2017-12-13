@@ -103,6 +103,7 @@ class TopicViewSet(CustomViewSet):
     search_fields = ['title']
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
+    filter_fields = ('owner',)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
