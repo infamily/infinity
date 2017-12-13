@@ -118,7 +118,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Currency
-        fields = ('id', 'label',)
+        fields = ('id', 'label', 'in_hours')
 
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
 
