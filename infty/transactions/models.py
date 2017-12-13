@@ -87,6 +87,28 @@ class Currency(GenericModel):
     """
     label = models.CharField(max_length=16)
 
+    def hour_price(
+            self,
+            hour_price_obj=None,
+            hour_price_source='FRED'
+    ):
+        if not hour_price_obj:
+            hour_price_obj = HourPriceSnapshot.objects.filter(
+                name=hour_price_source,
+            ).last()
+        return hour_price_obj
+
+    def currency_price(
+            self,
+            currency_price_obj=None,
+            currency_price_source='FIXER'
+    ):
+        if not currency_price_obj:
+            currency_price_obj = CurrencyPriceSnapshot.objects.filter(
+                name=currency_price_source
+            ).last()
+        return currency_price_obj
+
     def in_hours(
             self,
             hour_price_obj=None,
@@ -98,16 +120,9 @@ class Currency(GenericModel):
         """
         Compute the value of currency in hours.
         """
+        hour_price_obj = self.hour_price(hour_price_obj, hour_price_source)
 
-        if not hour_price_obj:
-            hour_price_obj = HourPriceSnapshot.objects.filter(
-                name=hour_price_source,
-            ).last()
-
-        if not currency_price_obj:
-            currency_price_obj = CurrencyPriceSnapshot.objects.filter(
-                name=currency_price_source
-            ).last()
+        currency_price_obj = self.currency_price(currency_price_obj, currency_price_source)
 
         if hour_price_obj.name == 'FRED' and \
             currency_price_obj.name == 'FIXER':

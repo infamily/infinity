@@ -120,13 +120,32 @@ class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = CommentSnapshot
-        fields = ('id', 'comment', 'data',)
+        fields = ('id', 'created_date', 'comment', 'data',)
+
+
+class HourPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = HourPriceSnapshot
+        fields = ('id', 'name', 'base', 'endpoint', 'data')
+
+
+class CurrencyPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = CurrencyPriceSnapshot
+        fields = ('id', 'name', 'base', 'endpoint', 'data')
 
 
 class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
+
+    hour_price = serializers.HyperlinkedRelatedField(view_name='hourpricesnapshot-detail', queryset=HourPriceSnapshot.objects.all())
+    currency_price = serializers.HyperlinkedRelatedField(view_name='currencypricesnapshot-detail', queryset=CurrencyPriceSnapshot.objects.all())
+
     class Meta:
         model = Currency
-        fields = ('id', 'label', 'in_hours')
+        fields = ('id', 'label', 'in_hours', 'hour_price', 'currency_price')
+
 
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
 

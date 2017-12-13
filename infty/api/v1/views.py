@@ -23,6 +23,8 @@ from infty.transactions.models import (
     Transaction,
     ContributionCertificate,
     CommentSnapshot,
+    HourPriceSnapshot,
+    CurrencyPriceSnapshot,
 )
 from infty.api.v1.serializers import (
     TypeSerializer,
@@ -36,6 +38,8 @@ from infty.api.v1.serializers import (
     TransactionListSerializer,
     ContributionSerializer,
     CommentSnapshotSerializer,
+    HourPriceSnapshotSerializer,
+    CurrencyPriceSnapshotSerializer,
 )
 from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
@@ -118,6 +122,7 @@ class TopicViewSet(CustomViewSet):
         if TYPE:
             qs = qs.filter(type=TYPE)
 
+
         lang = self.request.query_params.get('lang', None)
 
         if lang:
@@ -193,3 +198,15 @@ class CommentSnapshotViewSet(CustomViewSet):
 
     serializer_class = CommentSnapshotSerializer
     queryset = CommentSnapshot.objects.all()
+
+
+class HourPriceSnapshotViewSet(CustomViewSet):
+
+    serializer_class = HourPriceSnapshotSerializer
+    queryset = HourPriceSnapshot.objects.all()
+
+
+class CurrencyPriceSnapshotViewSet(CustomViewSet):
+
+    serializer_class = CurrencyPriceSnapshotSerializer
+    queryset = CurrencyPriceSnapshot.objects.all()
