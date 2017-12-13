@@ -116,10 +116,13 @@ class Currency(GenericModel):
             rates[currency_price_obj.base.label] = 1.
 
             price = Decimal(hour_price_obj.data['observations'][0]['value'])
-            hour_base_rate = Decimal(rates[hour_price_obj.base.label])
-            local_base_rate = Decimal(rates[self.label])
 
-            value = Decimal(1)/((price/hour_base_rate)*local_base_rate)
+            if self.label.lower() == 'hur':
+                value = Decimal(1)
+            else:
+                hour_base_rate = Decimal(rates[hour_price_obj.base.label])
+                local_base_rate = Decimal(rates[self.label])
+                value = Decimal(1)/((price/hour_base_rate)*local_base_rate)
 
             if objects:
                 return {
