@@ -5,7 +5,7 @@ _*ForAllExistsInfinity*_
 
 ## Quick Start
 
-Checkout and do `docker-compose up` locally, and deploy production with `docker pull infamily/infinity-django`.
+Checkout and do `docker-compose up` locally.
 
 ### Current workflow:
 
@@ -22,6 +22,32 @@ PR: base <- feature
 ```
 
 **NB! Do PR to `base` branch. Bot autodeploys to `master`.**
+
+To encrypt/decrypt pip `env_production` variables, use Ansible vault:
+
+```
+ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-vault decrypt .env_production.vault --output .env_production
+```
+
+```
+ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-vault encrypt .env_production --output .env_production.vault
+```
+
+where, the `.vault_password.txt` is symmetrically encrypted with `passphrase` (same as `VAULT_PASSWORD_KEY` on Travis), decryptable by:
+
+`gpg -d .vault_password.txt.gpg > .vault_password.txt` 
+
+provide the `passphrase` by decrypting `passphrase.txt.gpg`, which is encrypted for all [contributors](https://api.github.com/repos/infamily/infinity-django/contributors), with their public GPG keys. [Generate and upload](https://help.github.com/articles/generating-a-new-gpg-key/) your public GPG key to github, and ask a current project member to encrypt it again. The current project member will re-import the public keys of contributors, like so:
+
+```
+gpg -e -o passphrase.gpg -f recipients passphrase.txt
+```
+
+The `recipients` file contains a list of public GPG keys of contributors, which you can use [convenience commands](https://gist.github.com/mindey/ebb24a49c7abe53a938222e9cc75642f) to automatically import and manage.
+
+```
+gpg -d passphrase.gpg
+```
 
 # Information
 
@@ -44,13 +70,19 @@ Here will be documentation.
 + ReadTheDocs Account (readthedocs.io)
 ```
 
-This is configured to run on `net.wfx.io`. To use entire this repository with some different Domain, GitHub organization, DockerHub account, and Hosting Service, just look at the changes here, to see what [changes needs to be changed for CI](https://github.com/infamily/infinity-django/compare/af7f280003a57b08e19cbba1dc2ffd75a89baf97...69c8d6728e6336e62fc16730f86c60c24ed953ee).
+This is configured to run on `net.wfx.io`. To use entire this repository with some different Domain, GitHub organization, DockerHub account, and Hosting Service, just look at the changes here, to see what [changes needs to be changed for CI](https://github.com/inxyz/infinity-django/compare/af7f280003a57b08e19cbba1dc2ffd75a89baf97...69c8d6728e6336e62fc16730f86c60c24ed953ee).
 
-## Project devops:
+## Devops:
 
 All relevant information is available in `infinity.kdb.gpg`, which is a KeePassX file with same password as filename.
 
 Ask friends to create their public GPG keys and upload them to GitHub ([instructions](https://help.github.com/articles/generating-a-new-gpg-key/)).
+
+Devops passwords are encrypted with:
+
+```
+gpg -e -o infinity.kdb.gpg -f devops_recipients infinity.kdb
+```
 
 ### decrypt:
 ```
