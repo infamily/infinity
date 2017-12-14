@@ -21,6 +21,8 @@ git checkout -b feature
 PR: base <- feature
 ```
 
+(If branching from master breaks builds, ssh to node, and `git remote prune origin`.
+
 **NB! Do PR to `base` branch. Bot autodeploys to `master`.**
 
 To encrypt/decrypt pip `env_production` variables, use Ansible vault:
