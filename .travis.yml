@@ -1,75 +1,59 @@
 sudo: required
 language: python
 cache: pip
-
 python:
-  - "3.5"
-
+- '3.5'
 services:
-  - docker
-
+- docker
 addons:
-  postgresql: "9.6"
-
+  postgresql: '9.6'
 env:
   global:
-    - DOCKER_COMPOSE_VERSION=1.16.1
-    - DJANGO_SETTINGS_MODULE=config.settings.test
-    - DATABASE_URL=postgres:///localhost:5432/postgres?user=postgres
-    - ANSIBLE_HOST_KEY_CHECKING=False
-    - ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt
-
+  - DOCKER_COMPOSE_VERSION=1.16.1
+  - DJANGO_SETTINGS_MODULE=config.settings.test
+  - DATABASE_URL=postgres:///localhost:5432/postgres?user=postgres
+  - ANSIBLE_HOST_KEY_CHECKING=False
+  - ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt
+  - secure: SAxOMPV5A+1gd8M+yHRZkIPn2X7DovvetadX/k0UtqGsjIDz3mLQq2vsjkFs/0EFABBWwPN+Vq/EmZ2aMRv1BBYfPLD+mTme6EMrUTTSWRUNAJMo7FBO6F17XxBBWA6UrXjnt/vWoVuX7/KUi1Ku5i9PVm3wITgwY0Q6ixNO9nA/aqWFb58AbdGnScu4MfQD7XlXYCqsHBHEldentQrwGj1f+/SIBhpqGyhd9HCc+qSYuwIRVNKhp9vtJVtGOjfFQS7/Hk4SI48kBTfhCRb4dfH7+5+ssj6ixt3wK2xT42TkBnOrfMsBX+CLmraq12TGFhTzCygbmZN/6pgn1N4jZy5GFaOy1CyWzmAR8PfoGaQcUiTVGYgoEHHolhDpP6dT76NSV2h8/vtLNutnQOznoOz2GspdqEBNSkV6TT3A3iNfNShrjKOgIJ77PWpbaJpbUb/sMOA532Wg2I1Cv/YBJ4rzKtU6DX+nOTO2VcJB5eDAuGtpmOxUynoM7YSk/DI01nA2+H4h0inQNkzM/cGtdLIewsDkJLc2SsTdttPTthEA1zEXK9IOSeoXQVYz5e/O3UGR8NYgi7TjENSpunqC5DoehFuMTW+x8P8vSb6wyj6VeGtljIZic8K3un1FIgfu8h0CfoBcOebsr99q3EhnJrjlenyP6mty84PrCT0a8Zk=
 branches:
   only:
   - development
   except:
   - master
-
 before_install:
-  - sudo apt-add-repository -y ppa:ansible/ansible
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb libtiff4-dev libjpeg8-dev
-                             libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev libjpeg8-dev libfreetype6-dev
-                             liblcms1-dev libwebp-dev graphviz-dev firefox automake libtool libreadline6
-                             libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev libssl-dev
-                             libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv python-pip
-                             software-properties-common ansible
-
-  - ansible-galaxy install thefinn93.letsencrypt
-
-  # decrypt ansible-vault password
-  - openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv -in .vault_password.txt.enc -out .vault_password.txt -d
-
-  # decrypt & place deploy keys
-  - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
-  - mv travis_rsa.key ~/.ssh/travis_rsa
-
-   # update docker & docker-compose
-  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
-  - sudo rm /usr/local/bin/docker-compose
-  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
-  - chmod +x docker-compose
-  - sudo mv docker-compose /usr/local/bin
-
+- sudo apt-add-repository -y ppa:ansible/ansible
+- sudo apt-get update -qq
+- sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev
+  xvfb libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev
+  libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev graphviz-dev firefox automake
+  libtool libreadline6 libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev
+  libssl-dev libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
+  python-pip software-properties-common ansible
+- ansible-galaxy install thefinn93.letsencrypt
+- openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv
+  -in .vault_password.txt.enc -out .vault_password.txt -d
+- ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
+- mv travis_rsa.key ~/.ssh/travis_rsa
+- sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
+  -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
 install:
-  - pip install -r requirements/test.txt
-
+- pip install -r requirements/test.txt
 script:
-  - ./manage.py test  # run tests
-
+- "./manage.py test"
 after_success:
-  - echo "" > .env_production  # dummy for building the image
-  - docker-compose -f production.yml build  # build docker image
-  - echo "Build success"
-
+- echo "" > .env_production
+- docker-compose -f production.yml build
+- echo "Build success"
 after_failure:
-  - echo "Eto fiasko, bratan :("
-
+- echo "Eto fiasko, bratan :("
 before_deploy:
-  - ./deploy/scripts/git-merge-push.sh
-
+- "./deploy/scripts/git-merge-push.sh"
 deploy:
   provider: script
-  script: ./deploy/scripts/deploy.sh travis_rsa
+  script: "./deploy/scripts/deploy.sh travis_rsa"
   on:
     all_branches: true
