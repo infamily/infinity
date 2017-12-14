@@ -2,7 +2,7 @@
 PRIVATE_KEY=$1
 PRIVATE_KEY_PATH="~/.ssh/${PRIVATE_KEY}"
 
-openssl aes-256-cbc -K ${encrypted_da6636aa33f2_key} -iv ${encrypted_da6636aa33f2_iv} -in .vault_password.txt.enc -out .vault_password.txt -d
+echo ${VAULT_PASSWORD_KEY} | gpg --passphrase-fd 0 .vault_password.txt.gpg
 
 echo "Push docker image to the Docker Hub..."
 docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"

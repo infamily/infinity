@@ -1,149 +1,126 @@
-Infty
-=====
+# Infinity Project
+_*ForAllExistsInfinity*_
 
-Infty Project
+[![Travis status](https://travis-ci.org/infamily/infinity-django.svg?branch=base&style=flat)](https://travis-ci.org/infamily/infinity-django)
 
-.. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
-     :target: https://github.com/pydanny/cookiecutter-django/
-     :alt: Built with Cookiecutter Django
+This test CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity-django/](https://travis-ci.org/infamily/infinity-django/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
 
+After the merge `base <- feature`, the CI will build docker container, push it to dockerhub, and deploy to the production server (currently set to [net.wfx.io](https://net.wfx.io)) from it, and also the CI will automatically then merge the `base -> master`, no pull-requests need be made to `master` branch.) Additionally, this comes with Ansible commands to intialize a server node with automatic retrieval of `letsencrypt` certificates. Travis CI also uses Ansible to deploy a changes. The credentials are stored in Travis Vault, and a key added to `.travis.yml` using Travis CLI. The `.env` variables, as well as `travis_rsa`, are encrypted using Ansible Vault with custom password in `.vault_password.txt` (check bottom).
 
-:License: GPLv3
+Here will be documentation.
 
+## Preprequisites.
 
-Local (Development) installation
---------------------------------
-WIP
-explain about .env, DOT_ENV_FILE, READ_DOT_ENV_FILE
+```
++ Email Account
++ GitHub Account (github.com)
++ Dockerhub Account (docker.io)
++ Generate SSH keypair
++ Generate GPG keypair
++ Domain Name
++ Hosting Provider Account (ubuntu 16.04)
++ ReadTheDocs Account (readthedocs.io)
+```
 
+This is configured to run on `net.wfx.io`. To use entire this repository with some different Domain, GitHub organization, DockerHub account, and Hosting Service, just look at the changes here, to see what [changes needs to be changed for CI](https://github.com/infamily/infinity-django/compare/af7f280003a57b08e19cbba1dc2ffd75a89baf97...69c8d6728e6336e62fc16730f86c60c24ed953ee).
 
-Setup the node
---------------
-NB!: Install ```ansible-galaxy install thefinn93.letsencrypt``` (use at least ansible version 2.4.0.0)
+## Project devops:
 
-About ANSIBLE_VAULT_PASSWORD_FILE and .vault_password.txt
-This is the ansible-vault password file that should be presented and passed (with environment variable, for example)
-for decryption ```.env_production.vault``` on the production server.
+All relevant information is available in `infinity.kdb.gpg`, which is a KeePassX file with same password as filename.
 
-So the ```.env_production``` should be ENCRYPTED with password that stored in the ```.vault_password.txt``` file.
+Ask friends to create their public GPG keys and upload them to GitHub ([instructions](https://help.github.com/articles/generating-a-new-gpg-key/)).
 
-Next, for example, to setup the node from "staging" inventory, run:
+### decrypt:
+```
+gpg -d infinity.kdb.gpg > infinity.kdb
+```
+### encrypt:
+1. import others' public keys
+```
+curl https://api.github.com/users/<GITHUB_USERNAME>/gpg_keys | jq -r ".[0].raw_key" | gpg --import -
+```
+2. check who is available
+```
+gpg --list-keys
+```
 
-* ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"
+3. encrypt to those people by e-mail (currently: [mindey](https://api.github.com/users/mindey/gpg_keys))
+```
+gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
+```
 
+## Project development:
 
+- Checkout this repository locally.
+    - Work locally by simply `docker-compose up` ([convenience commandsb](https://gist.github.com/mindey/6b9f3c6eb5cac93b62d5abaa15a4d9ba))
+    - Alternatively, without docker, [in plain pip and postgresql](https://gist.github.com/mindey/6aff869782800429a96500dba94db8b2).
 
-Deployment
-----------
-* ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml
+- Deploy:
+    - Via dockerhub: `docker pull infamily/infinity-django`
 
+## Deploying a CI with A single node
 
-Deployment from Travis
-----------------------
-You should to add public key (travis_rsa.pub, for e.g.) to the node's authorized_keys
-The encrypted (ansible-vault) private key (named travis_rsa.vault) should be added to the repo
+- Create one Ubuntu 16.04 server.
+- Map the DNS A records to the server domain (e.g., mydomain.com)
+- Make sure you can ssh as root@mydomain.com
 
+- Locally install ansible (at least ansible version 2.4.0.0)
+- Install locally:
+    - `ansible-galaxy install thefinn93.letsencrypt` (use at least ansible version 2.4.0.0)
 
-Settings
---------
+- Replace "net.wfx.io" with mydomain.com in those files:
+    - ./deploy/ansible/site.yml
+    - ./deploy/ansible/inventories/staging/hosts
+- Rename file:
+    - ./deploy/ansible/inventories/staging/host_vars/test.wfx.io -> mydomain.com
+- Review, change to your repo:
+      ./deploy/ansible/roles/prepare/vars/main.yml
 
-Moved to settings_.
+- Type, and wait for the server will be fully set up:
+    - `ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"`
 
-.. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
+- Run command to deploy:
+    - `ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml`
 
-Basic Commands
---------------
+- Finally, visit the:
+    - https://mydomain.com
 
-Setting Up Your Users
-^^^^^^^^^^^^^^^^^^^^^
 
-* To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
+The service should be running (make sure to do Django migrations, create superuser, load database). [convenience commands](https://gist.github.com/mindey/34fb97b5082d551ccb3bf24602e243ff).
+## Deployment from CI, Travis
 
-* To create an **superuser account**, use this command::
+- On Travis:
+    - Set up DockerHub, and GitHub API key, and Ansible Vault keys:
+    `https://travis-ci.org/<organization>/<project>/settings`
 
-    $ python manage.py createsuperuser
+    - Go to GitHub Developer settings to generate the API key with all but delete rights:
+    - `GITHUB_API_KEY`
+    - Go to DockerHub and create a user.
+    - `DOCKER_USERNAME`
+    - `DOCKER_PASSWORD`
 
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
+    - Use travis-cli (e.g., `sudo gem install travis --no-user-install`)
+    - `VAULT_PASSWORD_KEY`
 
-Test coverage
-^^^^^^^^^^^^^
+    - `travis login`
+    - `travis encrypt VAULT_PASSWORD_KEY=<___> --add` to append a public key to .travis.yml (`secure` section), based on instructions here: [https://docs.travis-ci.com/user/encrypting-files/#Using-GPG](https://docs.travis-ci.com/user/encrypting-files/#Using-GPG)
 
-To run the tests, check your test coverage, and generate an HTML coverage report::
+    - Change the DockerHub variables according to your DockerHub account.:
+        - `deploy/scripts/deploy.sh`
+        - `docker-compose.yml`
+        - `production.yml`
 
-    $ coverage run manage.py test
-    $ coverage html
-    $ open htmlcov/index.html
+    - Create .vault_password.txt, and encrypt `.env` variables with Ansible Vault:
+        `ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-vault encrypt .env_production --output .env_production.vault`
 
-Running tests with py.test
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+    - Generate travis ssh key for deployment to server, and add `travis_rsa.pub` to `~/.ssh/authorized_keys` on server:
+        `ssh-keygen -f travis_rsa -t rsa -b 2048 -C -N`
+    
+    - Encrypt the travis_rsa, with Ansible vault, like so:
+        `ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-vault encrypt travis_rsa --output travis_rsa.vault`
 
-::
+## Database download.
 
-  $ py.test
-
-Live reloading and Sass CSS compilation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Moved to `Live reloading and SASS compilation`_.
-
-.. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.io/en/latest/live-reloading-and-sass-compilation.html
-
-
-
-Celery
-^^^^^^
-
-This app comes with Celery.
-
-To run a celery worker:
-
-.. code-block:: bash
-
-    cd infty
-    celery -A infty.taskapp worker -l info
-
-Please note: For Celery's import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
-
-
-
-
-Email Server
-^^^^^^^^^^^^
-
-In development, it is often nice to be able to see emails that are being sent from your application. For that reason local SMTP server `MailHog`_ with a web interface is available as docker container.
-
-.. _mailhog: https://github.com/mailhog/MailHog
-
-Container mailhog will start automatically when you will run all docker containers.
-Please check `cookiecutter-django Docker documentation`_ for more details how to start all containers.
-
-With MailHog running, to view messages that are sent by your application, open your browser and go to ``http://127.0.0.1:8025``
-
-
-
-
-Sentry
-^^^^^^
-
-Sentry is an error logging aggregator service. You can sign up for a free account at  https://sentry.io/signup/?code=cookiecutter  or download and host it yourself.
-The system is setup with reasonable defaults, including 404 logging and integration with the WSGI application.
-
-You must set the DSN url in production.
-
-
-Deployment
-----------
-
-The following details how to deploy this application.
-
-
-
-Docker
-^^^^^^
-
-See detailed `cookiecutter-django Docker documentation`_.
-
-.. _`cookiecutter-django Docker documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html
-
-
-
+- Existing production servers:
+    - [Frankfurt] test.wfx.io
+    - [Shanghai] test.wefindx.io
