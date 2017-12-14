@@ -53,7 +53,7 @@ gpg -d passphrase.gpg
 
 This test CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity-django/](https://travis-ci.org/infamily/infinity-django/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
 
-After the merge `base <- feature`, the CI will build docker container, push it to dockerhub, and deploy to the production server (currently set to [net.wfx.io](https://net.wfx.io)) from it, and also the CI will automatically then merge the `base -> master`, no pull-requests need be made to `master` branch.) Additionally, this comes with Ansible commands to intialize a server node with automatic retrieval of `letsencrypt` certificates. Travis CI also uses Ansible to deploy a changes. The credentials are stored in Travis Vault, and a key added to `.travis.yml` using Travis CLI. The `.env` variables, as well as `travis_rsa`, are encrypted using Ansible Vault with custom password in `.vault_password.txt` (check bottom).
+After the merge `base <- feature`, the CI will build docker container, push it to dockerhub, and deploy to the production server (currently set to [test.wfx.io](https://test.wfx.io)) from it, and also the CI will automatically then merge the `base -> master`, no pull-requests need be made to `master` branch.) Additionally, this comes with Ansible commands to intialize a server node with automatic retrieval of `letsencrypt` certificates. Travis CI also uses Ansible to deploy a changes. The credentials are stored in Travis Vault, and a key added to `.travis.yml` using Travis CLI. The `.env` variables, as well as `travis_rsa`, are encrypted using Ansible Vault with custom password in `.vault_password.txt` (check bottom).
 
 Here will be documentation.
 
@@ -70,7 +70,7 @@ Here will be documentation.
 + ReadTheDocs Account (readthedocs.io)
 ```
 
-This is configured to run on `net.wfx.io`. To use entire this repository with some different Domain, GitHub organization, DockerHub account, and Hosting Service, just look at the changes here, to see what [changes needs to be changed for CI](https://github.com/inxyz/infinity-django/compare/af7f280003a57b08e19cbba1dc2ffd75a89baf97...69c8d6728e6336e62fc16730f86c60c24ed953ee).
+This is configured to run on `test.wfx.io`. To use entire this repository with some different Domain, GitHub organization, DockerHub account, and Hosting Service, just look at the changes here, to see what [changes needs to be changed for CI](https://github.com/inxyz/infinity-django/compare/af7f280003a57b08e19cbba1dc2ffd75a89baf97...69c8d6728e6336e62fc16730f86c60c24ed953ee).
 
 ## Devops:
 
@@ -122,7 +122,7 @@ gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
 - Install locally:
     - `ansible-galaxy install thefinn93.letsencrypt` (use at least ansible version 2.4.0.0)
 
-- Replace "net.wfx.io" with mydomain.com in those files:
+- Replace "test.wfx.io" with mydomain.com in those files:
     - ./deploy/ansible/site.yml
     - ./deploy/ansible/inventories/staging/hosts
 - Rename file:
