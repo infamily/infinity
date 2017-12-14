@@ -30,8 +30,7 @@ before_install:
   libssl-dev libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
   python-pip software-properties-common ansible
 - ansible-galaxy install thefinn93.letsencrypt
-- openssl aes-256-cbc -K $encrypted_da6636aa33f2_key -iv $encrypted_da6636aa33f2_iv
-  -in .vault_password.txt.enc -out .vault_password.txt -d
+- echo ${VAULT_PASSWORD_KEY} | gpg --passphrase-fd 0 .vault_password.txt.gpg
 - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
 - mv travis_rsa.key ~/.ssh/travis_rsa
 - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
