@@ -1,3 +1,3 @@
 ---
-base_dir: "/root/infty2.0"
+base_dir: "/root/infinity-django"
 ansible_user: root

@@ -25,7 +25,7 @@ services:
       dockerfile: ./compose/web/Dockerfile
       args:
         requirements_file: local.txt
-    image: wefindx/infty:dev
+    image: infamily/infinity-django:dev
     depends_on:
       - postgres
       - redis

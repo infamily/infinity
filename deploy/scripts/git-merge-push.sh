@@ -12,7 +12,7 @@ git clone --quiet https://${GITHUB_API_KEY}@github.com/${TRAVIS_REPO_SLUG} code
 echo "Marking current build..."
 cd ./code
 echo "${TRAVIS_BUILD_NUMBER}" > .buildno
-git merge origin/development
+git merge origin/base
 git add .buildno
 git commit --message "Travis build: ${TRAVIS_BUILD_NUMBER}"
 
