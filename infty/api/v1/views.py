@@ -46,6 +46,8 @@ from infty.api.v1.pagination_classes import (
     LargeResultsSetPagination
 )
 
+from infty.api.v1.filters import TopicFilter
+
 
 schema_generator = schemas.SchemaGenerator(title='WeFindX API')
 
@@ -69,7 +71,7 @@ class CustomViewSet(
         mixins.ListModelMixin,
         mixins.DestroyModelMixin,
         viewsets.GenericViewSet
-    ):
+):
     """
     A viewset that provides default `create()`, `retrieve()`,
     `update()`, `partial_update()` and `list()` actions.
@@ -94,6 +96,7 @@ class TypeViewSet(CustomViewSet):
 
         return qs
 
+
 class InstanceViewSet(CustomViewSet):
 
     serializer_class = InstanceSerializer
@@ -109,7 +112,7 @@ class TopicViewSet(CustomViewSet):
     search_fields = ['title']
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
-    filter_fields = ('owner',)
+    filter_class = TopicFilter
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -121,7 +124,6 @@ class TopicViewSet(CustomViewSet):
 
         if TYPE:
             qs = qs.filter(type=TYPE)
-
 
         lang = self.request.query_params.get('lang', None)
 
