@@ -1,7 +1,7 @@
 # Infinity Project
 _*ForAllExistsInfinity*_
 
-[![Travis status](https://travis-ci.org/infamily/infinity-django.svg?branch=base&style=flat)](https://travis-ci.org/infamily/infinity-django)
+[![Travis status](https://travis-ci.org/infamily/infinity.svg?branch=base&style=flat)](https://travis-ci.org/infamily/infinity)
 
 ## Quick Start
 
@@ -10,7 +10,7 @@ Checkout and do `docker-compose up` locally.
 ### Current workflow:
 
 ```
-git clone git@github.com:infamily/infinity-django.git
+git clone git@github.com:infamily/infinity.git
 git fetch --all
 git checkout base
 
@@ -39,7 +39,7 @@ where, the `.vault_password.txt` is symmetrically encrypted with `passphrase` (s
 
 `gpg -d .vault_password.txt.gpg > .vault_password.txt` 
 
-provide the `passphrase` by decrypting `passphrase.txt.gpg`, which is encrypted for all [contributors](https://api.github.com/repos/infamily/infinity-django/contributors), with their public GPG keys. [Generate and upload](https://help.github.com/articles/generating-a-new-gpg-key/) your public GPG key to github, and ask a current project member to encrypt it again. The current project member will re-import the public keys of contributors, like so:
+provide the `passphrase` by decrypting `passphrase.txt.gpg`, which is encrypted for all [contributors](https://api.github.com/repos/infamily/infinity/contributors), with their public GPG keys. [Generate and upload](https://help.github.com/articles/generating-a-new-gpg-key/) your public GPG key to github, and ask a current project member to encrypt it again. The current project member will re-import the public keys of contributors, like so:
 
 ```
 gpg -e -o passphrase.gpg -f recipients passphrase.txt
@@ -53,7 +53,7 @@ gpg -d passphrase.gpg
 
 # Information
 
-This test CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity-django/](https://travis-ci.org/infamily/infinity-django/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
+This test CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity/](https://travis-ci.org/infamily/infinity/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
 
 After the merge `base <- feature`, the CI will build docker container, push it to dockerhub, and deploy to the production server (currently set to [test.wfx.io](https://test.wfx.io)) from it, and also the CI will automatically then merge the `base -> master`, no pull-requests need be made to `master` branch.) Additionally, this comes with Ansible commands to intialize a server node with automatic retrieval of `letsencrypt` certificates. Travis CI also uses Ansible to deploy a changes. The credentials are stored in Travis Vault, and a key added to `.travis.yml` using Travis CLI. The `.env` variables, as well as `travis_rsa`, are encrypted using Ansible Vault with custom password in `.vault_password.txt` (check bottom).
 
@@ -112,7 +112,7 @@ gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
     - Alternatively, without docker, [in plain pip and postgresql](https://gist.github.com/mindey/6aff869782800429a96500dba94db8b2).
 
 - Deploy:
-    - Via dockerhub: `docker pull infamily/infinity-django`
+    - Via dockerhub: `docker pull infamily/infinity`
 
 ## Deploying a CI with A single node
 

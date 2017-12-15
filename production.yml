@@ -25,7 +25,7 @@ services:
       dockerfile: ./compose/web/Dockerfile
       args:
         requirements_file: production.txt
-    image: infamily/infinity-django:latest
+    image: infamily/infinity:latest
     depends_on:
       - postgres
       - redis
