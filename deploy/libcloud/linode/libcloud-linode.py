@@ -1,11 +1,14 @@
+# pip install apache-libcloud
 import os
 from libcloud.compute.base import NodeAuthSSHKey
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
+from pathlib import Path
+home = str(Path.home())
 
 cls = get_driver(Provider.LINODE)
 
-driver = cls(open('libcloud-key.txt','r').read())
+driver = cls(open(os.path.join(home, '.libcloud-linode-api-key.txt'),'r').read())
 
 driver.list_nodes()
 
@@ -16,7 +19,7 @@ location = [l for l in driver.list_locations() if l.id == '9'][0]
 ssh_key = NodeAuthSSHKey(open(os.path.expanduser('~/.ssh/id_rsa.pub'), 'r').read())
 
 node = driver.create_node(
-    name='test_server',
+    name='inf_li',
     size=size,
     image=image,
     location=location,
