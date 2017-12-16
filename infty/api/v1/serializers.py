@@ -212,3 +212,20 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ContributionCertificate
         fields = ('type', 'url', 'interaction', 'transaction', 'received_by', 'comment_snapshot', 'broken', 'parent')
+
+
+class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
+
+    balance = serializers.SerializerMethodField('matched')
+
+    pending = serializers.SerializerMethodField('unmatched')
+
+    def matched(self, obj):
+        return ContributionCertificate.user_matched(obj)
+
+    def unmatched(self, obj):
+        return ContributionCertificate.user_unmatched(obj)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'balance', 'pending')

@@ -20,6 +20,8 @@ router.register(r'comment_snapshots', views.CommentSnapshotViewSet)
 router.register(r'hourprice_snapshots', views.HourPriceSnapshotViewSet)
 router.register(r'currencyprice_snapshots', views.CurrencyPriceSnapshotViewSet)
 
+router.register(r'user_balance', views.UserBalanceViewSet)
+
 
 urlpatterns = [
     url('^$', views.schema_view),
