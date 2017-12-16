@@ -11,6 +11,8 @@ from rest_framework import (
 
 from django_filters.rest_framework import DjangoFilterBackend
 
+from infty.users.models import User
+
 from infty.core.models import (
     Type,
     Instance,
@@ -40,6 +42,8 @@ from infty.api.v1.serializers import (
     CommentSnapshotSerializer,
     HourPriceSnapshotSerializer,
     CurrencyPriceSnapshotSerializer,
+
+    UserBalanceSerializer,
 )
 from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
@@ -212,3 +216,13 @@ class CurrencyPriceSnapshotViewSet(CustomViewSet):
 
     serializer_class = CurrencyPriceSnapshotSerializer
     queryset = CurrencyPriceSnapshot.objects.all()
+
+
+class UserBalanceViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+
+    filter_fields = ('username', 'id',)
+
+    serializer_class = UserBalanceSerializer
+    queryset = User.objects.all()
