@@ -1,5 +1,6 @@
 from langsplit import splitter
 
+from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -19,7 +20,6 @@ from infty.transactions.models import (
     ContributionCertificate
 )
 from infty.users.models import User
-
 
 class LangSplitField(serializers.CharField):
     """Langsplit CharField"""
@@ -217,15 +217,21 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     balance = serializers.SerializerMethodField('matched')
-
-    pending = serializers.SerializerMethodField('unmatched')
+    contributions = serializers.SerializerMethodField('contribution_certificates')
 
     def matched(self, obj):
         return ContributionCertificate.user_matched(obj)
 
-    def unmatched(self, obj):
-        return ContributionCertificate.user_unmatched(obj)
+    def contribution_certificates(self, obj):
+        request = self.context['request']
+        protocol = 'http{}://'.format('s' if request.is_secure() else '')
+        domain = request.META['HTTP_HOST']
+        endpoint = reverse('contributioncertificate-list')
+
+        return "{}{}{}?received_by={}".format(
+            protocol, domain, endpoint, obj.id
+        )
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'balance', 'pending')
+        fields = ('id', 'username', 'balance', 'contributions')

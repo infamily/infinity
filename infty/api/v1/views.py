@@ -191,7 +191,7 @@ class TransactionViewSet(CustomViewSet):
 class ContributionViewSet(CustomViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
-    filter_fields = ('transaction',)
+    filter_fields = ('transaction', 'received_by')
 
     serializer_class = ContributionSerializer
     queryset = ContributionCertificate.objects.all()
