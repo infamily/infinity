@@ -51,9 +51,9 @@ The `recipients` file contains a list of public GPG keys of contributors, which 
 gpg -d passphrase.gpg
 ```
 
-# Information
+# Long Description
 
-This test CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity/](https://travis-ci.org/infamily/infinity/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
+This CI runs on [travis-ci.org](https://travis-ci.org/) ([https://travis-ci.org/infamily/infinity/](https://travis-ci.org/infamily/infinity/)), and it tries to build, when we make a pull request to branch `base` (so, a developer can check out from `base`, to some `feature` branch, and then make pull request to the base branch, which trigers a test build. If build is all okay, then we can merge the `feature -> base`.
 
 After the merge `base <- feature`, the CI will build docker container, push it to dockerhub, and deploy to the production server (currently set to [inf.li](https://inf.li)) from it, and also the CI will automatically then merge the `base -> master`, no pull-requests need be made to `master` branch.) Additionally, this comes with Ansible commands to intialize a server node with automatic retrieval of `letsencrypt` certificates. Travis CI also uses Ansible to deploy a changes. The credentials are stored in Travis Vault, and a key added to `.travis.yml` using Travis CLI. The `.env` variables, as well as `travis_rsa`, are encrypted using Ansible Vault with custom password in `.vault_password.txt` (check bottom).
 
@@ -108,7 +108,7 @@ gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
 ## Project development:
 
 - Checkout this repository locally.
-    - Work locally by simply `docker-compose up` ([convenience commandsb](https://gist.github.com/mindey/6b9f3c6eb5cac93b62d5abaa15a4d9ba))
+    - Work locally by simply `docker-compose up` ([convenience commands](https://gist.github.com/mindey/6b9f3c6eb5cac93b62d5abaa15a4d9ba))
     - Alternatively, without docker, [in plain pip and postgresql](https://gist.github.com/mindey/6aff869782800429a96500dba94db8b2).
 
 - Deploy:
