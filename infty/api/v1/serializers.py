@@ -14,6 +14,7 @@ from infty.transactions.models import (
     Currency,
     Transaction,
     Interaction,
+    TopicSnapshot,
     CommentSnapshot,
     HourPriceSnapshot,
     CurrencyPriceSnapshot,
@@ -114,13 +115,22 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours', 'assumed_hours', 'owner', 'languages', 'matched', 'donated', 'remains', 'parent')
 
 
+class TopicSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+
+    topic = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
+
+    class Meta:
+        model = TopicSnapshot
+        fields = ('id', 'created_date', 'topic', 'data', 'blockchain', 'blockchain_tx')
+
+
 class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(view_name='comment-detail', queryset=Comment.objects.all())
 
     class Meta:
         model = CommentSnapshot
-        fields = ('id', 'created_date', 'comment', 'data',)
+        fields = ('id', 'created_date', 'comment', 'data', 'blockchain', 'blockchain_tx')
 
 
 class HourPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):

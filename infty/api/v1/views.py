@@ -24,6 +24,7 @@ from infty.transactions.models import (
     Interaction,
     Transaction,
     ContributionCertificate,
+    TopicSnapshot,
     CommentSnapshot,
     HourPriceSnapshot,
     CurrencyPriceSnapshot,
@@ -39,6 +40,7 @@ from infty.api.v1.serializers import (
     TransactionCreateSerializer,
     TransactionListSerializer,
     ContributionSerializer,
+    TopicSnapshotSerializer,
     CommentSnapshotSerializer,
     HourPriceSnapshotSerializer,
     CurrencyPriceSnapshotSerializer,
@@ -195,6 +197,15 @@ class ContributionViewSet(CustomViewSet):
 
     serializer_class = ContributionSerializer
     queryset = ContributionCertificate.objects.all()
+
+
+class TopicSnapshotViewSet(CustomViewSet):
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('topic',)
+
+    serializer_class = TopicSnapshotSerializer
+    queryset = TopicSnapshot.objects.all()
 
 
 class CommentSnapshotViewSet(CustomViewSet):
