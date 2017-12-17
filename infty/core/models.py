@@ -3,6 +3,7 @@ from re import finditer
 from langsplit import splitter
 
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 import django.db.models.options as options
@@ -95,7 +96,6 @@ class Type(GenericTranslationModel):
 
     is_category = models.BooleanField(default=False)
 
-    source = models.TextField(null=True, blank=True)
 
     parents = models.ManyToManyField(
         'self',
@@ -103,6 +103,9 @@ class Type(GenericTranslationModel):
         symmetrical=False,
         related_name='parent_types'
     )
+
+    source = models.TextField(null=True, blank=True)
+    data = JSONField(null=True, blank=True)
 
     def __str__(self):
         return '[{}] {}'.format(self.pk, self.name)
@@ -138,6 +141,9 @@ class Instance(GenericTranslationModel):
 
     identifiers = models.TextField()
     description = models.TextField()
+
+    source = models.TextField(null=True, blank=True)
+    data = JSONField(null=True, blank=True)
 
     def __str__(self):
         return '[{}] {}: {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk, self.identifiers)
@@ -206,6 +212,9 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
 
     is_draft = models.BooleanField(default=False)
 
+    source = models.TextField(null=True, blank=True)
+    data = JSONField(null=True, blank=True)
+
     def __str__(self):
         return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
 
@@ -243,6 +252,9 @@ class Comment(CommentTransactionMixin, GenericTranslationModel):
     blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
 
     parent = models.ForeignKey('self', null=True, blank=True)
+
+    source = models.TextField(null=True, blank=True)
+    data = JSONField(null=True, blank=True)
 
     def set_hours(self):
 
