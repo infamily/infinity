@@ -77,8 +77,8 @@ class CommentSnapshot(GenericSnapshot):
         return super().save(*args, **kwargs)
 
     class Meta:
-        verbose_name = _("Topic Snapshot")
-        verbose_name_plural = _("Topic Snapshots")
+        verbose_name = _("Comment Snapshot")
+        verbose_name_plural = _("Comment Snapshots")
 
 
 class Currency(GenericModel):
