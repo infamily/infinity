@@ -9,7 +9,6 @@ from django.core import serializers
 def ws_connect(message):
     label = '-'.join(message['path'].strip('/').split('/'))
 
-    print(label)
     Group(label).add(message.reply_channel)
     message.channel_session['channel_label'] = label
 
