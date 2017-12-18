@@ -85,13 +85,3 @@ CELERY_ALWAYS_EAGER = True
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis://', 6379)],
-        },
-        'ROUTING': 'config.routing.channel_routing',
-    }
-}

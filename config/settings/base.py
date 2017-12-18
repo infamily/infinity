@@ -345,3 +345,13 @@ SOUTH_MIGRATION_MODULES = {
 
 OTP_GENERATION_LIMIT = 10
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis://', 6379)],
+        },
+        'ROUTING': 'config.routing.channel_routing',
+    }
+}
