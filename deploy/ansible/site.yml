@@ -11,6 +11,8 @@
       letsencrypt_email: user@example.net
       letsencrypt_cert_domains:
         - inf.li
+        - test.wfx.io
+        - test.wefindx.io
       when: run_scenario == "init"
 
     - role: roles/docker
