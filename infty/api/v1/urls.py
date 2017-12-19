@@ -22,6 +22,7 @@ router.register(r'hourprice_snapshots', views.HourPriceSnapshotViewSet)
 router.register(r'currencyprice_snapshots', views.CurrencyPriceSnapshotViewSet)
 
 router.register(r'user_balance', views.UserBalanceViewSet)
+router.register(r'language_names', views.LanguageNameViewSet)
 
 
 urlpatterns = [

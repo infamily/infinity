@@ -2,7 +2,13 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import User, OneTimePassword, MemberOrganization
+
+from infty.users.models import (
+    User,
+    OneTimePassword,
+    MemberOrganization,
+    LanguageName
+)
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -51,3 +57,9 @@ class OneTimePasswordAdmin(admin.ModelAdmin):
 class MemberOrganizationAdmin(admin.ModelAdmin):
     class Meta:
         model = MemberOrganization
+
+
+@admin.register(LanguageName)
+class MemberOrganizationAdmin(admin.ModelAdmin):
+    class Meta:
+        model = LanguageName
