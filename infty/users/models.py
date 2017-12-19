@@ -115,11 +115,13 @@ class MemberOrganization(GenericModel):
 class LanguageName(GenericModel):
     lang = models.CharField(max_length=2, blank=False, null=False)
     name = models.CharField(max_length=255, blank=False, null=False)
+    enabled = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{}: {}".format(
+        return "{}: {} - {}".format(
             self.lang,
-            self.name
+            self.name,
+            'ENABLED' if self.enabled else ''
         )
 
     class Meta:
