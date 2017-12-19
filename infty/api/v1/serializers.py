@@ -20,7 +20,10 @@ from infty.transactions.models import (
     CurrencyPriceSnapshot,
     ContributionCertificate
 )
-from infty.users.models import User
+from infty.users.models import (
+    User,
+    LanguageName
+)
 
 class LangSplitField(serializers.CharField):
     """Langsplit CharField"""
@@ -245,3 +248,10 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'balance', 'contributions')
+
+
+class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = LanguageName
+        fields = ('lang', 'name')

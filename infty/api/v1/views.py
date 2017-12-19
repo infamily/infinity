@@ -11,7 +11,7 @@ from rest_framework import (
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from infty.users.models import User
+from infty.users.models import User, LanguageName
 
 from infty.core.models import (
     Type,
@@ -46,6 +46,7 @@ from infty.api.v1.serializers import (
     CurrencyPriceSnapshotSerializer,
 
     UserBalanceSerializer,
+    LanguageNameSerializer,
 )
 from infty.api.v1.pagination_classes import (
     StandardResultsSetPagination,
@@ -55,7 +56,7 @@ from infty.api.v1.pagination_classes import (
 from infty.api.v1.filters import TopicFilter
 
 
-schema_generator = schemas.SchemaGenerator(title='WeFindX API')
+schema_generator = schemas.SchemaGenerator(title='Infinity API')
 
 
 @api_view()
@@ -229,6 +230,7 @@ class CurrencyPriceSnapshotViewSet(CustomViewSet):
     queryset = CurrencyPriceSnapshot.objects.all()
 
 
+@permission_classes((IsAuthenticatedOrReadOnly,))
 class UserBalanceViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
@@ -237,3 +239,9 @@ class UserBalanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = UserBalanceSerializer
     queryset = User.objects.all()
+
+
+@permission_classes((IsAuthenticatedOrReadOnly,))
+class LanguageNameViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = LanguageNameSerializer
+    queryset = LanguageName.objects.all()
