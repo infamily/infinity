@@ -254,4 +254,4 @@ class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = LanguageName
-        fields = ('lang', 'name')
+        fields = ('lang', 'name', 'enabled')
