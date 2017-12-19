@@ -9,7 +9,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
 from django.contrib.postgres.fields import ArrayField
 
-from infty.generic.models import GenericModel, GenericManager
+from infty.generic.models import (
+    GenericModel,
+    GenericManager
+)
 
 
 class User(AbstractUser, GenericModel):
@@ -107,3 +110,18 @@ class MemberOrganization(GenericModel):
     class Meta:
         verbose_name = _("Member organization")
         verbose_name_plural = _("Member organizations")
+
+
+class LanguageName(GenericModel):
+    lang = models.CharField(max_length=2, blank=False, null=False)
+    name = models.CharField(max_length=255, blank=False, null=False)
+
+    def __str__(self):
+        return "{}: {}".format(
+            self.lang,
+            self.name
+        )
+
+    class Meta:
+        verbose_name = _("Language name")
+        verbose_name_plural = _("Language names")
