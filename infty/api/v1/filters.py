@@ -16,4 +16,4 @@ class TopicFilter(filters.FilterSet):
 
     class Meta:
         model = Topic
-        fields = ['owner', ]
+        fields = ['owner', 'parents']
