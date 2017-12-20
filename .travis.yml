@@ -46,7 +46,8 @@ install:
 script:
 - echo "" > .env_production
 - docker-compose -f production.yml build
-- "./manage.py test"
+- docker-compose -f production.yml start
+- docker exec infinity_web_1 ./manage.py test
 after_success:
 - echo "Build success"
 after_failure:
