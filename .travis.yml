@@ -47,7 +47,6 @@ script:
 - echo "" > .env_production
 - docker-compose -f production.yml build
 - docker-compose -f production.yml start
-- docker exec `docker-compose ps -q web` ./manage.py test
 - docker exec `docker ps -q --filter "ancestor=infamily/infinity:latest"` ./manage.py test
 after_success:
 - echo "Build success"
