@@ -74,11 +74,17 @@ class CategoriesField(serializers.RelatedField):
         return item
 
 
+class UserRepresentation(serializers.CharField):
+
+    def to_representation(self, value):
+        return {"id": value.pk, "username": value.username}
+
+
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
     body = LangSplitField(required=False)
     type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=False)
-    owner = serializers.ReadOnlyField(source='owner.username', read_only=True)
+    owner = UserRepresentation(read_only=True)
     editors = serializers.ReadOnlyField(source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(
         many = True,
@@ -92,17 +98,11 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors', 'parents', 'categories', 'languages', 'is_draft', 'blockchain')
 
 
-class CommentOwner(serializers.CharField):
-
-    def to_representation(self, value):
-        return {"id": value.pk, "username": value.username}
-
-
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(view_name='topic-detail', queryset=Topic.objects.all())
-    owner = CommentOwner(read_only=True)
+    owner = UserRepresentation(read_only=True)
 
     def get_text(self, obj):
         lang = self.context['request'].query_params.get('lang')
@@ -206,8 +206,8 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
     hour_price = serializers.PrimaryKeyRelatedField(queryset=HourPriceSnapshot.objects.all())
     currency_price = serializers.PrimaryKeyRelatedField(queryset=CurrencyPriceSnapshot.objects.all())
     payment_currency = serializers.PrimaryKeyRelatedField(queryset=Currency.objects.all())
-    payment_recipient = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    payment_sender = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    payment_recipient = UserRepresentation(read_only=True)
+    payment_sender = UserRepresentation(read_only=True)
 
     class Meta:
         model = Transaction
@@ -220,7 +220,7 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
     transaction = serializers.HyperlinkedRelatedField(view_name='transaction-detail', queryset=Transaction.objects.all())
     interaction = serializers.HyperlinkedRelatedField(view_name='interaction-detail', queryset=Interaction.objects.all())
     comment_snapshot = serializers.HyperlinkedRelatedField(view_name='commentsnapshot-detail', queryset=CommentSnapshot.objects.all())
-    received_by = serializers.ReadOnlyField(source='received_by.username')
+    received_by = UserRepresentation(read_only=True)
 
     class Meta:
         model = ContributionCertificate
