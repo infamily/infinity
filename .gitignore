@@ -85,3 +85,5 @@ travis_rsa
 travis_rsa.pub
 passphrase.txt
 infinity.kdb
+.ipynb_checkpoints/*
+notebooks/.ipynb_checkpoints/*
