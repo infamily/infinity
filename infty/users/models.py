@@ -15,6 +15,15 @@ from infty.generic.models import (
 )
 
 
+def username_hash(email):
+    name, domain = email.lower().split('@')
+
+    user_hash = hashlib.sha1(
+        email.encode('utf-8')).hexdigest()[:8]
+
+    return "{}@{}".format(name.title(), user_hash.upper())
+
+
 class User(AbstractUser, GenericModel):
 
     # First Name and Last Name do not cover name patterns
@@ -35,12 +44,7 @@ class User(AbstractUser, GenericModel):
         """
 
         if self.email:
-            name, domain = self.email.lower().split('@')
-
-            user_hash = hashlib.sha1(
-                self.email.encode('utf-8')).hexdigest()[:8]
-
-            self.username = "{}@{}".format(name.title(), user_hash.upper())
+            self.username = username_hash(self.email)
 
         super(User, self).save(*args, **kwargs)
 
