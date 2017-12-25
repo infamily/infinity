@@ -32,6 +32,7 @@ services:
     command: ./manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - ./compose/web/00-jupyterlab-startup.py:/root/.ipython/profile_default/startup/00-jupyterlab-startup.py:ro
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.local
       DJANGO_SECRET_KEY: SECRET
@@ -40,3 +41,4 @@ services:
       DJANGO_ADMIN_URL: ^admin/
     ports:
       - "8000:8000"
+      - "8888:8888"
