@@ -8,6 +8,8 @@ services:
 - redis-server
 addons:
   postgresql: '9.6'
+  hosts:
+    - redis
 env:
   global:
   - DOCKER_COMPOSE_VERSION=1.16.1
@@ -44,11 +46,10 @@ before_install:
 install:
 - pip install -r requirements/test.txt
 script:
+- "./manage.py test"
+after_success:
 - echo "" > .env_production
 - docker-compose -f production.yml build
-- docker-compose -f production.yml start
-- docker exec `docker ps -q --filter "ancestor=infamily/infinity:latest"` ./manage.py test
-after_success:
 - echo "Build success"
 after_failure:
 - echo "Eto fiasko, bratan :("
