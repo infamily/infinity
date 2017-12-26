@@ -5,8 +5,11 @@ python:
 - '3.5'
 services:
 - docker
+- redis-server
 addons:
   postgresql: '9.6'
+  hosts:
+    - redis
 env:
   global:
   - DOCKER_COMPOSE_VERSION=1.16.1
@@ -39,6 +42,7 @@ before_install:
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+- sudo service redis-server start
 install:
 - pip install -r requirements/test.txt
 script:
