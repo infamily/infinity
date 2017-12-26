@@ -183,6 +183,7 @@ class TransactionViewSet(CustomViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
     filter_fields = ('comment',)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -196,6 +197,7 @@ class ContributionViewSet(CustomViewSet):
                        filters.SearchFilter,)
     filter_fields = ('transaction', 'received_by')
 
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = ContributionSerializer
     queryset = ContributionCertificate.objects.all()
 
@@ -213,6 +215,7 @@ class CommentSnapshotViewSet(CustomViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
     filter_fields = ('comment',)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     serializer_class = CommentSnapshotSerializer
     queryset = CommentSnapshot.objects.all()
@@ -222,12 +225,14 @@ class HourPriceSnapshotViewSet(CustomViewSet):
 
     serializer_class = HourPriceSnapshotSerializer
     queryset = HourPriceSnapshot.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 class CurrencyPriceSnapshotViewSet(CustomViewSet):
 
     serializer_class = CurrencyPriceSnapshotSerializer
     queryset = CurrencyPriceSnapshot.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 @permission_classes((IsAuthenticatedOrReadOnly,))
