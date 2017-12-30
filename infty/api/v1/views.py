@@ -13,9 +13,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from infty.users.models import User, LanguageName
 
-from infty.core.models import (
+from infty.meta.models import (
     Type,
     Instance,
+)
+from infty.core.models import (
     Topic,
     Comment,
 )

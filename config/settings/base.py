@@ -60,8 +60,9 @@ THIRD_PARTY_APPS = [
 # Apps specific for this project go here.
 LOCAL_APPS = [
     'infty.generic',
-    'infty.users',
+    'infty.meta',
     'infty.core',
+    'infty.users',
     'infty.transactions',
 ]
 
@@ -153,7 +154,7 @@ USE_I18N = True
 USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
-USE_TZ = True
+USE_TZ = False
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
