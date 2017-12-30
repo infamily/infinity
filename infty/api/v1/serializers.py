@@ -4,9 +4,11 @@ from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from infty.core.models import (
+from infty.meta.models import (
     Type,
     Instance,
+)
+from infty.core.models import (
     Topic,
     Comment,
 )
