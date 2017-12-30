@@ -1,7 +1,7 @@
 from django.db import models
 from django.dispatch import receiver
 from .models import Comment
-from infty.api.v1.consumers import ws_send_comment_changed
+from infty.api_asgi.consumers import ws_send_comment_changed
 
 
 @receiver(models.signals.post_save, sender=Comment)
