@@ -1,6 +1,7 @@
 import json
 from channels import Group
 from channels.auth import channel_session
+
 from django.forms.models import model_to_dict
 from django.core import serializers
 
@@ -17,8 +18,8 @@ def get_label(group_id):
 
 @channel_session
 def ws_connect(message):
-    print('client here')
     path_items = message['path'].strip('/').split('/')
+
     if path_items[0] != 'comments':
         return
 
