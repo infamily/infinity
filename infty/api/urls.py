@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 urlpatterns = [
     url(r'^v1/', include('infty.api.v1.urls')),
-    url(r'^v1/docs/',
+    url(r'^',
         include_docs_urls(
             title='WeFindX API',
             permission_classes=(IsAuthenticatedOrReadOnly,)

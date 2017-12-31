@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
+    'channels',
 ]
 
 # Apps specific for this project go here.
@@ -344,3 +345,16 @@ SOUTH_MIGRATION_MODULES = {
 
 
 OTP_GENERATION_LIMIT = 10
+
+
+REDIS_URL = '{0}/{1}'.format(env('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [REDIS_URL],
+        },
+        'ROUTING': 'config.routing.channel_routing',
+    }
+}
