@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -9,7 +10,7 @@ from infty.users import views
 
 class JSONTemplateView(TemplateView):
     def render_to_response(self, context, **response_kwargs):
-        response_kwargs['content_type'] = 'application/json'
+        response_kwargs['content_type'] = 'application/json; charset=utf-8'
         return super(TemplateView, self).render_to_response(context, **response_kwargs)
 
 urlpatterns = [
