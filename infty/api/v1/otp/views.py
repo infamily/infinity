@@ -1,13 +1,14 @@
 from captcha.models import CaptchaStore
 from django.conf import settings
-from rest_framework import generics, status, views
+from rest_framework import generics, views
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 from infty.api.v1.generic.permissions import IsAuthenticatedAndActive
 from infty.api.v1.otp.serializers import (
     CaptchaResponseSerializer, OneTimePasswordSerializer, SignupSerializer,
-    TokenSerializer, UserDetailsSerializer, UserUpdateSerializer)
+    UserDetailsSerializer, UserUpdateSerializer)
 from infty.mail import send_mail_async
 from infty.users.models import OneTimePassword, User
 
@@ -30,67 +31,58 @@ class UserDetailsView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class OTPRegister(views.APIView):
-    authentication_classes = ()
-    permission_classes = ()
+class OTPCaptchaView(views.APIView):
+    permission_classes = (AllowAny, )
 
-    def get(self):
-
+    def get(self, *args, **kwargs):
         new_key = CaptchaStore.pick()
-
-        serializer = CaptchaResponseSerializer(data={
-            'key': new_key,
-            'image_url': new_key,
-            'membership': new_key,
-        })
-
-        return Response(serializer.data)
-
-    def post(self, request):
-        signup_serializer = SignupSerializer(data=request.data)
-
-        if signup_serializer.is_valid():
-            email = signup_serializer.data.get("email")
-
-            if email:
-                user, _ = User.objects.get_or_create(
-                    email=email, is_active=True)
-
-                OneTimePassword.objects.filter(
-                    user=user, is_active=True).update(is_active=False)
-
-                password = OneTimePassword.objects.create(user=user)
-
-                token, _ = Token.objects.get_or_create(user=user)
-                token_serializer = TokenSerializer(token)
-
-                subject = '%s - One-Time password' % settings.EMAIL_SUBJECT_PREFIX
-                body = password.one_time_password
-
-                send_mail_async(
-                    subject,
-                    body,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                )
-
-                return Response(token_serializer.data)
-
-        new_key = CaptchaStore.pick()
-
         captcha_response_serializer = CaptchaResponseSerializer(
             data={
                 'key': new_key,
                 'image_url': new_key,
-                'membership': new_key,
             })
 
-        return Response(
-            captcha_response_serializer.data,
-            status=status.HTTP_400_BAD_REQUEST)
+        captcha_response_serializer.is_valid(raise_exception=True)
+
+        return Response(captcha_response_serializer.data)
 
 
-class OTPLogin(views.APIView):
+class OTPRegisterView(generics.GenericAPIView):
+    permission_classes = (AllowAny, )
+    serializer_class = SignupSerializer
+
+    def post(self, request):
+        serializer_class = self.serializer_class(data=request.data)
+        serializer_class.is_valid(raise_exception=True)
+
+        email = serializer_class.data.get("email")
+
+        user, _ = User.objects.get_or_create(email=email, is_active=True)
+
+        OneTimePassword.objects.filter(
+            user=user, is_active=True).update(is_active=False)
+
+        password = OneTimePassword.objects.create(user=user)
+
+        token, _ = Token.objects.get_or_create(user=user)
+
+        subject = '%s - One-Time password' % settings.EMAIL_SUBJECT_PREFIX
+        body = password.one_time_password
+
+        send_mail_async(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+
+        return Response(serializer_class.data)
+
+
+class OTPLoginView(generics.GenericAPIView):
+    permission_classes = (AllowAny, )
+    serializer_class = OneTimePasswordSerializer
+
     def post(self, request):
         serializer = UserDetailsSerializer(request.user)
         return Response(serializer.data)

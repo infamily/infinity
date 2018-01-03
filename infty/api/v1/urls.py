@@ -3,7 +3,7 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from infty.api.v1 import views
-from infty.users.views import OTPRegister, OTPLogin
+from infty.api.v1.otp.views import OTPLoginView, OTPRegisterView, OTPCaptchaView
 
 router = routers.DefaultRouter()
 
@@ -28,6 +28,7 @@ router.register(r'language_names', views.LanguageNameViewSet)
 urlpatterns = [
     url('^$', views.schema_view),
     url(r'^', include(router.urls)),
-    url(r'^otp/signup/', OTPRegister.as_view(), name="otp-signup"),
-    url(r'^otp/login/', OTPLogin.as_view(), name="otp-login")
+    url(r'^otp/signup/', OTPRegisterView.as_view(), name="otp-signup"),
+    url(r'^otp/login/', OTPLoginView.as_view(), name="otp-login"),
+    url(r'^otp/captcha/', OTPCaptchaView.as_view(), name="otp-captcha"),
 ]
