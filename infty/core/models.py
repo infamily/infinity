@@ -7,10 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from infty.generic.models import GenericTranslationModel
 from infty.users.models import User, CryptoKeypair
-from infty.transactions.mixins import (
-    TopicTransactionMixin,
-    CommentTransactionMixin
-)
+from infty.transactions.mixins import (TopicTransactionMixin,
+                                       CommentTransactionMixin)
 
 
 class Topic(TopicTransactionMixin, GenericTranslationModel):
@@ -27,12 +25,12 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
 
     Note: order of languages is preserved, in the order of input.
     """
-    NEED = 0 # A condition
-    GOAL = 1 # Set of conditions
-    IDEA = 2 # A transformation
-    PLAN = 3 # Instance of Idea(s)
-    STEP = 4 # Decomposition of plan
-    TASK = 5 # Terminal step (action).
+    NEED = 0  # A condition
+    GOAL = 1  # Set of conditions
+    IDEA = 2  # A transformation
+    PLAN = 3  # Instance of Idea(s)
+    STEP = 4  # Decomposition of plan
+    TASK = 5  # Terminal step (action).
 
     TOPIC_TYPES = [
         (NEED, _('Need')),
@@ -45,27 +43,18 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
 
     type = models.PositiveSmallIntegerField(TOPIC_TYPES, default=TASK)
     categories = models.ManyToManyField(
-        'meta.Type',
-        related_name='topic_categories',
-        blank=True
-    )
+        'meta.Type', related_name='topic_categories', blank=True)
     title = models.TextField()
     body = models.TextField(null=True, blank=True)
 
     owner = models.ForeignKey(User)
     editors = models.ManyToManyField(
-        User,
-        related_name='topic_editors',
-        blank=True
-    )
+        User, related_name='topic_editors', blank=True)
     parents = models.ManyToManyField(
-        'self',
-        blank=True,
-        symmetrical=False,
-        related_name='parent_topics'
-    )
+        'self', blank=True, symmetrical=False, related_name='parent_topics')
 
-    blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
+    blockchain = models.PositiveSmallIntegerField(
+        CryptoKeypair.KEY_TYPES, default=False)
 
     is_draft = models.BooleanField(default=False)
 
@@ -73,7 +62,8 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
     data = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return '[{}] {}'.format(dict(self.TOPIC_TYPES).get(self.type), self.title)
+        return '[{}] {}'.format(
+            dict(self.TOPIC_TYPES).get(self.type), self.title)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -87,7 +77,7 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
         )
         verbose_name = _("Topic")
         verbose_name_plural = _("Topics")
-        ordering = ('-pk',)
+        ordering = ('-pk', )
 
 
 class Comment(CommentTransactionMixin, GenericTranslationModel):
@@ -102,11 +92,14 @@ class Comment(CommentTransactionMixin, GenericTranslationModel):
     topic = models.ForeignKey(Topic)
     text = models.TextField()
 
-    claimed_hours = models.DecimalField(default=0., decimal_places=8, max_digits=20)
-    assumed_hours = models.DecimalField(default=0., decimal_places=8, max_digits=20)
+    claimed_hours = models.DecimalField(
+        default=0., decimal_places=8, max_digits=20)
+    assumed_hours = models.DecimalField(
+        default=0., decimal_places=8, max_digits=20)
 
     owner = models.ForeignKey(User)
-    blockchain = models.PositiveSmallIntegerField(CryptoKeypair.KEY_TYPES, default=False)
+    blockchain = models.PositiveSmallIntegerField(
+        CryptoKeypair.KEY_TYPES, default=False)
 
     parent = models.ForeignKey('self', null=True, blank=True)
 
@@ -159,8 +152,6 @@ class Comment(CommentTransactionMixin, GenericTranslationModel):
             self.create_snapshot(blockchain=self.blockchain)
 
     class Meta:
-        translation_fields = (
-            ('text', False),
-        )
+        translation_fields = (('text', False), )
         verbose_name = _("Comment")
         verbose_name_plural = _("Comments")
