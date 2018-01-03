@@ -1,6 +1,6 @@
 from captcha.models import CaptchaStore
 from django.conf import settings
-from rest_framework import generics, views
+from rest_framework import generics, views, exceptions
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -64,7 +64,7 @@ class OTPRegisterView(generics.GenericAPIView):
 
         password = OneTimePassword.objects.create(user=user)
 
-        token, _ = Token.objects.get_or_create(user=user)
+        Token.objects.get_or_create(user=user)
 
         subject = '%s - One-Time password' % settings.EMAIL_SUBJECT_PREFIX
         body = password.one_time_password
@@ -84,5 +84,30 @@ class OTPLoginView(generics.GenericAPIView):
     serializer_class = OneTimePasswordSerializer
 
     def post(self, request):
-        serializer = UserDetailsSerializer(request.user)
-        return Response(serializer.data)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.data.get('email')
+        password = serializer.data.get('one_time_password')
+
+        otp_obj = OneTimePassword.objects.filter(
+            user__email=email, is_active=True, is_used=False).last()
+
+        if otp_obj:
+
+            if otp_obj.login_attempts > settings.OTP_GENERATION_LIMIT:
+                raise exceptions.AuthenticationFailed()
+
+            elif otp_obj.one_time_password != password:
+                otp_obj.login_attempts += 1
+                otp_obj.save(force_update=True)
+                raise exceptions.AuthenticationFailed()
+
+            else:
+                otp_obj.is_active = False
+                otp_obj.is_used = True
+                otp_obj.save(force_update=True)
+        else:
+            raise exceptions.AuthenticationFailed()
+
+        return UserDetailsSerializer(otp_obj.user)
