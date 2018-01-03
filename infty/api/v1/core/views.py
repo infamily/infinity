@@ -1,6 +1,6 @@
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, relations
 
 from django_filters.rest_framework import DjangoFilterBackend
 

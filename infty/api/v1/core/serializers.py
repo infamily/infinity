@@ -79,12 +79,13 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(
         many=True,
-        view_name='topic-detail',
+        view_name='api:v1:core:topic-detail',
         queryset=Topic.objects.all(),
         required=False)
 
     class Meta:
         model = Topic
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:topic-detail'}}
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
                   'parents', 'categories', 'languages', 'is_draft',
                   'blockchain')
@@ -94,7 +95,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(
-        view_name='topic-detail', queryset=Topic.objects.all())
+        view_name='api:v1:core:topic-detail', queryset=Topic.objects.all())
     owner = UserRepresentation(read_only=True)
 
     def get_text(self, obj):
@@ -109,6 +110,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:topic-detail'}}
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours',
                   'assumed_hours', 'owner', 'languages', 'matched', 'donated',
                   'remains', 'parent', 'blockchain')
@@ -117,10 +119,11 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class TopicSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     topic = serializers.HyperlinkedRelatedField(
-        view_name='comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
 
     class Meta:
         model = TopicSnapshot
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('id', 'created_date', 'topic', 'data', 'blockchain',
                   'blockchain_tx')
 
@@ -128,10 +131,11 @@ class TopicSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
 
     class Meta:
         model = CommentSnapshot
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('id', 'created_date', 'comment', 'data', 'blockchain',
                   'blockchain_tx')
 
@@ -151,33 +155,36 @@ class CurrencyPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
 
     hour_price = serializers.HyperlinkedRelatedField(
-        view_name='hourpricesnapshot-detail',
+        view_name='api:v1:core:hourpricesnapshot-detail',
         queryset=HourPriceSnapshot.objects.all())
     currency_price = serializers.HyperlinkedRelatedField(
-        view_name='currencypricesnapshot-detail',
+        view_name='api:v1:core:currencypricesnapshot-detail',
         queryset=CurrencyPriceSnapshot.objects.all())
 
     class Meta:
         model = Currency
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:hourpricesnapshot-detail'}}
         fields = ('id', 'label', 'in_hours', 'hour_price', 'currency_price')
 
 
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='interaction-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:interaction-detail',
+        queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField(
         queryset=CommentSnapshot.objects.all())
 
     class Meta:
         model = Interaction
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:interaction-detail'}}
         fields = ('url', 'comment', 'snapshot', 'claimed_hours_to_match')
 
 
 class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
     payment_currency = serializers.PrimaryKeyRelatedField(
         queryset=Currency.objects.all())
     payment_sender = serializers.PrimaryKeyRelatedField(
@@ -185,6 +192,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('comment', 'payment_amount', 'payment_currency',
                   'payment_sender')
 
@@ -209,7 +217,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField(
         queryset=CommentSnapshot.objects.all())
     hour_price = serializers.PrimaryKeyRelatedField(
@@ -223,6 +231,7 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
                   'payment_amount', 'payment_currency', 'payment_recipient',
                   'payment_sender', 'hour_unit_cost', 'donated_hours',
@@ -232,16 +241,19 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     transaction = serializers.HyperlinkedRelatedField(
-        view_name='transaction-detail', queryset=Transaction.objects.all())
+        view_name='api:v1:core:transaction-detail',
+        queryset=Transaction.objects.all())
     interaction = serializers.HyperlinkedRelatedField(
-        view_name='interaction-detail', queryset=Interaction.objects.all())
+        view_name='api:v1:core:interaction-detail',
+        queryset=Interaction.objects.all())
     comment_snapshot = serializers.HyperlinkedRelatedField(
-        view_name='commentsnapshot-detail',
+        view_name='api:v1:core:commentsnapshot-detail',
         queryset=CommentSnapshot.objects.all())
     received_by = UserRepresentation(read_only=True)
 
     class Meta:
         model = ContributionCertificate
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:transaction-detail'}}
         fields = ('type', 'url', 'interaction', 'transaction', 'received_by',
                   'comment_snapshot', 'broken', 'parent')
 
@@ -249,8 +261,7 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     balance = serializers.SerializerMethodField('matched')
-    contributions = serializers.SerializerMethodField(
-        'contribution_certificates')
+    contributions = serializers.SerializerMethodField('contribution_certificates')
 
     def matched(self, obj):
         return ContributionCertificate.user_matched(obj)
@@ -259,13 +270,14 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context['request']
         protocol = 'http{}://'.format('s' if request.is_secure() else '')
         domain = request.META.get('HTTP_HOST') or ''
-        endpoint = reverse('contributioncertificate-list')
+        endpoint = reverse('api:v1:core:contributioncertificate-list')
 
         return "{}{}{}?received_by={}".format(protocol, domain, endpoint,
                                               obj.id)
 
     class Meta:
         model = User
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:contribution_certificates'}}
         fields = ('id', 'username', 'balance', 'contributions')
 
 
