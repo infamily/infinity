@@ -6,7 +6,10 @@ from rest_framework.authtoken.models import Token
 from captcha.models import CaptchaStore
 
 from infty.api.v1.otp.fields import CaptchaImageField
-from infty.api.v1.otp.validators import email_domain_validator, one_time_password_limit_validator
+from infty.api.v1.otp.validators import (
+    email_domain_validator,
+    one_time_password_limit_validator,
+)
 from infty.users.models import User, OneTimePassword
 
 

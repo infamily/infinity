@@ -1,9 +1,12 @@
-from captcha.models import CaptchaStore
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+
 from rest_framework import generics, views, exceptions
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+
+from captcha.models import CaptchaStore
 
 from infty.api.v1.generic.permissions import IsAuthenticatedAndActive
 from infty.api.v1.otp.serializers import (
@@ -40,7 +43,8 @@ class OTPCaptchaView(views.APIView):
             data={
                 'key': new_key,
                 'image_url': new_key,
-            })
+            }
+        )
 
         captcha_response_serializer.is_valid(raise_exception=True)
 
@@ -83,6 +87,18 @@ class OTPLoginView(generics.GenericAPIView):
     permission_classes = (AllowAny, )
     serializer_class = OneTimePasswordSerializer
 
+    default_error_messages = {
+        'password_incorrect_error':
+        _('One-time-password is incorrect!'),
+        'password_limit_error':
+        _('You have reached a limit \
+            for one-time-password generating \
+            for today. Try again tomorrow.'),
+        'password_pending_error':
+        _('You have no \
+            currently pending one-time-password!'),
+    }
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -96,18 +112,21 @@ class OTPLoginView(generics.GenericAPIView):
         if otp_obj:
 
             if otp_obj.login_attempts > settings.OTP_GENERATION_LIMIT:
-                raise exceptions.AuthenticationFailed()
+                raise exceptions.AuthenticationFailed(
+                    self.default_error_messages['password_limit_error'])
 
             elif otp_obj.one_time_password != password:
                 otp_obj.login_attempts += 1
                 otp_obj.save(force_update=True)
-                raise exceptions.AuthenticationFailed()
+                raise exceptions.AuthenticationFailed(
+                    self.default_error_messages['password_incorrect_error'])
 
             else:
                 otp_obj.is_active = False
                 otp_obj.is_used = True
                 otp_obj.save(force_update=True)
         else:
-            raise exceptions.AuthenticationFailed()
+            raise exceptions.AuthenticationFailed(
+                self.default_error_messages['password_pending_error'])
 
         return UserDetailsSerializer(otp_obj.user)
