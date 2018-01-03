@@ -5,7 +5,7 @@ from channels.auth import channel_session
 from django.forms.models import model_to_dict
 from django.core import serializers
 
-from infty.api.v1.serializers import CommentSerializer
+from infty.api.v1.core.serializers import CommentSerializer
 
 
 def get_general_label():
