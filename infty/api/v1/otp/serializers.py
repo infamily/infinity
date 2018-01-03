@@ -1,14 +1,11 @@
-from django import forms
-from django.conf import settings
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from captcha.models import CaptchaStore
 
 from infty.api.v1.otp.fields import CaptchaImageField
-from infty.api.v1.otp.validators import email_domain_validator
-from infty.users.models import MemberOrganization, OneTimePassword, User
+from infty.api.v1.otp.validators import email_domain_validator, one_time_password_limit_validator
+from infty.users.models import User
 
 
 class CaptchaSerializer(serializers.Serializer):
@@ -37,24 +34,11 @@ class CaptchaSerializer(serializers.Serializer):
 
 class SignupSerializer(serializers.Serializer):
 
-    email = serializers.EmailField(validators=[email_domain_validator, ])
+    email = serializers.EmailField(validators=[
+        email_domain_validator,
+        one_time_password_limit_validator,
+    ])
     captcha = CaptchaSerializer()
-
-    default_error_messages = {
-        'password_limit_error':
-        _('You have reached a limit \
-            for one-time-password generating \
-            for today. Try again tomorrow.')
-    }.update(serializers.Serializer.default_error_messages)
-
-    def validate(self, data):
-        today = timezone.now().date()
-
-        if otp_generation_count > settings.OTP_GENERATION_LIMIT:
-            raise forms.ValidationError(
-                self.default_error_messages.get('password_limit_error'))
-
-        return data
 
 
 class OneTimePasswordSerializer(serializers.Serializer):
