@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from infty.core.models import Topic, Comment
-from infty.core.forms import TopicForm, CommentForm
+from infty.core.admin.forms import TopicForm, CommentForm
 
 
 @admin.register(Topic)
