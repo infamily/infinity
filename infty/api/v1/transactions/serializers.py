@@ -142,13 +142,17 @@ class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HourPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+    base = serializers.HyperlinkedIdentityField(view_name="api:v1:transactions:currency-detail")
+
     class Meta:
         model = HourPriceSnapshot
         extra_kwargs = {'url': {'view_name': 'api:v1:transactions:hourprice_snapshot-detail'}}
-        fields = ('id', 'name', 'base', 'endpoint', 'data')
+        fields = ('id', 'url', 'name', 'base', 'endpoint', 'data')
 
 
 class CurrencyPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
+    base = serializers.HyperlinkedIdentityField(view_name="api:v1:transactions:currency-detail")
+
     class Meta:
         model = CurrencyPriceSnapshot
         extra_kwargs = {'url': {'view_name': 'api:v1:transactions:currencyprice_snapshot-detail'}}
