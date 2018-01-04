@@ -347,13 +347,13 @@ SOUTH_MIGRATION_MODULES = {
 OTP_GENERATION_LIMIT = 10
 
 
-REDIS_URL = '{0}/{1}'.format(env('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+REDIS_URL = env.list('REDIS_URL')
 
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'asgi_redis.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [REDIS_URL],
+            'hosts': REDIS_URL,
         },
         'ROUTING': 'config.routing.channel_routing',
     }

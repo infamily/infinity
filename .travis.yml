@@ -17,7 +17,7 @@ env:
   - DATABASE_URL=postgres:///localhost:5432/postgres?user=postgres
   - ANSIBLE_HOST_KEY_CHECKING=False
   - ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt
-  - REDIS_URL=redis://localhost:6379
+  - REDIS_URL=redis://localhost:6379/0
   - secure: SAxOMPV5A+1gd8M+yHRZkIPn2X7DovvetadX/k0UtqGsjIDz3mLQq2vsjkFs/0EFABBWwPN+Vq/EmZ2aMRv1BBYfPLD+mTme6EMrUTTSWRUNAJMo7FBO6F17XxBBWA6UrXjnt/vWoVuX7/KUi1Ku5i9PVm3wITgwY0Q6ixNO9nA/aqWFb58AbdGnScu4MfQD7XlXYCqsHBHEldentQrwGj1f+/SIBhpqGyhd9HCc+qSYuwIRVNKhp9vtJVtGOjfFQS7/Hk4SI48kBTfhCRb4dfH7+5+ssj6ixt3wK2xT42TkBnOrfMsBX+CLmraq12TGFhTzCygbmZN/6pgn1N4jZy5GFaOy1CyWzmAR8PfoGaQcUiTVGYgoEHHolhDpP6dT76NSV2h8/vtLNutnQOznoOz2GspdqEBNSkV6TT3A3iNfNShrjKOgIJ77PWpbaJpbUb/sMOA532Wg2I1Cv/YBJ4rzKtU6DX+nOTO2VcJB5eDAuGtpmOxUynoM7YSk/DI01nA2+H4h0inQNkzM/cGtdLIewsDkJLc2SsTdttPTthEA1zEXK9IOSeoXQVYz5e/O3UGR8NYgi7TjENSpunqC5DoehFuMTW+x8P8vSb6wyj6VeGtljIZic8K3un1FIgfu8h0CfoBcOebsr99q3EhnJrjlenyP6mty84PrCT0a8Zk=
 branches:
   only:
