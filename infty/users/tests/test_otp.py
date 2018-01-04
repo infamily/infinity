@@ -37,14 +37,14 @@ class APITestCaseCustom(APITestCase):
             user=self.testuser,
         )
         self.otp_id = self.otp.id
-        self.otp_signup_url = reverse('api:v1:otp:signup')
-        self.otp_login_url = reverse('api:v1:otp:signin')
+        self.otp_signup_url = reverse('api:v1:auth:signup')
+        self.otp_login_url = reverse('api:v1:auth:signin')
 
 
 class OTPSignupTestCase(APITestCaseCustom):
 
     def test_can_create_otp(self):
-        response = self.client.get(reverse('api:v1:otp:captcha'))
+        response = self.client.get(reverse('api:v1:auth:captcha'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         captcha = CaptchaStore.objects.first()
