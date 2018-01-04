@@ -3,10 +3,6 @@ from langsplit import splitter
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 
-from infty.meta.models import (
-    Type,
-    Instance,
-)
 from infty.core.models import (
     Topic,
     Comment,
@@ -15,7 +11,6 @@ from infty.transactions.models import ContributionCertificate
 from infty.users.models import (User, LanguageName)
 
 from infty.api.v1.core.fields import LangSplitField, UserField
-
 
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
