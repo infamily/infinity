@@ -4,13 +4,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
-from infty.users import views
 
 
 class JSONTemplateView(TemplateView):
     def render_to_response(self, context, **response_kwargs):
         response_kwargs['content_type'] = 'application/json'
-        return super(TemplateView, self).render_to_response(context, **response_kwargs)
+        return super().render_to_response(context, **response_kwargs)
+
 
 urlpatterns = [
     url(r'^$', JSONTemplateView.as_view(template_name='pages/home.html'), name='home'),
@@ -21,17 +21,8 @@ urlpatterns = [
 
     # User management
     url(r'^users/', include('infty.users.urls', namespace='users')),
-    url(r'^accounts/', include('allauth.urls')),
     url(r'^api/', include('infty.api.urls', namespace='api')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^otp/singup/', views.OTPRegister.as_view()),
-    url(r'^otp/login/', views.OTPLogin.as_view())
-
-
-    # Your stuff: custom urls includes go here
-
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
