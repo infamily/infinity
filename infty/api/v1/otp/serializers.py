@@ -1,7 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
 
 from captcha.models import CaptchaStore
 
@@ -10,7 +9,8 @@ from infty.api.v1.otp.validators import (
     email_domain_validator,
     one_time_password_limit_validator,
 )
-from infty.users.models import User, OneTimePassword
+
+from infty.users.models import OneTimePassword
 
 
 class CaptchaSerializer(serializers.Serializer):
@@ -46,28 +46,6 @@ class SignupSerializer(serializers.Serializer):
     captcha = CaptchaSerializer()
 
 
-class TokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Token
-        fields = (
-            'key',
-            'created',
-        )
-
-
-class UserDetailsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'about',
-            'first_name',
-            'last_name',
-            'email',
-            'username',
-            'auth_token',
-        )
-
-
 class OneTimePasswordSerializer(serializers.Serializer):
 
     one_time_password = serializers.CharField()
@@ -87,15 +65,3 @@ class OneTimePasswordSerializer(serializers.Serializer):
 class CaptchaResponseSerializer(serializers.Serializer):
     key = serializers.CharField()
     image_url = CaptchaImageField()
-
-
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'about',
-            'first_name',
-            'last_name',
-            'email',
-        )

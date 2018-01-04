@@ -8,30 +8,11 @@ from rest_framework.permissions import AllowAny
 
 from captcha.models import CaptchaStore
 
-from infty.api.v1.generic.permissions import IsAuthenticatedAndActive
 from infty.api.v1.otp.serializers import (
-    CaptchaResponseSerializer, OneTimePasswordSerializer, SignupSerializer,
-    UserDetailsSerializer, UserUpdateSerializer)
+    CaptchaResponseSerializer, OneTimePasswordSerializer, SignupSerializer)
 from infty.mail import send_mail_async
 from infty.users.models import OneTimePassword, User
-
-
-class UserUpdateView(generics.UpdateAPIView):
-    queryset = User.objects.filter(is_active=True)
-    serializer_class = UserUpdateSerializer
-    permission_classes = (IsAuthenticatedAndActive, )
-
-    def get_object(self):
-        return self.request.user
-
-
-class UserDetailsView(generics.RetrieveAPIView):
-    queryset = User.objects.filter(is_active=True)
-    serializer_class = UserDetailsSerializer
-    permission_classes = (IsAuthenticatedAndActive, )
-
-    def get_object(self):
-        return self.request.user
+from infty.api.v1.auth.serializers import UserSerializer
 
 
 class OTPCaptchaView(views.APIView):
@@ -130,4 +111,4 @@ class OTPLoginView(generics.GenericAPIView):
             raise exceptions.AuthenticationFailed(
                 self.default_error_messages['password_pending_error'])
 
-        return UserDetailsSerializer(otp_obj.user)
+        return UserSerializer(otp_obj.user)
