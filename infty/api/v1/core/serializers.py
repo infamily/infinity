@@ -110,7 +110,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:topic-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours',
                   'assumed_hours', 'owner', 'languages', 'matched', 'donated',
                   'remains', 'parent', 'blockchain')
@@ -123,7 +123,7 @@ class TopicSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = TopicSnapshot
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:topic_snapshot-detail'}}
         fields = ('id', 'created_date', 'topic', 'data', 'blockchain',
                   'blockchain_tx')
 
@@ -135,7 +135,7 @@ class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = CommentSnapshot
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment_snapshot-detail'}}
         fields = ('id', 'created_date', 'comment', 'data', 'blockchain',
                   'blockchain_tx')
 
@@ -163,7 +163,7 @@ class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Currency
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:hourpricesnapshot-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:currency-detail'}}
         fields = ('id', 'label', 'in_hours', 'hour_price', 'currency_price')
 
 
@@ -231,7 +231,7 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:transaction-detail'}}
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
                   'payment_amount', 'payment_currency', 'payment_recipient',
                   'payment_sender', 'hour_unit_cost', 'donated_hours',
@@ -253,7 +253,7 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ContributionCertificate
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:transaction-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:contribution-detail'}}
         fields = ('type', 'url', 'interaction', 'transaction', 'received_by',
                   'comment_snapshot', 'broken', 'parent')
 
@@ -277,7 +277,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:contribution_certificates'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:user_balance-detail'}}
         fields = ('id', 'username', 'balance', 'contributions')
 
 
