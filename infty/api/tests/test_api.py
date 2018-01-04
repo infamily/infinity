@@ -147,7 +147,7 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
             'payment_sender': self.testuser.pk,
         }
         response = self.client.post(
-            reverse('api:v1:core:transaction-list'), transaction_data, format="json")
+            reverse('api:v1:transactions:transaction-list'), transaction_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -165,7 +165,7 @@ class GetCommentList(APITestCaseAuthorizedUser):
 
 class GetTransactionList(APITestCaseAuthorizedUser):
     def test_get_all_transactions(self):
-        response = self.client.get(reverse('api:v1:core:transaction-list'))
+        response = self.client.get(reverse('api:v1:transactions:transaction-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -201,14 +201,14 @@ class GetCommentDetail(APITestCaseAuthorizedUser):
 class GetTransactionDetail(APITestCaseAuthorizedUser):
     def test_get_valid_single_transaction(self):
         response = self.client.get(
-            reverse('api:v1:core:transaction-detail', kwargs={
+            reverse('api:v1:transactions:transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_invalid_single_transaction(self):
         response = self.client.get(
-            reverse('api:v1:core:transaction-detail', kwargs={
+            reverse('api:v1:transactions:transaction-detail', kwargs={
                 'pk': 30
             }))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -305,7 +305,7 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:transaction-detail', kwargs={
+            reverse('api:v1:transactions:transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }),
             valid_info,
@@ -329,7 +329,7 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:transaction-detail', kwargs={
+            reverse('api:v1:transactions:transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }),
             invalid_info,
@@ -340,11 +340,11 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
 
 class GetCurrenciesList(APITestCaseAuthorizedUser):
     def test_get_all_transactions(self):
-        response = self.client.get(reverse('api:v1:core:currency-list'))
+        response = self.client.get(reverse('api:v1:transactions:currency-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class GetBalancesList(APITestCaseAuthorizedUser):
     def test_get_all_balances(self):
-        response = self.client.get(reverse('api:v1:core:user-list'))
+        response = self.client.get(reverse('api:v1:transactions:user-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
