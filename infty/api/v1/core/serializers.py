@@ -17,22 +17,7 @@ from infty.transactions.models import (
     HourPriceSnapshot, CurrencyPriceSnapshot, ContributionCertificate)
 from infty.users.models import (User, LanguageName)
 
-
-class LangSplitField(serializers.CharField):
-    """Langsplit CharField"""
-
-    def to_internal_value(self, data):
-        return super(LangSplitField, self).to_internal_value(data)
-
-    def to_representation(self, value):
-        lang = self.context['request'].query_params.get('lang')
-
-        if lang and value:
-            split = splitter.split(value, title=True)
-            return split.get(lang) or 'languages: {}'.format(
-                list(split.keys()))
-
-        return value
+from infty.api.v1.core.fields import LangSplitField, UserField
 
 
 class TypeSerializer(serializers.HyperlinkedModelSerializer):
@@ -41,40 +26,22 @@ class TypeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Type
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:type-detail'}}
         fields = ('url', 'name', 'definition', 'source', 'languages')
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Instance
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:instance-detail'}}
         fields = ('url', 'role', 'description', 'languages')
-
-
-class CategoriesField(serializers.RelatedField):
-    def to_representation(self, value):
-        lang = self.context['request'].query_params.get('lang')
-
-        item = {"id": value.pk, "name": value.name}
-
-        if lang:
-
-            split = splitter.split(value.name, title=True)
-            item["name"] = split.get(lang) or \
-                'languages: {}'.format(list(split.keys()))
-
-        return item
-
-
-class UserRepresentation(serializers.CharField):
-    def to_representation(self, value):
-        return {"id": value.pk, "username": value.username}
 
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
     body = LangSplitField(required=False)
     type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=False)
-    owner = UserRepresentation(read_only=True)
+    owner = UserField(read_only=True)
     editors = serializers.ReadOnlyField(
         source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(
@@ -96,7 +63,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(
         view_name='api:v1:core:topic-detail', queryset=Topic.objects.all())
-    owner = UserRepresentation(read_only=True)
+    owner = UserField(read_only=True)
 
     def get_text(self, obj):
         lang = self.context['request'].query_params.get('lang')
@@ -143,12 +110,14 @@ class CommentSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 class HourPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = HourPriceSnapshot
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:hourprice_snapshot-detail'}}
         fields = ('id', 'name', 'base', 'endpoint', 'data')
 
 
 class CurrencyPriceSnapshotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = CurrencyPriceSnapshot
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:currencyprice_snapshot-detail'}}
         fields = ('id', 'name', 'base', 'endpoint', 'data')
 
 
@@ -226,8 +195,8 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
         queryset=CurrencyPriceSnapshot.objects.all())
     payment_currency = serializers.PrimaryKeyRelatedField(
         queryset=Currency.objects.all())
-    payment_recipient = UserRepresentation(read_only=True)
-    payment_sender = UserRepresentation(read_only=True)
+    payment_recipient = UserField(read_only=True)
+    payment_sender = UserField(read_only=True)
 
     class Meta:
         model = Transaction
@@ -249,7 +218,7 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
     comment_snapshot = serializers.HyperlinkedRelatedField(
         view_name='api:v1:core:commentsnapshot-detail',
         queryset=CommentSnapshot.objects.all())
-    received_by = UserRepresentation(read_only=True)
+    received_by = UserField(read_only=True)
 
     class Meta:
         model = ContributionCertificate
@@ -284,4 +253,5 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = LanguageName
+        extra_kwargs = {'url': {'view_name': 'api:v1:core:language_name-detail'}}
         fields = ('lang', 'name', 'enabled')
