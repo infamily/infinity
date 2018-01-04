@@ -346,5 +346,5 @@ class GetCurrenciesList(APITestCaseAuthorizedUser):
 
 class GetBalancesList(APITestCaseAuthorizedUser):
     def test_get_all_balances(self):
-        response = self.client.get(reverse('api:v1:transactions:user-list'))
+        response = self.client.get(reverse('api:v1:core:user-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

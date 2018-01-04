@@ -43,7 +43,7 @@ class InteractionSerializer(serializers.HyperlinkedModelSerializer):
 class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='api:v1:transactions:comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
     payment_currency = serializers.PrimaryKeyRelatedField(
         queryset=Currency.objects.all())
     payment_sender = serializers.PrimaryKeyRelatedField(
@@ -51,7 +51,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
-        extra_kwargs = {'url': {'view_name': 'api:v1:transactions:comment-detail'}}
+        extra_kwargs = {'url': {'view_name': 'api:v1:transactions:transaction-detail'}}
         fields = ('comment', 'payment_amount', 'payment_currency',
                   'payment_sender')
 
@@ -76,7 +76,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
 class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
 
     comment = serializers.HyperlinkedRelatedField(
-        view_name='api:v1:transactions:comment-detail', queryset=Comment.objects.all())
+        view_name='api:v1:core:comment-detail', queryset=Comment.objects.all())
     snapshot = serializers.PrimaryKeyRelatedField(
         queryset=CommentSnapshot.objects.all())
     hour_price = serializers.PrimaryKeyRelatedField(

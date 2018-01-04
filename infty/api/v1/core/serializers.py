@@ -92,7 +92,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context['request']
         protocol = 'http{}://'.format('s' if request.is_secure() else '')
         domain = request.META.get('HTTP_HOST') or ''
-        endpoint = reverse('api:v1:core:contributioncertificate-list')
+        endpoint = reverse('api:v1:transactions:contributioncertificate-list')
 
         return "{}{}{}?received_by={}".format(protocol, domain, endpoint,
                                               obj.id)

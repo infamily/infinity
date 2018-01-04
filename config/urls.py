@@ -15,6 +15,7 @@ class JSONTemplateView(TemplateView):
 urlpatterns = [
     url(r'^$', JSONTemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
+    url(r'^accounts/', include('allauth.urls')),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
