@@ -12,12 +12,44 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backup:/backups
+    env_file:
+      - env.dev
 
   redis:
     image: redis:4.0
     volumes:
       - redis_data:/var/lib/redis
       - redis_backup:/backups
+
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/web/Dockerfile
+      args:
+        requirements_file: local.txt
+    volumes:
+      - .:/app
+    depends_on:
+     - postgres
+     - redis
+    command: celery -A infty.celery worker -l INFO --purge
+    env_file:
+      - env.dev
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./compose/web/Dockerfile
+      args:
+        requirements_file: local.txt
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+    command: celery -A infty.celery beat -l INFO
+    env_file:
+      - env.dev
 
   web:
     build:
@@ -29,16 +61,14 @@ services:
     depends_on:
       - postgres
       - redis
-    command: ./manage.py runserver 0.0.0.0:8000
+      - celeryworker
+      - celerybeat
+    command: /start-dev.sh
     volumes:
-      - .:/app
+      - .:/app:rw
       - ./compose/web/00-jupyterlab-startup.py:/root/.ipython/profile_default/startup/00-jupyterlab-startup.py:ro
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.local
-      DJANGO_SECRET_KEY: SECRET
-      DATABASE_URL: postgres://postgres@postgres:5432/postgres
-      REDIS_URL: redis://redis:6379
-      DJANGO_ADMIN_URL: ^admin/
+    env_file:
+      - env.dev
     ports:
       - "8000:8000"
       - "8888:8888"

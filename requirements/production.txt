@@ -2,26 +2,21 @@
 #	production that aren't in development.
 -r base.txt
 
-
-
 # WSGI Handler
 # ------------------------------------------------
-gevent==1.2.2
-uWSGI==2.0.15
+uwsgi==2.0.15
 
 # Static and Media Storage
 # ------------------------------------------------
 boto==2.48.0
 django-storages-redux==1.3.3
-Collectfast==0.5.2
+collectfast==0.6.0
 
 # Email backends for Mailgun, Postmark, SendGrid and more
 # -------------------------------------------------------
-django-anymail==0.11
-sendgrid-django==4.0.4
+django-anymail==1.2
+sendgrid-django==4.2.0
 
 # Raven is the Sentry client
 # --------------------------
-raven==6.1.0
-
-
+raven==6.4.0

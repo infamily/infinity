@@ -19,6 +19,36 @@ services:
       - redis_data:/var/lib/redis
       - redis_backup:/backups
 
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./compose/web/Dockerfile
+      args:
+        requirements_file: production.txt
+    volumes:
+      - .:/app
+    depends_on:
+     - postgres
+     - redis
+    command: celery -A infty.celery worker -l INFO --purge
+    env_file:
+      - .env_production
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./compose/web/Dockerfile
+      args:
+        requirements_file: production.txt
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+    command: celery -A infty.celery beat -l INFO
+    env_file:
+      - .env_production
+
   web:
     build:
       context: .
@@ -29,11 +59,12 @@ services:
     depends_on:
       - postgres
       - redis
+      - celeryworker
+      - celerybeat
     command: uwsgi.sh
+    # TODO move it to .env_production file
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.production
-      DJANGO_READ_DOT_ENV_FILE: 1
-      DJANGO_DOT_ENV_FILE: .env_production
       DATABASE_URL: postgres://postgres@postgres:5432/postgres
       REDIS_URL: redis://redis:6379
       DJANGO_ADMIN_URL: ^admin/

@@ -1,30 +1,15 @@
 # Local development dependencies go here
--r base.txt
+-r test.txt
 
-coverage==4.4.1
-django-coverage-plugin==1.5.0
-
-mkdocs==0.17.2
-django-extensions==1.8.1
-Werkzeug==0.12.2
-django-test-plus==1.0.18
-factory-boy==2.8.1
-
+# Django extensions
 django-debug-toolbar==1.8
+django-extensions==1.9.8
 
-# improved REPL
-ipdb==0.10.3
-
-pytest-django==3.1.2
-pytest-sugar==0.8.0
-django-debug-toolbar==1.8
-
-# pylint 
-pylint==1.6.5
-pylint-celery==0.3
-pylint-common==0.2.5
-pylint-django==0.7.2
-pylint-plugin-utils==0.2.6
+# For debugging
+ipdb
 
 # For simulations
 jupyterlab
+
+# For docs
+mkdocs

@@ -4,35 +4,35 @@
 # Verified bug on Python 3.5.1
 wheel==0.29.0
 
-
-# Bleeding edge Django
-django==1.10.7 # pyup: >=1.10,<1.11
+# Django
+django==1.11.9
 
 # Configuration
-django-environ==0.4.3
-
-
-
-# Forms
-django-braces==1.11.0
-django-crispy-forms==1.6.1
+django-environ==0.4.4
 
 # Models
 django-model-utils==3.0.0
 
+# Forms
+django-crispy-forms==1.7.0
+
 # Images
-Pillow==4.2.1
+pillow==5.0.0
 
 # Password storage
 argon2-cffi==16.3.0
 
-# For user registration, either via email or social
-# Well-built with regular release cycles!
-django-allauth==0.32.0
+# API
+django-allauth==0.34.0
 django-autofixture==0.12.1
+djangorestframework==3.7.7
+django-rest-auth==0.9.2
+django-filter==1.1.0
+django-cors-headers==2.1.0
+coreapi==2.3.3
 
 # Python-PostgreSQL Database Adapter
-psycopg2==2.7.1
+psycopg2==2.7.3.2
 
 # Unicode slugification
 awesome-slugify==1.6.5
@@ -42,26 +42,19 @@ pytz==2017.2
 
 # Redis support
 django-redis==4.8.0
-redis>=2.10.5
+redis==2.10.6
 
+# Celery
+celery==4.1.0
 
-celery==3.1.25
-django-filter==1.0.4
-
+# Captcha
+django-simple-captcha==0.5.6
 
 # ASGI and channels with redis backend
 asgi-redis==1.4.3
 channels==1.1.8
 
-
 # Your custom requirements go here
-djangorestframework==3.7.1
-django-rest-auth==0.9.1
-
-django-cors-headers==2.1.0
-
-django-simple-captcha==0.5.5
 six==1.11.0
 langsplit==0.1.6
-coreapi==2.3.3
 bigchaindb-driver==0.4.1

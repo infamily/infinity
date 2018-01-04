@@ -111,4 +111,5 @@ class OTPLoginView(generics.GenericAPIView):
             raise exceptions.AuthenticationFailed(
                 self.default_error_messages['password_pending_error'])
 
-        return UserSerializer(otp_obj.user)
+        user_serializer = UserSerializer(otp_obj.user, context={'request': request})
+        return Response(user_serializer.data)
