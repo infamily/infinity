@@ -6,15 +6,11 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from infty.users.models import User, LanguageName
 
-from infty.meta.models import Type, Instance
-
 from infty.core.models import Topic, Comment
 
 from infty.api.v1.generic.viewsets import CustomViewSet
 
 from infty.api.v1.core.serializers import (
-    TypeSerializer,
-    InstanceSerializer,
     TopicSerializer,
     CommentSerializer,
 
@@ -28,29 +24,6 @@ from infty.api.v1.generic.pagination_classes import (
 )
 
 from infty.api.v1.core.filters import TopicFilter
-
-
-class TypeViewSet(CustomViewSet):
-
-    serializer_class = TypeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-    queryset = Type.objects.all()
-
-    def get_queryset(self):
-        qs = super(TypeViewSet, self).get_queryset()
-
-        lang = self.request.query_params.get('lang', None)
-
-        if lang:
-            return qs.filter(languages__contains=[lang])
-
-        return qs
-
-
-class InstanceViewSet(CustomViewSet):
-
-    serializer_class = InstanceSerializer
-    queryset = Instance.objects.all()
 
 
 class TopicViewSet(CustomViewSet):

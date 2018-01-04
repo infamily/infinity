@@ -17,22 +17,6 @@ from infty.users.models import (User, LanguageName)
 from infty.api.v1.core.fields import LangSplitField, UserField
 
 
-class TypeSerializer(serializers.HyperlinkedModelSerializer):
-    name = LangSplitField(required=True)
-    definition = LangSplitField(required=True)
-
-    class Meta:
-        model = Type
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:type-detail'}}
-        fields = ('url', 'name', 'definition', 'source', 'languages')
-
-
-class InstanceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Instance
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:instance-detail'}}
-        fields = ('url', 'role', 'description', 'languages')
-
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
