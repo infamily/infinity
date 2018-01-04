@@ -285,14 +285,14 @@ LOGIN_URL = 'account_login'
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
-########## CELERY
-# INSTALLED_APPS += ['infty.taskapp.celery.CeleryConfig']
-# CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='django://')
-# if CELERY_BROKER_URL == 'django://':
-#     CELERY_RESULT_BACKEND = 'redis://'
-# else:
-#     CELERY_RESULT_BACKEND = CELERY_BROKER_URL
-########## END CELERY
+######### CELERY
+INSTALLED_APPS += ['infty.taskapp.celery.CeleryConfig']
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='django://')
+if CELERY_BROKER_URL == 'django://':
+    CELERY_RESULT_BACKEND = 'redis://'
+else:
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+######### END CELERY
 
 
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}

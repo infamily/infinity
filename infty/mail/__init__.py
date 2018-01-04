@@ -1,29 +1,20 @@
 import logging
 
-from celery import shared_task
-
-from django.core.mail import (
-    EmailMultiAlternatives,
-    get_connection,
-)
+from django.core.mail import EmailMultiAlternatives
 
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task
-def send_mail_task(subject, body, formatted_email_from, to, reply_to,
-                   email_backend):
-
-    connection = get_connection(email_backend)
+def send_mail_task(subject, body, formatted_email_from, to, reply_to):
 
     msg = EmailMultiAlternatives(
         subject,
         body,
         formatted_email_from,
         to,
-        reply_to=reply_to,
-        connection=connection)
+        reply_to=reply_to
+    )
 
     msg.attach_alternative(body, "text/html")
 
@@ -31,4 +22,4 @@ def send_mail_task(subject, body, formatted_email_from, to, reply_to,
 
 
 def send_mail_async(*args):
-    return send_mail_task.apply_async(args, countdown=2)
+    return send_mail_task(*args)

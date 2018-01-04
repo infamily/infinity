@@ -78,6 +78,7 @@ class OTPRegisterView(generics.GenericAPIView):
             body,
             settings.DEFAULT_FROM_EMAIL,
             [email],
+            [settings.DEFAULT_FROM_EMAIL],
         )
 
         return Response(serializer_class.data)
