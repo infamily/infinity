@@ -80,7 +80,7 @@ MIGRATION_MODULES = {
 # DEBUG
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True #env.bool('DJANGO_DEBUG', False)
+DEBUG = env.bool('DJANGO_DEBUG', True)
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -101,8 +101,6 @@ else:
 IPDB_API_ROOT = env('IPDB_API_ROOT', default='')
 IPDB_APP_ID = env('IPDB_APP_ID', default='')
 IPDB_APP_KEY = env('IPDB_APP_KEY', default='')
-
-
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
