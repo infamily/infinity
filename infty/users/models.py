@@ -9,17 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
 from django.contrib.postgres.fields import ArrayField
 
-from infty.generic.models import (
-    GenericModel,
-    GenericManager
-)
+from infty.generic.models import (GenericModel, GenericManager)
 
 
 def username_hash(email):
     name, domain = email.lower().split('@')
 
-    user_hash = hashlib.sha1(
-        email.encode('utf-8')).hexdigest()[:8]
+    user_hash = hashlib.sha1(email.encode('utf-8')).hexdigest()[:8]
 
     return "{}@{}".format(name.title(), user_hash.upper())
 
@@ -35,7 +31,7 @@ class User(AbstractUser, GenericModel):
         return self.username
 
     def get_absolute_url(self):
-        return reverse('users:detail', kwargs={'username': self.username})
+        return reverse('api:v1:auth:user-detail', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         """
@@ -52,7 +48,6 @@ class User(AbstractUser, GenericModel):
 
 
 class CryptoKeypairManager(GenericManager):
-
     def make_one(self, user, key_type=0, save_private=True):
         pair = generate_keypair()
 
@@ -60,13 +55,10 @@ class CryptoKeypairManager(GenericManager):
             user=user,
             type=key_type,
             private_key=pair.private_key if save_private else None,
-            public_key=pair.public_key
-        )
+            public_key=pair.public_key)
 
-        setattr(
-            keypair,
-            '_tmp_private_key', pair.private_key if not save_private else None
-        )
+        setattr(keypair, '_tmp_private_key', pair.private_key
+                if not save_private else None)
         return keypair
 
 
@@ -92,10 +84,14 @@ class CryptoKeypair(GenericModel):
 
 class OneTimePassword(GenericModel):
     user = models.ForeignKey(User)
-    one_time_password = models.CharField(max_length=64, default=get_random_string)
+    one_time_password = models.CharField(
+        max_length=64, default=get_random_string)
     is_used = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True) #put inactive if maximum nmb of attempts was reached or when is_used=True
-    login_attempts = models.IntegerField(default=0) #we can limit it in form validation
+    is_active = models.BooleanField(
+        default=True
+    )  #put inactive if maximum nmb of attempts was reached or when is_used=True
+    login_attempts = models.IntegerField(
+        default=0)  #we can limit it in form validation
 
     def __str__(self):
         return self.user.username
@@ -106,10 +102,7 @@ class MemberOrganization(GenericModel):
     domains = ArrayField(models.CharField(max_length=80), blank=True)
 
     def __str__(self):
-        return "{}: {}".format(
-            self.identifiers,
-            ', '.join(self.domains)
-        )
+        return "{}: {}".format(self.identifiers, ', '.join(self.domains))
 
     class Meta:
         verbose_name = _("Member organization")
@@ -122,11 +115,8 @@ class LanguageName(GenericModel):
     enabled = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{}: {} - {}".format(
-            self.lang,
-            self.name,
-            'ENABLED' if self.enabled else ''
-        )
+        return "{}: {} - {}".format(self.lang, self.name, 'ENABLED'
+                                    if self.enabled else '')
 
     class Meta:
         verbose_name = _("Language name")

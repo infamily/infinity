@@ -1,19 +1,17 @@
 # Test dependencies go here.
 -r base.txt
 
+coverage==4.4.2
+flake8==3.5.0
+django-test-plus==1.0.21
+factory-boy==2.9.2
 
-
-coverage==4.4.1
-flake8==3.3.0 # pyup: != 2.6.0
-django-test-plus==1.0.18
-factory-boy==2.8.1
-
-# pytest
+# Pytest
 pytest-django==3.1.2
-pytest-sugar==0.8.0
+pytest-sugar==0.9.0
 
-#pylint 
-pylint==1.6.5
+# Pylint 
+pylint==1.8.1
 pylint-celery==0.3
 pylint-common==0.2.5
 pylint-django==0.7.2

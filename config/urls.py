@@ -4,35 +4,23 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
-from infty.users import views
+from rest_framework.documentation import include_docs_urls
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-
-class JSONTemplateView(TemplateView):
-    def render_to_response(self, context, **response_kwargs):
-        response_kwargs['content_type'] = 'application/json'
-        return super(TemplateView, self).render_to_response(context, **response_kwargs)
 
 urlpatterns = [
-    url(r'^$', JSONTemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
+    url(r'^accounts/', include('allauth.urls')),
 
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
-    # User management
-    url(r'^users/', include('infty.users.urls', namespace='users')),
-    url(r'^accounts/', include('allauth.urls')),
-    url(r'^api/', include('infty.api.urls')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
-    url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
+    url(r'^api/', include('infty.api.urls', namespace='api')),
     url(r'^captcha/', include('captcha.urls')),
-    url(r'^otp/singup/', views.OTPRegister.as_view()),
-    url(r'^otp/login/', views.OTPLogin.as_view())
-
-
-    # Your stuff: custom urls includes go here
-
-
+    url(r'',
+        include_docs_urls(
+            title='Infinity API',
+            permission_classes=(IsAuthenticatedOrReadOnly, ))),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

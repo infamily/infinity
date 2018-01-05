@@ -88,3 +88,8 @@ infinity.kdb
 infinity.kdb.lock
 .ipynb_checkpoints/*
 notebooks/.ipynb_checkpoints/*
+
+
+# Celery
+celerybeat-schedule
+celerybeat.pid

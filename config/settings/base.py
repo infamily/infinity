@@ -16,18 +16,6 @@ APPS_DIR = ROOT_DIR.path('infty')
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
 
-# .env file, should load only in development environment
-READ_DOT_ENV_FILE = env.bool('DJANGO_READ_DOT_ENV_FILE', default=False)
-DOT_ENV_FILE = env.str('DJANGO_DOT_ENV_FILE', default='.env')
-
-if READ_DOT_ENV_FILE:
-    # Operating System Environment variables have precedence over variables defined in the .env file,
-    # that is to say variables from the .env files will only be used if not defined
-    # as environment variables.
-    env_file = str(ROOT_DIR.path(DOT_ENV_FILE))
-    print('Loading : {}'.format(env_file))
-    env.read_env(env_file)
-    print('The {} file has been loaded. See base.py for more information'.format(DOT_ENV_FILE))
 
 # APP CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -65,6 +53,7 @@ LOCAL_APPS = [
     'infty.core',
     'infty.users',
     'infty.transactions',
+    'infty.celery',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -91,7 +80,7 @@ MIGRATION_MODULES = {
 # DEBUG
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = True #env.bool('DJANGO_DEBUG', False)
+DEBUG = env.bool('DJANGO_DEBUG', True)
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -112,8 +101,6 @@ else:
 IPDB_API_ROOT = env('IPDB_API_ROOT', default='')
 IPDB_APP_ID = env('IPDB_APP_ID', default='')
 IPDB_APP_KEY = env('IPDB_APP_KEY', default='')
-
-
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -285,16 +272,6 @@ LOGIN_URL = 'account_login'
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
-########## CELERY
-INSTALLED_APPS += ['infty.taskapp.celery.CeleryConfig']
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='django://')
-if CELERY_BROKER_URL == 'django://':
-    CELERY_RESULT_BACKEND = 'redis://'
-else:
-    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
-########## END CELERY
-
-
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
 ADMIN_URL = r'^admin/'
 
@@ -347,14 +324,37 @@ SOUTH_MIGRATION_MODULES = {
 OTP_GENERATION_LIMIT = 10
 
 
-REDIS_URL = '{0}/{1}'.format(env('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+# CELERY
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+CELERY_BROKER_BACKEND = env('CELERY_BROKER_BACKEND')
 
-CHANNEL_LAYERS = {
+
+# CACHING
+# ------------------------------------------------------------------------------
+CACHE_REDIS_LOCATION = env('CACHE_REDIS_LOCATION')
+CACHES = {
     'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [REDIS_URL],
-        },
-        'ROUTING': 'config.routing.channel_routing',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': CACHE_REDIS_LOCATION,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'IGNORE_EXCEPTIONS': True,  # mimics memcache behavior.
+                                        # http://niwinz.github.io/django-redis/latest/#_memcached_exceptions_behavior
+        }
     }
+}
+
+
+# Channel layer definitions
+# http://channels.readthedocs.org/en/latest/deploying.html#setting-up-a-channel-backend
+CHANNELS_REDIS_LOCATION = env.list('CHANNELS_REDIS_LOCATION')
+CHANNEL_LAYERS = {
+    "default": {
+        # This example app uses the Redis channel layer implementation asgi_redis
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": CHANNELS_REDIS_LOCATION,
+        },
+        "ROUTING": "config.routing.channel_routing",
+    },
 }

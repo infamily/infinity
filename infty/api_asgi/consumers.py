@@ -1,11 +1,9 @@
 import json
-from channels import Group
-from channels.auth import channel_session
 
-from django.forms.models import model_to_dict
 from django.core import serializers
 
-from infty.api.v1.serializers import CommentSerializer
+from channels import Group
+from channels.auth import channel_session
 
 
 def get_general_label():
@@ -25,7 +23,7 @@ def ws_connect(message):
 
     if len(path_items) > 1:
         channel_id = path_items[1]
-        label= get_label(channel_id)
+        label = get_label(channel_id)
     else:
         label = get_general_label()
 
@@ -37,10 +35,10 @@ def ws_connect(message):
 
 
 def ws_send_comment_changed(comment, created):
-    data = serializers.serialize('json', [ comment, ])
-    message =  {
-        'text': json.dumps(data)
-    }
+    data = serializers.serialize('json', [
+        comment,
+    ])
+    message = {'text': json.dumps(data)}
 
     Group(get_general_label()).send(message)
     Group(get_label(comment.topic.id)).send(message)

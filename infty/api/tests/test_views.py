@@ -13,7 +13,7 @@ class TopicCreateTestCase(APITestCase):
         self.client.force_login(self.user)
 
     def test_create_topic_response_201(self):
-        rv = self.client.post(reverse('topic-list'), data={
+        rv = self.client.post(reverse('api:v1:core:topic-list'), data={
             'title': 'Test title',
             'body': 'Test body',
             'type': Topic.IDEA,
@@ -22,7 +22,7 @@ class TopicCreateTestCase(APITestCase):
         self.assertEqual(rv.status_code, 201)
 
     def test_create_topic_instance_fields_ok(self):
-        self.client.post(reverse('topic-list'), data={
+        self.client.post(reverse('api:v1:core:topic-list'), data={
             'title': '.:en:Test title',
             'body': '.:en\nTest body',
             'type': Topic.IDEA,
