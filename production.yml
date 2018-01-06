@@ -61,18 +61,31 @@ services:
       - redis
       - celeryworker
       - celerybeat
-    command: uwsgi.sh
-    # TODO move it to .env_production file
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.production
-      DATABASE_URL: postgres://postgres@postgres:5432/postgres
-      REDIS_URL: redis://redis:6379
-      DJANGO_ADMIN_URL: ^admin/
+    command: daphne -b 0.0.0.0 -p 8001 config.asgi:channel_layer
     env_file:
       - .env_production
     volumes:
+      - .:/app
       - /var/www/static:/app/staticfiles
-
+  worker:
+    build:
+      context: .
+      dockerfile: ./compose/web/Dockerfile
+      args:
+        requirements_file: production.txt
+    image: infamily/infinity:latest
+    depends_on:
+      - postgres
+      - redis
+      - celeryworker
+      - celerybeat
+    command: python manage.py runworker
+    # TODO move it to .env_production file
+    env_file:
+      - .env_production
+    volumes:
+      - .:/app
+      - /var/www/static:/app/staticfiles
   nginx:
     image: nginx:1.12.1
     depends_on:

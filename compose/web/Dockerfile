@@ -7,7 +7,7 @@ ARG requirements_file
 COPY ./requirements /requirements
 RUN pip install --no-cache-dir -r /requirements/$requirements_file && rm -rf /requirements
 
-COPY ./compose/web/docker-entrypoint.sh ./compose/web/uwsgi.sh /usr/local/bin/
+COPY ./compose/web/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x -R /usr/local/bin
 
 COPY ./compose/web/start-dev.sh /start-dev.sh
