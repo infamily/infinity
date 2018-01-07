@@ -1,12 +1,19 @@
 from django import forms
 
-from infty.meta.models import Type, Instance
+from infty.meta.models import Type, Schema, Instance
 
 
 class TypeForm(forms.ModelForm):
 
     class Meta:
         model = Type
+        exclude = []
+
+
+class SchemaForm(forms.ModelForm):
+
+    class Meta:
+        model = Schema
         exclude = []
 
 
