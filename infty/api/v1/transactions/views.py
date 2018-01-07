@@ -30,6 +30,7 @@ from infty.api.v1.transactions.serializers import (
 
 
 class CurrencyViewSet(CustomViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = CurrencyListSerializer
     queryset = Currency.objects.all()
 
@@ -51,6 +52,7 @@ class TransactionViewSet(CustomViewSet):
 
 class InteractionViewSet(CustomViewSet):
 
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = InteractionSerializer
     queryset = Interaction.objects.all()
 
@@ -69,6 +71,7 @@ class TopicSnapshotViewSet(CustomViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
     filter_fields = ('topic',)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     serializer_class = TopicSnapshotSerializer
     queryset = TopicSnapshot.objects.all()
