@@ -68,6 +68,45 @@ class Type(GenericTranslationModel):
         verbose_name_plural = _("Types")
 
 
+class Schema(models.Model):
+    """
+    Allows to define schema for Instances.
+    Generally associated with a data source.
+
+    Specifies the schema as a nested JSON, like:
+
+    Example:
+
+    Schema.specification = {
+        'name': 'CHAR',
+        'address': {
+            'latitude': 'FLOAT',
+            'longitude': 'FLOAT'
+            'street': 'CHAR',
+            'house': INT,
+        }
+    }
+
+    So that we can later parse the Instnace.data field.
+    """
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField()
+    specification = JSONField(null=True, blank=True)
+
+    types = models.ManyToManyField(
+        Type, related_name='schema_types', blank=True)
+
+    def __str__(self):
+        return '{}: {} [Related Types: {}]'.format(self.name, self.description, ','.join([t.name for t in self.types.all()]))
+
+    class Meta:
+        translation_fields = (
+            ('description', False),
+        )
+        verbose_name = _("Schema")
+        verbose_name_plural = _("Schemas")
+
+
 class Instance(GenericTranslationModel):
     """
     F: Instances are references to anything with respect to which we
@@ -87,6 +126,7 @@ class Instance(GenericTranslationModel):
 
     role = models.PositiveSmallIntegerField(ITEM_ROLES, default=THING)
     concept = models.ForeignKey(Type)
+    schema = models.ForeignKey(Schema, null=True, blank=True)
 
     identifiers = models.TextField()
     description = models.TextField()
