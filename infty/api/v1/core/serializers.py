@@ -26,6 +26,12 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         queryset=Topic.objects.all(),
         required=False)
 
+    categories = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='api:v1:meta:type-detail',
+        queryset=Topic.objects.all(),
+        required=False)
+
     class Meta:
         model = Topic
         extra_kwargs = {'url': {'view_name': 'api:v1:core:topic-detail'}}
