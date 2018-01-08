@@ -1,4 +1,3 @@
-from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets, filters
 
@@ -82,7 +81,6 @@ class CommentViewSet(CustomViewSet):
         return qs
 
 
-@permission_classes((IsAuthenticatedOrReadOnly,))
 class UserBalanceViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,
                        filters.SearchFilter,)
@@ -91,9 +89,10 @@ class UserBalanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = UserBalanceSerializer
     queryset = User.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-@permission_classes((IsAuthenticatedOrReadOnly,))
 class LanguageNameViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LanguageNameSerializer
     queryset = LanguageName.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
