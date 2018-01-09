@@ -33,7 +33,7 @@ class APITestCaseAuthorizedUser(APITestCase):
             title='Test topic 1',
             owner=self.testuser,
         )
-        self.topic_url = reverse('api:v1:core:topic-detail', kwargs={'pk': self.topic.pk})
+        self.topic_url = reverse('topic-detail', kwargs={'pk': self.topic.pk})
 
         self.comment = Comment(
             topic=self.topic,
@@ -52,7 +52,7 @@ class APITestCaseAuthorizedUser(APITestCase):
         )
         self.comment.save()
         self.comment_url = reverse(
-            'api:v1:core:comment-detail', kwargs={
+            'comment-detail', kwargs={
                 'pk': self.comment.pk
             })
 
@@ -97,7 +97,7 @@ class APITestCaseAuthorizedUser(APITestCase):
 
 class GetAPIRoot(APITestCaseAuthorizedUser):
     def test_can_access_api_root(self):
-        response = self.client.get(reverse('api:v1:core:topic-list'))
+        response = self.client.get(reverse('topic-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -108,7 +108,7 @@ class CreateTopicListAuthorizedUser(APITestCaseAuthorizedUser):
         }
 
         response = self.client.post(
-            reverse('api:v1:core:topic-list'), topic_data, format="json")
+            reverse('topic-list'), topic_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
@@ -121,7 +121,7 @@ class CreateTopicList(APITestCase):
         }
 
         response = self.client.post(
-            reverse('api:v1:core:topic-list'), topic_data, format="json")
+            reverse('topic-list'), topic_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -133,7 +133,7 @@ class CreateCommentList(APITestCaseAuthorizedUser):
         }
 
         response = self.client.post(
-            reverse('api:v1:core:comment-list'), comment_data, format="json")
+            reverse('comment-list'), comment_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -147,52 +147,52 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
             'payment_sender': self.testuser.pk,
         }
         response = self.client.post(
-            reverse('api:v1:transactions:transaction-list'), transaction_data, format="json")
+            reverse('transaction-list'), transaction_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class GetTopicList(APITestCaseAuthorizedUser):
     def test_get_all_topics(self):
-        response = self.client.get(reverse('api:v1:core:topic-list'))
+        response = self.client.get(reverse('topic-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class GetCommentList(APITestCaseAuthorizedUser):
     def test_get_all_comments(self):
-        response = self.client.get(reverse('api:v1:core:comment-list'))
+        response = self.client.get(reverse('comment-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class GetTransactionList(APITestCaseAuthorizedUser):
     def test_get_all_transactions(self):
-        response = self.client.get(reverse('api:v1:transactions:transaction-list'))
+        response = self.client.get(reverse('transaction-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class GetTopicDetail(APITestCaseAuthorizedUser):
     def test_get_valid_single_topic(self):
         response = self.client.get(
-            reverse('api:v1:core:topic-detail', kwargs={
+            reverse('topic-detail', kwargs={
                 'pk': self.topic.pk
             }))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_invalid_single_topic(self):
-        response = self.client.get(reverse('api:v1:core:topic-detail', kwargs={'pk': 30}))
+        response = self.client.get(reverse('topic-detail', kwargs={'pk': 30}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class GetCommentDetail(APITestCaseAuthorizedUser):
     def test_get_valid_single_comment(self):
         response = self.client.get(
-            reverse('api:v1:core:comment-detail', kwargs={
+            reverse('comment-detail', kwargs={
                 'pk': self.comment.pk
             }))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_invalid_single_commment(self):
         response = self.client.get(
-            reverse('api:v1:core:comment-detail', kwargs={
+            reverse('comment-detail', kwargs={
                 'pk': 30
             }))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -201,14 +201,14 @@ class GetCommentDetail(APITestCaseAuthorizedUser):
 class GetTransactionDetail(APITestCaseAuthorizedUser):
     def test_get_valid_single_transaction(self):
         response = self.client.get(
-            reverse('api:v1:transactions:transaction-detail', kwargs={
+            reverse('transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_invalid_single_transaction(self):
         response = self.client.get(
-            reverse('api:v1:transactions:transaction-detail', kwargs={
+            reverse('transaction-detail', kwargs={
                 'pk': 30
             }))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -224,7 +224,7 @@ class UpdateTopic(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:topic-detail', kwargs={
+            reverse('topic-detail', kwargs={
                 'pk': self.topic.pk
             }),
             valid_info,
@@ -240,7 +240,7 @@ class UpdateTopic(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:topic-detail', kwargs={
+            reverse('topic-detail', kwargs={
                 'pk': self.topic.pk
             }),
             invalid_info,
@@ -260,7 +260,7 @@ class UpdateComment(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:comment-detail', kwargs={
+            reverse('comment-detail', kwargs={
                 'pk': self.comment.pk
             }),
             valid_info,
@@ -278,7 +278,7 @@ class UpdateComment(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:core:comment-detail', kwargs={
+            reverse('comment-detail', kwargs={
                 'pk': self.comment.pk
             }),
             invalid_info,
@@ -305,7 +305,7 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:transactions:transaction-detail', kwargs={
+            reverse('transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }),
             valid_info,
@@ -329,7 +329,7 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
         }
 
         response = self.client.put(
-            reverse('api:v1:transactions:transaction-detail', kwargs={
+            reverse('transaction-detail', kwargs={
                 'pk': self.transaction.pk
             }),
             invalid_info,
@@ -340,11 +340,11 @@ class UpdateTransaction(APITestCaseAuthorizedUser):
 
 class GetCurrenciesList(APITestCaseAuthorizedUser):
     def test_get_all_transactions(self):
-        response = self.client.get(reverse('api:v1:transactions:currency-list'))
+        response = self.client.get(reverse('currency-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class GetBalancesList(APITestCaseAuthorizedUser):
     def test_get_all_balances(self):
-        response = self.client.get(reverse('api:v1:core:user-list'))
+        response = self.client.get(reverse('user-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)

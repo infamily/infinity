@@ -15,12 +15,10 @@ class TypeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Type
-        extra_kwargs = {'url': {'view_name': 'api:v1:meta:type-detail'}}
         fields = ('url', 'name', 'definition', 'source', 'languages')
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Instance
-        extra_kwargs = {'url': {'view_name': 'api:v1:meta:instance-detail'}}
         fields = ('url', 'role', 'description', 'languages')

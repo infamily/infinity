@@ -9,5 +9,5 @@ class TestUser(TestCase):
     def test_get_absolute_url(self):
         self.assertEqual(
             self.user.get_absolute_url(),
-            '/api/v1/auth/users/%s/' % self.user.pk
+            '/api/users/%s/' % self.user.pk
         )
