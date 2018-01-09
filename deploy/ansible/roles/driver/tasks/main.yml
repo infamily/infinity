@@ -1,0 +1,9 @@
+
+- name: up selenium service
+  docker_container:
+    name: selenium
+    image: selenium/standalone-chrome
+    state: started
+    restart: yes
+    ports:
+      - "4444:4444"
