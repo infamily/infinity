@@ -73,7 +73,6 @@ class CaptchaResponseSerializer(serializers.Serializer):
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        extra_kwargs = {'url': {'view_name': 'api:v1:auth:token-detail'}}
         fields = (
             'key',
             'created',
@@ -82,12 +81,11 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     auth_token = serializers.HyperlinkedRelatedField(
-        view_name='api:v1:auth:token-detail',
+        view_name='token-detail',
         queryset=Token.objects.all())
 
     class Meta:
         model = User
-        extra_kwargs = {'url': {'view_name': 'api:v1:auth:user-detail'}}
         fields = (
             'about',
             'url',
