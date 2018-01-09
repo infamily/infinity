@@ -9,6 +9,7 @@ from infty.core.models import (
 )
 from infty.transactions.models import ContributionCertificate
 from infty.users.models import (User, LanguageName)
+from infty.meta.models import Type
 
 from infty.api.v1.core.fields import LangSplitField, UserField
 
@@ -29,7 +30,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     categories = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='api:v1:meta:type-detail',
-        queryset=Topic.objects.all(),
+        queryset=Type.objects.filter(is_category=True),
         required=False)
 
     class Meta:
