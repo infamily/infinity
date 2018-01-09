@@ -32,3 +32,12 @@
       when: run_scenario == "deploy"
       tags:
         - app
+
+    - role: roles/docker
+      become: yes
+      when: run_scenario == "init-driver"
+
+    - role: roles/driver
+      when: run_scenario == "init-driver"
+      tags:
+        - driver
