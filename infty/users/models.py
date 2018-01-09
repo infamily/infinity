@@ -31,7 +31,7 @@ class User(AbstractUser, GenericModel):
         return self.username
 
     def get_absolute_url(self):
-        return reverse('api:v1:auth:user-detail', kwargs={'pk': self.pk})
+        return reverse('user-detail', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         """

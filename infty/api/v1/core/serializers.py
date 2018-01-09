@@ -23,19 +23,18 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         source='editors.username', read_only=True)
     parents = serializers.HyperlinkedRelatedField(
         many=True,
-        view_name='api:v1:core:topic-detail',
+        view_name='topic-detail',
         queryset=Topic.objects.all(),
         required=False)
 
     categories = serializers.HyperlinkedRelatedField(
         many=True,
-        view_name='api:v1:meta:type-detail',
+        view_name='type-detail',
         queryset=Type.objects.filter(is_category=True),
         required=False)
 
     class Meta:
         model = Topic
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:topic-detail'}}
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
                   'parents', 'categories', 'languages', 'is_draft',
                   'blockchain')
@@ -45,7 +44,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     text = LangSplitField(required=True)
     topic = serializers.HyperlinkedRelatedField(
-        view_name='api:v1:core:topic-detail', queryset=Topic.objects.all())
+        view_name='topic-detail', queryset=Topic.objects.all())
     owner = UserField(read_only=True)
 
     def get_text(self, obj):
@@ -60,7 +59,6 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Comment
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:comment-detail'}}
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours',
                   'assumed_hours', 'owner', 'languages', 'matched', 'donated',
                   'remains', 'parent', 'blockchain')
@@ -78,19 +76,17 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
         request = self.context['request']
         protocol = 'http{}://'.format('s' if request.is_secure() else '')
         domain = request.META.get('HTTP_HOST') or ''
-        endpoint = reverse('api:v1:transactions:contributioncertificate-list')
+        endpoint = reverse('contributioncertificate-list')
 
         return "{}{}{}?received_by={}".format(protocol, domain, endpoint,
                                               obj.id)
 
     class Meta:
         model = User
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:user_balance-detail'}}
         fields = ('id', 'username', 'balance', 'contributions')
 
 
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = LanguageName
-        extra_kwargs = {'url': {'view_name': 'api:v1:core:language_name-detail'}}
         fields = ('lang', 'name', 'enabled')
