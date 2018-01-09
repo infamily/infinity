@@ -11,4 +11,5 @@ docker push infamily/infinity:latest
 echo "Run ansible playbook using private key: ${PRIVATE_KEY_PATH}..."
 # ansible-playbook -vv -i deploy/ansible/inventories/staging deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
 # ansible-playbook -vv -i deploy/ansible/inventories/wfx deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
-ansible-playbook -vv -i deploy/ansible/inventories/dev deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
+# ansible-playbook -vv -i deploy/ansible/inventories/dev deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
+ansible-playbook -vv -i deploy/ansible/inventories/lt_wfx deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
