@@ -6,7 +6,6 @@
       - production.yml
     build: no
     pull: yes
-    restarted: true
   register: output
 
 - debug:
