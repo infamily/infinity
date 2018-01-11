@@ -15,9 +15,9 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
-    url(r'^api/', include('infty.api.urls')),
+    url(r'', include('infty.api.urls')),
     url(r'^captcha/', include('captcha.urls')),
-    url(r'',
+    url(r'^docs/',
         include_docs_urls(
             title='Infinity API',
             permission_classes=(IsAuthenticatedOrReadOnly, ))),
