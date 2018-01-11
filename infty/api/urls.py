@@ -4,6 +4,6 @@ from infty.api.views import SchemaView
 
 
 urlpatterns = [
-    url('^$', SchemaView.as_view()),
+    url('^api/', SchemaView.as_view()),
     url(r'^', include('infty.api.v1.urls')),
 ]
