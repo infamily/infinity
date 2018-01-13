@@ -14,6 +14,7 @@ from infty.transactions.models import (
 
 
 class TopicTransactionMixin():
+
     def create_snapshot(self, blockchain=False):
         snapshot = TopicSnapshot(
             topic=self,
@@ -21,6 +22,20 @@ class TopicTransactionMixin():
         )
         snapshot.save(blockchain=blockchain)
         return snapshot
+
+    def matched(self, by=None):
+        """
+        Hours matched.
+        """
+        qs = ContributionCertificate.objects.filter(
+            comment_snapshot__comment__topic=self,
+            matched=True,
+            broken=False
+        )
+        if by:
+            qs = qs.filter(received_by=by)
+
+        return Decimal(qs.aggregate(total=Sum('hours')).get('total') or 0)
 
 
 class CommentTransactionMixin():
