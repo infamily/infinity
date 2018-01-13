@@ -13,6 +13,18 @@ from infty.meta.models import Type
 
 from infty.api.v1.core.fields import LangSplitField, UserField
 
+class TopicParentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Topic
+        fields = ('id', 'url', 'type', 'title', 'body',
+                  'languages', 'is_draft')
+
+
+class TypeParentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Type
+        fields = ('id', 'url', 'name', 'definition')
+
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
@@ -37,7 +49,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
                   'parents', 'categories', 'languages', 'is_draft',
-                  'blockchain')
+                  'blockchain', 'matched')
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
