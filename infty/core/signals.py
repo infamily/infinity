@@ -38,12 +38,14 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
     # Retrieve Existing Needs:
     Needs = instance.parents.filter(type=0)
 
+    lang = instance.languages[0] if instance.languages else 'en'
+
     # Create and Link Needs
     for need in needs:
 
-        lang = 'en'
         title = '.:{}:{}'.format(lang, need.get('name'))
-        body = '.:{}\n{}'.format(lang, need.get('vals'))
+        tool = [key for key in need.keys() if key not in ['name']][0]
+        body = '.:{}\n```{}: {}```'.format(lang, tool, need.get(tool))
 
         if not Needs.filter(body=body).exists():
 
@@ -55,3 +57,13 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
             )
 
             instance.parents.add(topic)
+
+    # Remove needs that are not
+
+    tool = lambda _: [key for key in _.keys() if key not in ['name']][0]
+
+
+    for need in Needs:
+
+        if not need.body in ['.:{}\n```{}: {}```'.format(lang, tool(_), _[tool(_)]) for _ in needs]:
+            need.delete()
