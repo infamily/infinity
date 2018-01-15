@@ -58,3 +58,5 @@ channels==1.1.8
 six==1.11.0
 langsplit==0.1.6
 bigchaindb-driver==0.4.1
+bs4==0.0.1
+PyYAML==3.12
