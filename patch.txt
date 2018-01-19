@@ -59,7 +59,7 @@ index 0c16e0d..0000000
 -# This allows easy placement of apps within the interior
 -# infty directory.
 -app_path = os.path.dirname(os.path.abspath(__file__)).replace('/config', '')
--sys.path.append(os.path.join(app_path, 'infty'))
+-sys.path.append(os.path.join(app_path, 'src'))
 -
 -# We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 -# if running multiple sites in the same mod_wsgi process. To fix this, use

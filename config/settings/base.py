@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
 
-ROOT_DIR = environ.Path(__file__) - 3  # (infty/config/settings/base.py - 3 = infty/)
+ROOT_DIR = environ.Path(__file__) - 3  # (src/config/settings/base.py - 3 = src/)
 assert isinstance(ROOT_DIR, environ.Path)  # pycharm wailing fix
-APPS_DIR = ROOT_DIR.path('infty')
+APPS_DIR = ROOT_DIR.path('src')
 
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
@@ -48,12 +48,12 @@ THIRD_PARTY_APPS = [
 
 # Apps specific for this project go here.
 LOCAL_APPS = [
-    'infty.generic',
-    'infty.meta',
-    'infty.core',
-    'infty.users',
-    'infty.transactions',
-    'infty.celery',
+    'src.generic',
+    'src.meta',
+    'src.core',
+    'src.users',
+    'src.transactions',
+    'src.celery',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -74,7 +74,7 @@ MIDDLEWARE = [
 # MIGRATIONS CONFIGURATION
 # ------------------------------------------------------------------------------
 MIGRATION_MODULES = {
-    'sites': 'infty.contrib.sites.migrations'
+    'sites': 'src.contrib.sites.migrations'
 }
 
 # DEBUG
@@ -260,8 +260,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'never'
 
 ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
-ACCOUNT_ADAPTER = 'infty.users.adapters.AccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'infty.users.adapters.SocialAccountAdapter'
+ACCOUNT_ADAPTER = 'src.users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'src.users.adapters.SocialAccountAdapter'
 
 # Custom user app defaults
 # Select the correct user model
