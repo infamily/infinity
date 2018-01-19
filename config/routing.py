@@ -1,5 +1,5 @@
 from channels.routing import route
-from infty.api_asgi.consumers import (
+from src.api_asgi.consumers import (
     ws_connect,
     ws_disconnect
 )

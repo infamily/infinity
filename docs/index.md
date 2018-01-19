@@ -8,7 +8,7 @@ This documentation is part of the Infinity Project at [infinity.family](https://
     deploy/            # Automation of deploying a server node with Ansible.
     production.yml     # Docker settings for production.
     docker-compose.yml # Docker settings for local development.
-    infty/             # The main django server project with its apps.
+    src/               # The main django server project with its apps.
     config/            # Main project Django configuration.
     requirements/      # Python requirements, ./local.txt for local development.
     fixtures/          # Initial data needed after initializing server from scratch.
