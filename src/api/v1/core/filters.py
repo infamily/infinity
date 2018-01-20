@@ -13,7 +13,8 @@ class OwnerFilter(filters.CharFilter):
 
 class TopicFilter(filters.FilterSet):
     owner = OwnerFilter()
+    type__not = filters.NumberFilter(name='type', exclude=True)
 
     class Meta:
         model = Topic
-        fields = ['owner', 'parents']
+        fields = ['owner', 'parents', 'type']
