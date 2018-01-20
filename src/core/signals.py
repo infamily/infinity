@@ -20,52 +20,66 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
 
         html = mistune.markdown(instance.body)
 
-        # Parse Needs
         soup = bs4.BeautifulSoup(
             mistune.markdown(instance.body),
             'html.parser'
         )
 
-        need_lists = soup.find_all(
-            'code', {'class': 'lang-yml'}
-        )
+        # Parse Needs
+
+        targets = soup.find_all('code', {'class': 'lang-inf'})
+
+        get_slice = lambda _, excluding: {
+            key: _[key] for key in [key for key in _.keys() if key not in excluding]}
 
         needs = []
-        for need_list in need_lists:
-            blocks = yaml.load(need_list.text)
-            for block in blocks:
-                if 'needs' in block.keys():
-                    needs.extend(block['needs'])
 
-        # Retrieve Existing Needs:
-        Needs = instance.parents.filter(type=0)
+        for target in targets: 
+            for block in yaml.load(target.text):
+
+                if 'needs' in block.keys():
+                    items = block.get('needs')
+                    if 'target' in block.keys():
+
+                        for i, _ in enumerate(items):
+                            items[i].update(
+                                {'target': block['target']}
+                            )
+                            tools = get_slice(items[i], excluding=['name', 'target'])
+                            items[i].update(
+                                {'tool': tools}
+                            )
+
+                            for key, tool in enumerate(tools):
+                                del items[i][tool]
+
+                    needs.extend(items)
+
 
         lang = instance.languages[0] if instance.languages else 'en'
 
-        # Create and Link Needs
+        # Update Needs
+
         for need in needs:
 
-            title = '.:{}:{}'.format(lang, need.get('name'))
-            tool = [key for key in need.keys() if key not in ['name']][0]
-            body = '.:{}\n```{}: {}```'.format(lang, tool, need.get(tool))
+            title='.:{}:{}'.format(lang, need['name'])
+            body = '.:{}\n{}'.format(lang, yaml.dump(need, default_flow_style=False))
 
-            if not Needs.filter(body=body).exists():
-
+            if not instance.parent_topics.filter(title=title).exists():
                 topic = Topic.objects.create(
                     title=title,
                     body=body,
                     owner=instance.owner,
                     type=0
                 )
+                instance.parent_topics.add(topic)
+                instance.save()
+            else:
 
-                instance.parents.add(topic)
+                topic = instance.parent_topics.filter(title=title).first()
+                topic.body = body
+                topic.save()
 
-        # Remove needs that are not
-
-        tool = lambda _: [key for key in _.keys() if key not in ['name']][0]
-
-
-        for need in Needs:
-
-            if not need.body in ['.:{}\n```{}: {}```'.format(lang, tool(_), _[tool(_)]) for _ in needs]:
+        for need in instance.parent_topics.filter(type=0):
+            if need.title not in ['.:{}:{}'.format(lang, d['name']) for d in needs]:
                 need.delete()
