@@ -42,7 +42,7 @@ class TestNeeds(TestCase):
         self.topic.save()
 
         self.assertEqual(
-            self.topic.parent_topics.count(),
+            self.topic.parents.count(),
             4
         )
 
@@ -63,7 +63,7 @@ class TestNeeds(TestCase):
         self.topic.save()
 
         self.assertEqual(
-            self.topic.parent_topics.count(),
+            self.topic.parents.count(),
             2
         )
 
@@ -96,7 +96,7 @@ class TestNeeds(TestCase):
 
 
         self.assertEqual(
-            self.topic.parent_topics.count(),
+            self.topic.parents.count(),
             4
         )
 
@@ -112,7 +112,7 @@ class TestNeeds(TestCase):
         self.topic.save()
 
         self.assertEqual(
-            self.topic.parent_topics.count(),
+            self.topic.parents.count(),
             0
         )
 
