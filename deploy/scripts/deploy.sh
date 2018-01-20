@@ -8,5 +8,5 @@ echo "Push docker image to the Docker Hub..."
 docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 docker push infamily/infinity:latest
 
-echo "Run ansible playbook using private key: ${PRIVATE_KEY_PATH}..."
-ansible-playbook -vv -i deploy/ansible/inventories/dev deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
+# echo "Run ansible playbook using private key: ${PRIVATE_KEY_PATH}..."
+# ansible-playbook -vv -i deploy/ansible/inventories/dev deploy/ansible/site.yml --private-key=${PRIVATE_KEY_PATH}
