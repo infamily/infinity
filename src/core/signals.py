@@ -65,21 +65,21 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
             title='.:{}:{}'.format(lang, need['name'])
             body = '.:{}\n{}'.format(lang, yaml.dump(need, default_flow_style=False))
 
-            if not instance.parent_topics.filter(title=title).exists():
+            if not instance.parents.filter(title=title).exists():
                 topic = Topic.objects.create(
                     title=title,
                     body=body,
                     owner=instance.owner,
                     type=0
                 )
-                instance.parent_topics.add(topic)
+                instance.parents.add(topic)
                 instance.save()
             else:
 
-                topic = instance.parent_topics.filter(title=title).first()
+                topic = instance.parents.filter(title=title).first()
                 topic.body = body
                 topic.save()
 
-        for need in instance.parent_topics.filter(type=0):
+        for need in instance.parents.filter(type=0):
             if need.title not in ['.:{}:{}'.format(lang, d['name']) for d in needs]:
                 need.delete()
