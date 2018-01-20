@@ -63,7 +63,7 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
         for need in needs:
 
             title='.:{}:{}'.format(lang, need['name'])
-            body = '.:{}\n{}'.format(lang, yaml.dump(need, default_flow_style=False))
+            body = '.:{}\n{}'.format(lang, yaml.dump(need, default_flow_style=False, allow_unicode=True))
 
             if not instance.parents.filter(title=title).exists():
                 topic = Topic.objects.create(
