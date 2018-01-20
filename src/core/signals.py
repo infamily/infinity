@@ -34,7 +34,7 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
 
         needs = []
 
-        for target in targets: 
+        for target in targets:
             for block in yaml.load(target.text):
 
                 if 'needs' in block.keys():
@@ -63,7 +63,7 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
         for need in needs:
 
             title='.:{}:{}'.format(lang, need['name'])
-            body = '.:{}\n{}'.format(lang, yaml.dump(need, default_flow_style=False, allow_unicode=True))
+            body = '.:{}\n```\n{}\n```'.format(lang, yaml.dump(need, default_flow_style=False, allow_unicode=True))
 
             if not instance.parents.filter(title=title).exists():
                 topic = Topic.objects.create(
