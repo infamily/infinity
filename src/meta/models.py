@@ -90,19 +90,18 @@ class Schema(models.Model):
     So that we can later parse the Instnace.data field.
     """
     name = models.CharField(max_length=255, unique=True)
-    description = models.TextField()
-    specification = JSONField(null=True, blank=True)
+    version = models.TextField()
+    schema_spec = JSONField(null=True, blank=True)
+    types_spec = JSONField(null=True, blank=True)
 
     types = models.ManyToManyField(
         Type, related_name='schema_types', blank=True)
 
     def __str__(self):
-        return '{}: {} [Related Types: {}]'.format(self.name, self.description, ','.join([t.name for t in self.types.all()]))
+        return '{}: {} [Related Types: {}]'.format(self.name, self.version, ','.join([t.name for t in self.types.all()]))
 
     class Meta:
-        translation_fields = (
-            ('description', False),
-        )
+        unique_together = (("name", "version"),)
         verbose_name = _("Schema")
         verbose_name_plural = _("Schemas")
 

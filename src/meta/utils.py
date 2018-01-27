@@ -51,7 +51,7 @@ def convert(key, value, meta):
                 # value = eval(operation)(value)
                 continue
             elif index == 1:
-                value = operation(value)
+                value = eval(operation)(value)
 
         value = eval(schema[0])(value)
 
@@ -62,6 +62,17 @@ def convert(key, value, meta):
                 key = typeurl.rsplit('/',1)[-1]
 
     return key, value
+
+
+def prepare_keys(schema):
+
+    def visit(path, key, value):
+        if key == '' and isinstance(value, list):
+            return key, tuple(value)
+        return key, value
+
+    remapped = remap(schema, visit=visit)
+    return remapped
 
 
 def zip_metadata(schemas, types, if_schema_value_type=tuple):
@@ -175,7 +186,7 @@ def add_metadata(data, metadata):
     'address': {
         ('obj',): ['https://www.wikidata.org/wiki/Q319608'],
         'number': {
-            ('int', lambda _: int(_)): ['https://www.wikidata.org/wiki/Q1413235']
+            ('int', 'lambda _: int(_)'): ['https://www.wikidata.org/wiki/Q1413235']
         },
         'street': {
             ('str',): ['https://www.wikidata.org/wiki/Q24574749']
@@ -187,7 +198,7 @@ def add_metadata(data, metadata):
             ('str',): ['https://www.wikidata.org/wiki/Q82799']
         },
         'age': {
-            ('int', lambda _: float(_)): 
+            ('int', 'lambda _: float(_)'): 
                ['https://www.wikidata.org/wiki/Q185836']
         }
     }]
@@ -220,7 +231,7 @@ def add_metadata(data, metadata):
             return key, value
 
 
-    remapped = remap(instances, visit=visit)
+    remapped = remap(data, visit=visit)
 
     return remapped
 
