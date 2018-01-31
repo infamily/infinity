@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
-from src.generic.models import GenericTranslationModel
+from src.generic.models import GenericTranslationModel, GenericModel
 
 class Type(GenericTranslationModel):
     """
@@ -68,7 +68,7 @@ class Type(GenericTranslationModel):
         verbose_name_plural = _("Types")
 
 
-class Schema(models.Model):
+class Schema(GenericModel):
     """
     Allows to define schema for Instances.
     Generally associated with a data source.
@@ -77,32 +77,38 @@ class Schema(models.Model):
 
     Example:
 
-    Schema.specification = {
-        'name': 'CHAR',
-        'address': {
-            'latitude': 'FLOAT',
-            'longitude': 'FLOAT'
-            'street': 'CHAR',
-            'house': INT,
-        }
-    }
+    Schema.schema_spec = [{'': ['obj'],
+  'address': {'': ['obj'],
+   'number': {'': ['int', 'lambda _: int(_)']},
+   'street': {'': ['str']}},
+  'children': [{'': ['obj'],
+    'age': {'': ['int', 'lambda _: float(_)*20']},
+    'name': {'': ['str']}}],
+  'name': {'': ['str']}}]
+
+    Schema.types_spec = [{'': ['https://www.wikidata.org/wiki/Q7565'],
+  'address': {'': ['https://www.wikidata.org/wiki/Q319608'],
+   'number': {'': ['https://www.wikidata.org/wiki/Q1413235']},
+   'street': {'': ['https://www.wikidata.org/wiki/Q24574749']}},
+  'children': [{'': ['https://www.wikidata.org/wiki/Q7569'],
+    'age': {'': ['https://www.wikidata.org/wiki/Q185836']},
+    'name': {'': ['https://www.wikidata.org/wiki/Q82799']}}],
+  'name': {'': ['https://www.wikidata.org/wiki/Q82799']}}]
 
     So that we can later parse the Instnace.data field.
     """
     name = models.CharField(max_length=255, unique=True)
-    description = models.TextField()
+    version = models.TextField()
     specification = JSONField(null=True, blank=True)
 
     types = models.ManyToManyField(
         Type, related_name='schema_types', blank=True)
 
     def __str__(self):
-        return '{}: {} [Related Types: {}]'.format(self.name, self.description, ','.join([t.name for t in self.types.all()]))
+        return '{}: {} [Related Types: {}]'.format(self.name, self.version, ','.join([t.name for t in self.types.all()]))
 
     class Meta:
-        translation_fields = (
-            ('description', False),
-        )
+        unique_together = (("name", "version"),)
         verbose_name = _("Schema")
         verbose_name_plural = _("Schemas")
 
@@ -125,11 +131,11 @@ class Instance(GenericTranslationModel):
     ]
 
     role = models.PositiveSmallIntegerField(ITEM_ROLES, default=THING)
-    concept = models.ForeignKey(Type)
+    concept = models.ForeignKey(Type, null=True, blank=True)
     schema = models.ForeignKey(Schema, null=True, blank=True)
 
     identifiers = models.TextField()
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
 
     source = models.TextField(null=True, blank=True)
     data = JSONField(null=True, blank=True)
@@ -138,6 +144,7 @@ class Instance(GenericTranslationModel):
         return '[{}] {}: {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk, self.identifiers)
 
     class Meta:
+        unique_together = (("concept", "schema", "identifiers"),)
         translation_fields = (
             ('description', False),
         )

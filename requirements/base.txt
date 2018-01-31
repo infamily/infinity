@@ -61,3 +61,4 @@ bigchaindb-driver==0.4.1
 mistune==0.8.3
 bs4==0.0.1
 PyYAML==3.12
+boltons==17.2.0

@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from src.meta.models import (
     Type,
+    Schema,
     Instance,
 )
 
@@ -16,6 +17,12 @@ class TypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Type
         fields = ('url', 'name', 'definition', 'source', 'languages')
+
+
+class SchemaSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Schema
+        fields = '__all__'
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
