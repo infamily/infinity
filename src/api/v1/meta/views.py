@@ -1,11 +1,12 @@
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from src.meta.models import Type, Instance
+from src.meta.models import Type, Schema, Instance
 
 from src.api.v1.generic.viewsets import CustomViewSet
 
 from src.api.v1.meta.serializers import (
     TypeSerializer,
+    SchemaSerializer,
     InstanceSerializer,
 )
 
@@ -25,6 +26,12 @@ class TypeViewSet(CustomViewSet):
             return qs.filter(languages__contains=[lang])
 
         return qs
+
+
+class SchemaViewSet(CustomViewSet):
+
+    serializer_class = SchemaSerializer
+    queryset = Schema.objects.all()
 
 
 class InstanceViewSet(CustomViewSet):
