@@ -38,6 +38,11 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         view_name='topic-detail',
         queryset=Topic.objects.all(),
         required=False)
+    children = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='topic-detail',
+        queryset=Topic.objects.all(),
+        required=False)
 
     categories = serializers.HyperlinkedRelatedField(
         many=True,
@@ -48,7 +53,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
-                  'parents', 'categories', 'languages', 'is_draft',
+                  'parents', 'children', 'categories', 'languages', 'is_draft',
                   'blockchain', 'matched')
 
 
