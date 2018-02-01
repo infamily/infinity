@@ -51,7 +51,7 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
     editors = models.ManyToManyField(
         User, related_name='topic_editors', blank=True)
     parents = models.ManyToManyField(
-        'self', blank=True, symmetrical=False, related_name='parent_topics')
+        'self', blank=True, symmetrical=False, related_name='children')
 
     blockchain = models.PositiveSmallIntegerField(
         CryptoKeypair.KEY_TYPES, default=False)
