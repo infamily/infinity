@@ -28,4 +28,4 @@ class SchemaSerializer(serializers.HyperlinkedModelSerializer):
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Instance
-        fields = ('url', 'role', 'description', 'languages')
+        fields = '__all__'

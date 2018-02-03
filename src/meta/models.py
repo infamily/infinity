@@ -4,6 +4,8 @@ from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
 from src.generic.models import GenericTranslationModel, GenericModel
+from src.users.models import User
+
 
 class Type(GenericTranslationModel):
     """
@@ -77,23 +79,17 @@ class Schema(GenericModel):
 
     Example:
 
-    Schema.schema_spec = [{'': ['obj'],
-  'address': {'': ['obj'],
-   'number': {'': ['int', 'lambda _: int(_)']},
-   'street': {'': ['str']}},
-  'children': [{'': ['obj'],
-    'age': {'': ['int', 'lambda _: float(_)*20']},
-    'name': {'': ['str']}}],
-  'name': {'': ['str']}}]
-
-    Schema.types_spec = [{'': ['https://www.wikidata.org/wiki/Q7565'],
-  'address': {'': ['https://www.wikidata.org/wiki/Q319608'],
-   'number': {'': ['https://www.wikidata.org/wiki/Q1413235']},
-   'street': {'': ['https://www.wikidata.org/wiki/Q24574749']}},
-  'children': [{'': ['https://www.wikidata.org/wiki/Q7569'],
-    'age': {'': ['https://www.wikidata.org/wiki/Q185836']},
-    'name': {'': ['https://www.wikidata.org/wiki/Q82799']}}],
-  'name': {'': ['https://www.wikidata.org/wiki/Q82799']}}]
+    Schema.specification = \
+    [{'': [['obj'], ['https://www.wikidata.org/wiki/Q7565']],
+  'address': {'': [['obj'], ['https://www.wikidata.org/wiki/Q319608']],
+   'number': {'': [['int', 'lambda _: int(_)'],
+     ['https://www.wikidata.org/wiki/Q1413235']]},
+   'street': {'': [['str'], ['https://www.wikidata.org/wiki/Q24574749']]}},
+  'children': [{'': [['obj'], ['https://www.wikidata.org/wiki/Q7569']],
+    'age': {'': [['int', 'lambda _: float(_)'],
+      ['https://www.wikidata.org/wiki/Q185836']]},
+    'name': {'': [['str'], ['https://www.wikidata.org/wiki/Q82799']]}}],
+  'name': {'': [['str'], ['https://www.wikidata.org/wiki/Q82799']]}}]
 
     So that we can later parse the Instnace.data field.
     """
@@ -103,6 +99,8 @@ class Schema(GenericModel):
 
     types = models.ManyToManyField(
         Type, related_name='schema_types', blank=True)
+
+    owner = models.ForeignKey(User, blank=True, null=True)
 
     def __str__(self):
         return '{}: {} [Related Types: {}]'.format(self.name, self.version, ','.join([t.name for t in self.types.all()]))
@@ -132,19 +130,21 @@ class Instance(GenericTranslationModel):
 
     role = models.PositiveSmallIntegerField(ITEM_ROLES, default=THING)
     concept = models.ForeignKey(Type, null=True, blank=True)
-    schema = models.ForeignKey(Schema, null=True, blank=True)
 
-    identifiers = models.TextField()
+    identifiers = models.TextField(default='object')
     description = models.TextField(null=True, blank=True)
-
     source = models.TextField(null=True, blank=True)
-    data = JSONField(null=True, blank=True)
+
+    schema = models.ForeignKey(Schema, null=True, blank=True)
+    data = JSONField(default={}, null=True, blank=True) # Raw data
+    info = JSONField(default={}, null=True, blank=True) # Normalized data
+
+    owner = models.ForeignKey(User, blank=True, null=True)
 
     def __str__(self):
         return '[{}] {}: {}'.format(dict(self.ITEM_ROLES).get(self.role), self.pk, self.identifiers)
 
     class Meta:
-        unique_together = (("concept", "schema", "identifiers"),)
         translation_fields = (
             ('description', False),
         )
