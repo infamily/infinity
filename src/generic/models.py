@@ -46,12 +46,14 @@ class GenericTranslationModel(GenericModel):
             except Exception:
                 pass
 
-        # TODO ordering issue
-        self.languages = list(
-            frozenset.intersection(
-                *[frozenset(key_pair) for key_pair in lang_keys]
+        if not lang_keys:
+            self.languages = []
+        else:
+            self.languages = list(
+                frozenset.intersection(
+                    *[frozenset(key_pair) for key_pair in lang_keys]
+                )
             )
-        )
         return super().save(*args, **kwargs)
 
     class Meta:
