@@ -40,7 +40,7 @@ class TypeViewSet(CustomViewSet):
 
 
 class SchemaViewSet(CustomViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     filter_fields = ('name', 'version')
     pagination_class = StandardResultsSetPagination
 
@@ -58,7 +58,7 @@ class SchemaViewSet(CustomViewSet):
 
 
 class InstanceViewSet(CustomViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
     pagination_class = LargeResultsSetPagination
     filter_fields = ('schema',)
 
