@@ -59,7 +59,7 @@ class SchemaViewSet(CustomViewSet):
 
 class InstanceViewSet(CustomViewSet):
     permission_classes = (IsAuthenticated,)
-    pagination_class = LargeResultsSetPagination
+    pagination_class = StandardResultsSetPagination
     filter_fields = ('schema',)
 
     def get_permissions(self):
