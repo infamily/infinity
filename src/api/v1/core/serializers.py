@@ -72,7 +72,11 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         categories_str = validated_data.pop('categories_str', [])
-        validated_data['categories'].extend(categories_str)
+        categories = validated_data.get('categories', [])
+        if categories_str:
+            categories.extend(categories_str)
+        if categories:
+            validated_data['categories'] = categories
         return super(TopicSerializer, self).create(validated_data)
 
 
