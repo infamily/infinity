@@ -80,7 +80,7 @@ deploy/ansible/roles/infty/files/*
 !.env_production.enc
 !.env_production.vault
 
-config/settings/dev.py
+config/settings/*dev.py
 travis_rsa
 travis_rsa.pub
 passphrase.txt
