@@ -38,7 +38,6 @@ class TopicCreateTestCase(APITestCase):
         self.assertEqual(instance.type, Topic.IDEA)
 
     def test_create_topic_with_assigned_hyperlinked_categories_created(self):
-        # categories = sorted(Type.objects.categories().values_list('name', flat=True))
         categories = [reverse('type-detail', args=(o.pk,)) for o in Type.objects.categories().all()]
 
         self.client.post(reverse('topic-list'), data={
@@ -61,7 +60,7 @@ class TopicCreateTestCase(APITestCase):
             'categories_str': categories_str,
         })
 
-        self.assertEqual(categories_str, sorted(response.data['categories_str']))
+        self.assertEqual(categories_str, sorted(response.data['categories_names']))
 
     def test_create_topic_hyperlinked_and_str_categories_are_merged(self):
         queryset = Type.objects.categories().order_by('id').all()
