@@ -1,17 +1,16 @@
-from langsplit import splitter
-
 from django.core.urlresolvers import reverse
+from langsplit import splitter
 from rest_framework import serializers
 
+from src.api.v1.core.fields import LangSplitField, UserField, CategoryNameField
 from src.core.models import (
     Topic,
     Comment,
 )
+from src.meta.models import Type
 from src.transactions.models import ContributionCertificate
 from src.users.models import (User, LanguageName)
-from src.meta.models import Type
 
-from src.api.v1.core.fields import LangSplitField, UserField
 
 class TopicParentsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,14 +46,34 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     categories = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='type-detail',
-        queryset=Type.objects.filter(is_category=True),
+        queryset=Type.objects.categories(),
         required=False)
+
+    # To assign categories as list of arbitrary strings
+    categories_str = CategoryNameField(
+        write_only=True,
+        many=True,
+        queryset=Type.objects.categories(),
+        required=False
+    )
+
+    # To retrieve list of categories names (localized via langsplit)
+    categories_names = CategoryNameField(
+        read_only=True,
+        many=True,
+        source='categories',
+    )
 
     class Meta:
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
-                  'parents', 'children', 'categories', 'languages', 'is_draft',
+                  'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft',
                   'blockchain', 'matched')
+
+    def create(self, validated_data):
+        categories_str = validated_data.pop('categories_str', [])
+        validated_data['categories'].extend(categories_str)
+        return super(TopicSerializer, self).create(validated_data)
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):

@@ -13,6 +13,10 @@ ROOT_DIR = environ.Path(__file__) - 3  # (src/config/settings/base.py - 3 = src/
 assert isinstance(ROOT_DIR, environ.Path)  # pycharm wailing fix
 APPS_DIR = ROOT_DIR.path('src')
 
+
+# Read .env file
+environ.Env.read_env(str(ROOT_DIR.path('.env')))
+
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
 
