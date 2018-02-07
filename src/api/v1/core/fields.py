@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 from langsplit import splitter
@@ -28,7 +29,7 @@ class CategoryNameField(serializers.RelatedField):
     def to_internal_value(self, data):
         """Retrieve category by part of its name (case-insensitive)"""
         try:
-            return self.get_queryset().get(**{'name__icontains': data})
+            return self.get_queryset().filter(**{'name__icontains': data}).order_by('name').first()
         except ObjectDoesNotExist:
             self.fail('does_not_exist', name=smart_text(data))
         except (TypeError, ValueError):
