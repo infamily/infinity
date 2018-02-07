@@ -110,3 +110,31 @@ class TopicUpdateTestCase(APITestCase):
 
         instance = Topic.objects.first()
         self.assertEqual(instance.categories.count(), len(categories_obj)+len(categories_str))
+
+    def test_update_topic_assign_concurrent_categories_ok(self):
+        AutoFixture(
+            Type,
+            field_values={'name': 'concurrent1', 'is_category': True}
+        ).create_one()
+
+        AutoFixture(
+            Type,
+            field_values={'name': 'concurrent2', 'is_category': True}
+        ).create_one()
+
+        Type.objects.categories().order_by('id').all()
+        categories_str = ['concurrent']
+
+        self.client.put(
+            reverse('topic-detail', args=(self.topic.pk,)),
+            data={
+                'title': '.:en:Test title',
+                'body': '.:en\nTest body',
+                'type': Topic.IDEA,
+                'categories_str': categories_str,
+            }
+        )
+
+        instance = Topic.objects.first()
+        self.assertEqual(instance.categories.count(), 1)
+        self.assertIn('concurrent1', instance.categories.first().name)
