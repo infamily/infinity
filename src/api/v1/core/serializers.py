@@ -70,14 +70,22 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
                   'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft',
                   'blockchain', 'matched')
 
-    def create(self, validated_data):
+    def process_categories(self, validated_data):
         categories_str = validated_data.pop('categories_str', [])
         categories = validated_data.get('categories', [])
         if categories_str:
             categories.extend(categories_str)
         if categories:
             validated_data['categories'] = categories
+        return validated_data
+
+    def create(self, validated_data):
+        validated_data = self.process_categories(validated_data)
         return super(TopicSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data = self.process_categories(validated_data)
+        return super(TopicSerializer, self).update(instance, validated_data)
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
