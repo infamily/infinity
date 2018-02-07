@@ -77,3 +77,64 @@ class TopicCreateTestCase(APITestCase):
 
         instance = Topic.objects.first()
         self.assertEqual(instance.categories.count(), len(categories_obj)+len(categories_str))
+
+
+class TopicUpdateTestCase(APITestCase):
+    def setUp(self):
+        super(TopicUpdateTestCase, self).setUp()
+        self.user = AutoFixture(User).create(1)[0]
+        self.client.force_login(self.user)
+
+        AutoFixture(Type, field_values={'is_category': True}).create(3)
+        self.topic = AutoFixture(
+            Topic,
+            field_values={'owner': self.user},
+            follow_fk=['categories']
+        ).create_one()
+
+    def test_update_topic_hyperlinked_and_str_categories_are_merged(self):
+        queryset = Type.objects.categories().order_by('id').all()
+        categories_str = sorted(queryset.values_list('name', flat=True)[0:1])
+        categories_obj = [reverse('type-detail', args=(o.pk,)) for o in queryset[1:]]
+
+        response = self.client.put(
+            reverse('topic-detail', args=(self.topic.pk,)),
+            data={
+                'title': '.:en:Test title',
+                'body': '.:en\nTest body',
+                'type': Topic.IDEA,
+                'categories': categories_obj,
+                'categories_str': categories_str,
+            }
+        )
+
+        instance = Topic.objects.first()
+        self.assertEqual(instance.categories.count(), len(categories_obj)+len(categories_str))
+
+    def test_update_topic_assign_concurrent_categories_ok(self):
+        AutoFixture(
+            Type,
+            field_values={'name': '.:en:concurrent1', 'is_category': True}
+        ).create_one()
+
+        AutoFixture(
+            Type,
+            field_values={'name': '.:en:concurrent2', 'is_category': True}
+        ).create_one()
+
+        Type.objects.categories().order_by('id').all()
+        categories_str = ['concurrent']
+
+        self.client.put(
+            reverse('topic-detail', args=(self.topic.pk,)),
+            data={
+                'title': '.:en:Test title',
+                'body': '.:en\nTest body',
+                'type': Topic.IDEA,
+                'categories_str': categories_str,
+            }
+        )
+
+        instance = Topic.objects.first()
+        self.assertEqual(instance.categories.count(), 1)
+        self.assertIn('concurrent1', instance.categories.first().name)
