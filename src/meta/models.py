@@ -7,6 +7,17 @@ from src.generic.models import GenericTranslationModel, GenericModel
 from src.users.models import User
 
 
+class TypeQuerySet(models.QuerySet):
+    """Custom QuerySet for Type model"""
+    def categories(self):
+        """Filters by `is_category` flag"""
+        return self.filter(is_category=True)
+
+
+class TypeManager(models.Manager):
+    """Model manager"""
+
+
 class Type(GenericTranslationModel):
     """
     A Type is a snapshot of a definition of a concept by its qualities:
@@ -42,11 +53,11 @@ class Type(GenericTranslationModel):
     This will also include the concepts, and their labels, where each
     label and definition can be multilingual.
     """
+    objects = TypeManager.from_queryset(TypeQuerySet)()
     name = models.TextField()
     definition = models.TextField(null=True, blank=True)
 
     is_category = models.BooleanField(default=False)
-
 
     parents = models.ManyToManyField(
         'self',
