@@ -114,12 +114,12 @@ class TopicUpdateTestCase(APITestCase):
     def test_update_topic_assign_concurrent_categories_ok(self):
         AutoFixture(
             Type,
-            field_values={'name': 'concurrent1', 'is_category': True}
+            field_values={'name': '.:en:concurrent1', 'is_category': True}
         ).create_one()
 
         AutoFixture(
             Type,
-            field_values={'name': 'concurrent2', 'is_category': True}
+            field_values={'name': '.:en:concurrent2', 'is_category': True}
         ).create_one()
 
         Type.objects.categories().order_by('id').all()
