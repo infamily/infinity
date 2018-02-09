@@ -81,12 +81,13 @@ class InstanceViewSet(CustomViewSet):
     queryset = Instance.objects.all()
 
 
-class InstanceBulkViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class InstanceBulkViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
     filter_fields = ('schema',)
     queryset = Instance.objects.all()
     parser_classes = (FileUploadParser, )
     serializer_class = InstanceSerializer
+    pagination_class = LargeResultsSetPagination
 
     def create(self, request, *args, **kwargs):
         fp = request._request.FILES.get('file.jl.gz')
