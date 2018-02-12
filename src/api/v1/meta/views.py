@@ -1,7 +1,13 @@
+import json_lines
+import gzip
+from rest_framework import status, mixins, viewsets
+from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly
 )
+from rest_framework.response import Response
+
 from src.api.v1.generic.permissions import (
     IsOwner
 )
@@ -73,3 +79,25 @@ class InstanceViewSet(CustomViewSet):
 
     serializer_class = InstanceSerializer
     queryset = Instance.objects.all()
+
+
+class InstanceBulkViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = (IsAuthenticated,)
+    filter_fields = ('schema',)
+    queryset = Instance.objects.all()
+    parser_classes = (FileUploadParser, )
+    serializer_class = InstanceSerializer
+    pagination_class = LargeResultsSetPagination
+
+    def create(self, request, *args, **kwargs):
+        fp = request._request.FILES.get('file.jl.gz')
+        data = [line for line in json_lines.reader(gzip.GzipFile(fileobj=fp))]
+
+        serializer = self.get_serializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_bulk_create(serializer)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def perform_bulk_create(self, serializer):
+        return self.perform_create(serializer)
+
