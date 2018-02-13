@@ -143,7 +143,7 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
     def test_can_create_comment(self):
         transaction_data = {
             'comment': self.comment_url,
-            'payment_amount': min(10, settings.INVESTING_HOURS_DAILY_QUOTA),
+            'payment_amount': min(10, Transaction.user_quota_remains_today(self.testuser)),
             'payment_currency': self.usd.pk,
             'payment_sender': self.testuser.pk,
         }
