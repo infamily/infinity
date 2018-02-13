@@ -1,9 +1,11 @@
+import datetime
 from decimal import Decimal
 
 from django.db import models
 from django.db.models import Sum
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from src.generic.models import GenericModel
 from src.users.models import User
@@ -80,6 +82,7 @@ class Currency(GenericModel):
     Currency labels, e.g. 'EUR', 'CNY', 'USD'.
     """
     label = models.CharField(max_length=16)
+    enabled = models.BooleanField(default=False)
 
     def hour_price(self, hour_price_obj=None, hour_price_source='FRED'):
         if not hour_price_obj:
@@ -309,9 +312,40 @@ class Transaction(GenericModel):
         super().save(*args, **kwargs)
         self.create_contribution_certificates()
 
+    def hour_amount(self):
+        if self.hour_price:
+            return self.payment_amount / self.hour_unit_cost
+
+
     class Meta:
         verbose_name = _("Transaction")
         verbose_name_plural = _("Transactions")
+
+    @classmethod
+    def user_paid_today(cls, user):
+        """
+        Returns amount of matched hours that a given user has sent today.
+        """
+
+        today = datetime.datetime.utcnow()
+        today_morning = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_evening = today_morning + datetime.timedelta(days=1, microseconds=-1)
+
+        amount = Decimal(0.)
+
+        for tx in cls.objects.filter(
+                payment_sender=user,
+                created_date__gt=today_morning,
+                created_date__lt=today_evening):
+            if tx.hour_unit_cost:
+                amount += tx.payment_amount / tx.hour_unit_cost
+
+        return amount
+
+    @classmethod
+    def user_quota_remains_today(cls, user):
+        daily_quota = Decimal(settings.INVESTING_HOURS_DAILY_QUOTA)
+        return daily_quota - cls.user_paid_today(user)
 
 
 class ContributionCertificate(GenericModel):

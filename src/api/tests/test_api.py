@@ -5,6 +5,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from src.core.models import Topic, Comment
 from src.transactions.models import (
@@ -142,14 +143,13 @@ class CreateTransactionList(APITestCaseAuthorizedUser):
     def test_can_create_comment(self):
         transaction_data = {
             'comment': self.comment_url,
-            'payment_amount': 10,
+            'payment_amount': min(10, settings.INVESTING_HOURS_DAILY_QUOTA),
             'payment_currency': self.usd.pk,
             'payment_sender': self.testuser.pk,
         }
         response = self.client.post(
             reverse('transaction-list'), transaction_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
 
 class GetTopicList(APITestCaseAuthorizedUser):
     def test_get_all_topics(self):
