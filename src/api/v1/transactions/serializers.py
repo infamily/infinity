@@ -59,7 +59,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         currency = validated_data['payment_currency']
         sender = validated_data['payment_sender']
 
-        if amount > settings.INVESTING_HOURS_DAILY_QUOTA:
+        if amount > Transaction.user_quota_remains_today(sender):
             raise ValidationError('Hour amount larger than allowed today.')
 
         tx = comment.invest(
