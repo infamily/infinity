@@ -15,7 +15,7 @@ APPS_DIR = ROOT_DIR.path('src')
 
 
 # Read .env file
-environ.Env.read_env(str(ROOT_DIR.path('.env')))
+# environ.Env.read_env(str(ROOT_DIR.path('.env')))
 
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
