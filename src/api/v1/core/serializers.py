@@ -8,7 +8,7 @@ from src.core.models import (
     Comment,
 )
 from src.meta.models import Type
-from src.transactions.models import ContributionCertificate
+from src.transactions.models import ContributionCertificate, Transaction
 from src.users.models import (User, LanguageName)
 
 
@@ -115,10 +115,14 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     balance = serializers.SerializerMethodField('matched')
+    quota_today = serializers.SerializerMethodField('quota')
     contributions = serializers.SerializerMethodField('contribution_certificates')
 
     def matched(self, obj):
         return ContributionCertificate.user_matched(obj)
+
+    def quota(self, obj):
+        return Transaction.user_quota_remains_today(obj)
 
     def contribution_certificates(self, obj):
         request = self.context['request']
@@ -131,7 +135,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'balance', 'contributions')
+        fields = ('id', 'username', 'balance', 'contributions', 'quota_today')
 
 
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):

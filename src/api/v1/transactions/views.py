@@ -28,11 +28,14 @@ from src.api.v1.transactions.serializers import (
     CurrencyPriceSnapshotSerializer,
 )
 
+from src.api.v1.transactions.filters import CurrencyFilter
+
 
 class CurrencyViewSet(CustomViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = CurrencyListSerializer
     queryset = Currency.objects.all()
+    filter_class = CurrencyFilter
 
 
 class TransactionViewSet(CustomViewSet):
