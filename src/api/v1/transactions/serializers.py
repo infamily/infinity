@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -22,7 +23,7 @@ class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Currency
-        fields = ('id', 'label', 'in_hours', 'hour_price', 'currency_price')
+        fields = ('id', 'label', 'in_hours', 'hour_price', 'currency_price', 'enabled')
 
 
 class InteractionSerializer(serializers.HyperlinkedModelSerializer):
@@ -58,6 +59,9 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         currency = validated_data['payment_currency']
         sender = validated_data['payment_sender']
 
+        if amount > settings.INVESTING_HOURS_DAILY_QUOTA:
+            raise ValidationError('Hour amount larger than allowed today.')
+
         tx = comment.invest(
             hour_amount=amount,
             payment_currency_label=currency.label.lower(),
@@ -90,7 +94,7 @@ class TransactionListSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'comment', 'snapshot', 'hour_price', 'currency_price',
                   'payment_amount', 'payment_currency', 'payment_recipient',
                   'payment_sender', 'hour_unit_cost', 'donated_hours',
-                  'matched_hours')
+                  'matched_hours', 'hour_amount')
 
 
 class ContributionSerializer(serializers.HyperlinkedModelSerializer):
