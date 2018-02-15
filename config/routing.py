@@ -1,5 +1,5 @@
 from channels.routing import route
-from src.api_asgi.consumers import (
+from src.websocket.consumers import (
     ws_connect,
     ws_disconnect
 )
