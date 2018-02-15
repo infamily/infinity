@@ -6,7 +6,7 @@ from django.db import models
 from django.dispatch import receiver
 
 from src.core.models import Topic, Comment
-from src.api_asgi.consumers import ws_send_comment_changed
+from src.websocket.consumers import ws_send_comment_changed
 
 
 @receiver(models.signals.post_save, sender=Comment)
