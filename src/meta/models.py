@@ -104,7 +104,7 @@ class Schema(GenericModel):
 
     So that we can later parse the Instnace.data field.
     """
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     version = models.TextField()
     specification = JSONField(null=True, blank=True)
 
