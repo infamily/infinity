@@ -14,12 +14,28 @@
     state: absent
     path: "{{ base_dir }}/.env_production"
 
-- name: decrypt production env file
+- name: Check if .env_production exists
+  local_action: stat path="{{playbook_dir}}/../../.env_production"
+  register: stat_result
+
+- debug:
+    var: stat_result
+    verbosity: 0
+
+- name: decrypt .production_env.vault file, if there is no local .env_production
   copy:
     src: "../../.env_production.vault"
     dest: "{{ base_dir }}/.env_production"
     decrypt: yes
     force: yes
+  when: stat_result.stat.exists == false
+
+- name: copy .env_production if it exists
+  copy:
+    src: "{{playbook_dir}}/../../.env_production"
+    dest: "{{ base_dir }}/.env_production"
+    force: yes
+  when: stat_result.stat.exists == true
 
 - name: ensure static files directory
   file:

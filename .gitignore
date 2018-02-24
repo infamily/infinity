@@ -82,6 +82,7 @@ deploy/ansible/inventories/*
 
 !.env_production.enc
 !.env_production.vault
+.env_production
 
 config/settings/*dev.py
 travis_rsa
