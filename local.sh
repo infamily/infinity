@@ -1,1 +1,1 @@
-docker-compose run --service-ports web jupyter lab --ip=0.0.0.0 --allow-root notebooks/
+python manage.py runserver 0.0.0.0:8000
