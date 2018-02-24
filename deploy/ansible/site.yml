@@ -10,10 +10,7 @@
       letsencrypt_webroot_path: /var/www/html
       letsencrypt_email: user@example.net
       letsencrypt_cert_domains:
-        - lt.wfx.io
-        - dev.wfx.io
-        - test.wfx.io
-        - test.wefindx.io
+        - your.server.com
       when: run_scenario == "init"
 
     - role: roles/docker
