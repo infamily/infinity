@@ -67,6 +67,8 @@ services:
     volumes:
       - .:/app:rw
       - ./compose/web/00-jupyterlab-startup.py:/root/.ipython/profile_default/startup/00-jupyterlab-startup.py:ro
+    environment:
+      - SHELL=/bin/bash
     env_file:
       - env.dev
     ports:
