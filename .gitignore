@@ -73,12 +73,16 @@ deploy/libcloud/linode/libcloud-key.txt
 
 deploy/ansible/*.retry
 deploy/ansible/roles/infty/files/*
+deploy/ansible/inventories/*
+!deploy/ansible/inventories/staging
+!deploy/ansible/inventories/local
 
 .vault_password.txt
 .env*
 
 !.env_production.enc
 !.env_production.vault
+.env_production
 
 config/settings/*dev.py
 travis_rsa
@@ -93,3 +97,4 @@ notebooks/.ipynb_checkpoints/*
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
