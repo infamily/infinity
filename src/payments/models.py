@@ -4,16 +4,35 @@ from django.db import models
 from src.users.models import User
 from src.generic.models import GenericModel
 from django.contrib.postgres.fields import JSONField
+from django.utils.translation import ugettext_lazy as _
 
 
-class GenericPayment(GenericModel):
-    processor = models.PositiveSmallIntegerField(default=1)
+class Payment(GenericModel):
+    STRIPE = 0
 
-    class Meta:
-        abstract = True
+    PLATFORMS = [
+        (STRIPE, _('Stripe'))
+    ]
+
+    CARD = 0
+    PROVIDERS = [
+        (CARD, _('Card'))
+    ]
+
+    platform = models.PositiveSmallIntegerField(
+        PLATFORMS, default=STRIPE)
+    provider = models.PositiveSmallIntegerField(
+        PROVIDERS, default=CARD
+    )
+    success = models.BooleanField(
+        default=False
+    )
+
+    request = JSONField()
+    response = JSONField()
 
 
-class Purchase(GenericPayment):
+class Purchase(GenericModel):
     """
     Defines a purchase of infinity hours by a user
     from the managing organization, that runs
@@ -31,47 +50,61 @@ class Purchase(GenericPayment):
     When this extra reserve is used up,
     the user remains to have just daily limit.
     """
+
+    '''
+    The below fields define the number of hours
+    purchased by the user with given payment
+    at the price of hour_price and currency_price.
+    '''
+
     hours = models.DecimalField(
         default=0.,
         decimal_places=8,
         max_digits=20,
-        blank=False
-    )
-    hour_price = models.ForeignKey(
-        'transactions.HourPriceSnapshot',
-        related_name='hour_prices',
-        blank=False
-    )
-    currency_price = models.ForeignKey(
-        'transactions.CurrencyPriceSnapshot',
-        related_name='currency_prices',
-        blank=False
+        blank=False,
+        null=False
     )
 
     user = models.ForeignKey(
         User,
-        related_name='users',
-        blank=False
+        related_name='buyer',
+        blank=False,
+        null=False
     )
+
+    payment = models.ForeignKey(
+        Payment,
+        blank=True,
+        null=True
+    )
+
+    hour_price = models.ForeignKey(
+        'transactions.HourPriceSnapshot',
+        related_name='hour_prices',
+        blank=False,
+        null=False
+    )
+    currency_price = models.ForeignKey(
+        'transactions.CurrencyPriceSnapshot',
+        related_name='currency_prices',
+        blank=False,
+        null=False
+    )
+
+    '''
+    These below facts are derived from the
+    details of the Payment model's fields.
+    '''
+
     currency = models.ForeignKey(
         'transactions.Currency',
         related_name='currencies',
-        blank=False
+        blank=False,
+        null=False
     )
 
     amount = models.DecimalField(
         default=0.,
         decimal_places=8,
-        max_digits=20,
-        blank=False
+        max_digits=20
     )
-    platform = models.CharField(
-        max_length=20,
-        default='stripe'
-    )
-    provider = models.CharField(
-        max_length=20,
-        default='card'
-    )
-    reqeust = JSONField()
-    response = JSONField()
