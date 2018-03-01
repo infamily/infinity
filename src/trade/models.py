@@ -1,4 +1,6 @@
+from decimal import Decimal
 from django.db import models
+from django.db.models import Sum
 
 # Create your models here.
 from src.users.models import User
@@ -47,6 +49,10 @@ class Payment(GenericModel):
 
     request = JSONField()
     response = JSONField()
+
+    @classmethod
+    def user_reserve_remains(cls, user):
+        return ReservePurchase.user_purchased(user) - ReserveExpense.user_expended(user)
 
 
 class ReservePurchase(GenericModel):
@@ -126,6 +132,16 @@ class ReservePurchase(GenericModel):
         max_digits=20
     )
 
+    @classmethod
+    def user_purchased(cls, user):
+        """
+        Returns amount of reserve hours that a given user has accumulated.
+        """
+        return Decimal(
+            cls.objects.filter(
+                user=user).aggregate(total=Sum('hours')).get('total')
+            or 0)
+
 
 class ReserveExpense(GenericModel):
     """
@@ -151,3 +167,13 @@ class ReserveExpense(GenericModel):
         blank=False,
         null=False
     )
+
+    @classmethod
+    def user_expended(cls, user):
+        """
+        Returns amount of reserve hours that a given user has expended.
+        """
+        return Decimal(
+            cls.objects.filter(
+                user=user).aggregate(total=Sum('hours')).get('total')
+            or 0)
