@@ -9,14 +9,31 @@ from django.utils.translation import ugettext_lazy as _
 
 class Payment(GenericModel):
     STRIPE = 0
+    BRAINTREE = 1
+    PAYPAL = 2
 
     PLATFORMS = [
-        (STRIPE, _('Stripe'))
+        (STRIPE, _('Stripe')),
+        (BRAINTREE, _('Braintree')),
+        (PAYPAL, _('Paypal'))
     ]
 
     CARD = 0
+    SEPA = 1
+    ALIPAY = 2
+    WECHAT = 3
+    AMEX = 4
+    GIROPAY = 5
+    SOFORT = 6
+
     PROVIDERS = [
-        (CARD, _('Card'))
+        (CARD, _('Card')),
+        (SEPA, _('SEPA Direct Debit')),
+        (ALIPAY, _('Alipay')),
+        (WECHAT, _('WeChat')),
+        (AMEX, _('Amex Express Checkout')),
+        (GIROPAY, _('Giropay')),
+        (SOFORT, _('SOFORT')),
     ]
 
     platform = models.PositiveSmallIntegerField(
@@ -32,7 +49,7 @@ class Payment(GenericModel):
     response = JSONField()
 
 
-class Purchase(GenericModel):
+class ReservePurchase(GenericModel):
     """
     Defines a purchase of infinity hours by a user
     from the managing organization, that runs
@@ -107,4 +124,30 @@ class Purchase(GenericModel):
         default=0.,
         decimal_places=8,
         max_digits=20
+    )
+
+
+class ReserveExpense(GenericModel):
+    """
+    Defines an expense of Infinity hours by a user
+    to invest into works on Infinity.
+
+    The expended hours are going to be subtracted
+    from the daily credit balance, if the purchase
+    that day exceeds the daily free limit.
+    """
+
+    hours = models.DecimalField(
+        default=0.,
+        decimal_places=8,
+        max_digits=20,
+        blank=False,
+        null=False
+    )
+
+    user = models.ForeignKey(
+        User,
+        related_name='spender',
+        blank=False,
+        null=False
     )

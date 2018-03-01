@@ -57,7 +57,7 @@ LOCAL_APPS = [
     'src.core',
     'src.users',
     'src.transactions',
-    'src.payments',
+    'src.trade',
     'src.celery',
 ]
 
