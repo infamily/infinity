@@ -5,6 +5,7 @@ from django.db.models import Sum
 # Create your models here.
 from src.users.models import User
 from src.generic.models import GenericModel
+from src.transactions.models import Transaction
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,33 +53,48 @@ class Payment(GenericModel):
 
     @classmethod
     def user_reserve_remains(cls, user):
-        return ReservePurchase.user_purchased(user) - ReserveExpense.user_expended(user)
+        return Reserve.user_purchased(user) - Reserve.user_expended(user)
 
 
-class ReservePurchase(GenericModel):
+class Reserve(GenericModel):
     """
-    Defines a purchase of infinity hours by a user
-    from the managing organization, that runs
-    the infinity server, as a credit institution.
+    Defines a purchase and expenses of infinity hours credit
+    reserve by a user from the managing organization, that runs
+    an infinity server, as a credit institution.
 
-    The purchased hours are going to be added to
-    the daily limit of the user who purchased it.
+    1. If it is a purchase of infinity hours, then payment__not=None.
 
-    The purchased hours are treated as an extra
-    reserve in addition to the daily credit limit
+    And the filled out fields are:
+        payment
+        hours (+) (positive)
+        hour_price,
+        currency_price,
+        currency,
+        amount
+        user
 
-    The user can use the extra hours anytime, when
-    daily limit is not enough.
+    2. If it is an expense of infinity hours, then transaction__not=None.
 
-    When this extra reserve is used up,
-    the user remains to have just daily limit.
-    """
+    And the filled out fields are:
+        transaction
+        hours (-) (negative)
+        user
 
-    '''
+    The reserve is used (2.), if the daily credit balance is insufficient
+    to cover the investment (exceeds the daily limit of free credit).
+
+    The purchased hours are going to be added to the daily limit of
+    the user who purchased it. The purchased hours reserve is treated
+    as an extra reserve in addition to the daily credit limit
+
+    The user can use the extra hours anytime, when daily limit is not
+    enough. When this extra reserve is used up, the user remains to
+    have just daily limit.
+
     The below fields define the number of hours
     purchased by the user with given payment
     at the price of hour_price and currency_price.
-    '''
+    """
 
     hours = models.DecimalField(
         default=0.,
@@ -122,14 +138,23 @@ class ReservePurchase(GenericModel):
     currency = models.ForeignKey(
         'transactions.Currency',
         related_name='currencies',
-        blank=False,
-        null=False
+        blank=True,
+        null=True
     )
 
     amount = models.DecimalField(
         default=0.,
         decimal_places=8,
-        max_digits=20
+        max_digits=20,
+        blank=True,
+        null=True
+    )
+
+    transaction = models.ForeignKey(
+        Transaction,
+        related_name='transactions',
+        blank=True,
+        null=True
     )
 
     @classmethod
@@ -139,34 +164,8 @@ class ReservePurchase(GenericModel):
         """
         return Decimal(
             cls.objects.filter(
-                user=user).aggregate(total=Sum('hours')).get('total')
+                user=user, payment__isnull=False).aggregate(total=Sum('hours')).get('total')
             or 0)
-
-
-class ReserveExpense(GenericModel):
-    """
-    Defines an expense of Infinity hours by a user
-    to invest into works on Infinity.
-
-    The expended hours are going to be subtracted
-    from the daily credit balance, if the purchase
-    that day exceeds the daily free limit.
-    """
-
-    hours = models.DecimalField(
-        default=0.,
-        decimal_places=8,
-        max_digits=20,
-        blank=False,
-        null=False
-    )
-
-    user = models.ForeignKey(
-        User,
-        related_name='spender',
-        blank=False,
-        null=False
-    )
 
     @classmethod
     def user_expended(cls, user):
@@ -175,5 +174,5 @@ class ReserveExpense(GenericModel):
         """
         return Decimal(
             cls.objects.filter(
-                user=user).aggregate(total=Sum('hours')).get('total')
+                user=user, transaction__isnull=False).aggregate(total=Sum('hours')).get('total')
             or 0)

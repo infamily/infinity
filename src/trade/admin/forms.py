@@ -1,7 +1,7 @@
 from django import forms
 
 from src.trade.models import (
-    Payment, ReservePurchase, ReserveExpense
+    Payment, Reserve
 )
 
 
@@ -22,15 +22,8 @@ class PaymentForm(forms.ModelForm):
         exclude = []
 
 
-class ReservePurchaseForm(forms.ModelForm):
+class ReserveForm(forms.ModelForm):
 
     class Meta:
-        model = ReservePurchase
-        exclude = []
-
-
-class ReserveExpenseForm(forms.ModelForm):
-
-    class Meta:
-        model = ReserveExpense
+        model = Reserve
         exclude = []
