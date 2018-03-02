@@ -102,6 +102,10 @@ class CommentTransactionMixin():
         Generating Transaction, ContributionCertificates for
         comment owner, and investor.
         """
+
+        # Check that investment amount is not more than...
+        # daily_limit + reserve
+
         amount = min(Decimal(hour_amount), self.remains())
         if not amount:
             return
