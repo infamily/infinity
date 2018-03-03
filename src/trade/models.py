@@ -116,14 +116,14 @@ class Reserve(GenericModel):
     hour_price = models.ForeignKey(
         'transactions.HourPriceSnapshot',
         related_name='hour_prices',
-        blank=False,
-        null=False
+        blank=True,
+        null=True
     )
     currency_price = models.ForeignKey(
         'transactions.CurrencyPriceSnapshot',
         related_name='currency_prices',
-        blank=False,
-        null=False
+        blank=True,
+        null=True
     )
 
     '''

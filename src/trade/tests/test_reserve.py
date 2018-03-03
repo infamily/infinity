@@ -126,7 +126,7 @@ class TestReserve(TestCase):
         )
 
         # Investment should use up the hours, first from quota, then from reserve.
-        tx = self.comment.invest(5., 'hur', self.investor)
+        tx = self.comment.invest(5., 'eur', self.investor)
 
         self.assertEqual(
             tx.will_deduce_reserve_by,
@@ -135,10 +135,10 @@ class TestReserve(TestCase):
 
         tx.save()
 
-        # if tx.will_deduce_reserve_by:
-        #     rx = Reserve.objects.create(
-        #         hours=-tx.will_deduce_reserve_by,
-        #         user=self.investor,
-        #         transaction=tx
-        #     )
-        #     rx.save()
+        if tx.will_deduce_reserve_by:
+            rx = Reserve.objects.create(
+                hours=-tx.will_deduce_reserve_by,
+                user=self.investor,
+                transaction=tx,
+            )
+            rx.save()
