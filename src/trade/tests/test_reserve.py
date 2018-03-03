@@ -1,6 +1,7 @@
 # API tests at: src/api/tests/test_api.py
 
 import json
+from django.conf import settings
 
 from test_plus.test import TestCase
 
@@ -16,6 +17,7 @@ from src.trade.models import (
 
 from src.transactions.models import (
     Currency,
+    Transaction,
     HourPriceSnapshot,
     CurrencyPriceSnapshot
 )
@@ -90,18 +92,14 @@ class TestReserve(TestCase):
     def test_user_has_zero_reserve(self):
 
         self.assertEqual(
-            Payment.user_reserve_remains(self.investor),
+            Reserve.user_reserve_remains(self.investor),
             0.
         )
 
     def test_user_can_change_reserve(self):
 
         payment = Payment.objects.create(
-            request="{}",
-            response="{}",
-            platform=0,
-            provider=0,
-            success=True,
+            request="{}", response="{}", platform=0, provider=0, success=True,
         )
         payment.save()
 
@@ -113,9 +111,21 @@ class TestReserve(TestCase):
             currency_price=CurrencyPriceSnapshot.objects.last()
         )
 
+        # After purchase, the reserve should be incre
         self.assertEqual(
-            Payment.user_reserve_remains(self.investor),
+            Reserve.user_reserve_remains(self.investor),
             5.
         )
 
+        # Initially, quota should be as defined in settings.
+        self.assertEqual(
+            Transaction.user_quota_remains_today(self.investor),
+            settings.INVESTING_HOURS_DAILY_QUOTA
+        )
+
+        # Investment should use up the hours, first from quota, then from reserve.
         # self.comment.invest()
+
+        # settings.INVESTING_HOURS_DAILY_QUOTA
+        # quota = Transaction.user_quota_remains_today(sender)
+        # reserve = Payment.user_reserve_remains(sender)
