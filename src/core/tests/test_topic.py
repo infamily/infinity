@@ -645,7 +645,7 @@ class TestTopic(TestCase):
         ### Make sure investor3 has enough quota and reserve.
         self.investor3
         payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, success=True,
+            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
         )
         payment.save()
 
@@ -798,7 +798,7 @@ class TestTopic(TestCase):
 
         ### Make sure investor3 has enough quota and reserve.
         payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, success=True,
+            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
         )
         payment.save()
 

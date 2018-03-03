@@ -44,12 +44,19 @@ class Payment(GenericModel):
     provider = models.PositiveSmallIntegerField(
         PROVIDERS, default=CARD
     )
-    success = models.BooleanField(
+    paid = models.BooleanField(
         default=False
     )
 
     request = JSONField()
-    response = JSONField()
+    response = JSONField(blank=True, null=True)
+
+    owner = models.ForeignKey(
+        User,
+        related_name='user_payments',
+        blank=False,
+        null=False
+    )
 
 
 class Reserve(GenericModel):

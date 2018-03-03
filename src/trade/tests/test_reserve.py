@@ -101,7 +101,7 @@ class TestReserve(TestCase):
         # reserve = Payment.user_reserve_remains(sender)
 
         payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, success=True,
+            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor
         )
         payment.save()
 
