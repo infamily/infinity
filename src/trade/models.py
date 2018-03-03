@@ -51,10 +51,6 @@ class Payment(GenericModel):
     request = JSONField()
     response = JSONField()
 
-    @classmethod
-    def user_reserve_remains(cls, user):
-        return Reserve.user_purchased(user) - Reserve.user_expended(user)
-
 
 class Reserve(GenericModel):
     """
@@ -176,3 +172,7 @@ class Reserve(GenericModel):
             cls.objects.filter(
                 user=user, transaction__isnull=False).aggregate(total=Sum('hours')).get('total')
             or 0)
+
+    @classmethod
+    def user_reserve_remains(cls, user):
+        return Reserve.user_purchased(user) - Reserve.user_expended(user)

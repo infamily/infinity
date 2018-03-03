@@ -61,7 +61,7 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         sender = validated_data['payment_sender']
 
         quota = Transaction.user_quota_remains_today(sender)
-        reserve = Payment.user_reserve_remains(sender)
+        reserve = Reserve.user_reserve_remains(sender)
 
         if amount > (quota + reserve):
             raise ValidationError('Hour amount larger than sum of user daily_quota and user_reserve.')

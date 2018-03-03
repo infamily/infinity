@@ -11,6 +11,7 @@ from src.transactions.models import (
     Interaction,
     Transaction,
 )
+from src.trade.models import Reserve
 
 
 class TopicTransactionMixin():
@@ -103,11 +104,16 @@ class CommentTransactionMixin():
         comment owner, and investor.
         """
 
-        # Check that investment amount is not more than...
-        # daily_limit + reserve
-
         amount = min(Decimal(hour_amount), self.remains())
         if not amount:
+            return
+
+        # Check that investment amount is not more than quota + reserve
+        quota = Transaction.user_quota_remains_today(investor)
+        reserve = Reserve.user_reserve_remains(investor)
+
+        if amount > (quota + reserve):
+            """ Don't let invest more than quota and reserve """
             return
 
         try:

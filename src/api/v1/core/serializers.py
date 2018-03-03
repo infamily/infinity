@@ -10,7 +10,7 @@ from src.core.models import (
 from src.meta.models import Type
 from src.transactions.models import ContributionCertificate, Transaction
 from src.users.models import (User, LanguageName)
-from src.trade.models import Payment
+from src.trade.models import Reserve
 
 
 class TopicParentsSerializer(serializers.ModelSerializer):
@@ -127,7 +127,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
         return Transaction.user_quota_remains_today(obj)
 
     def reserve(self, obj):
-        return Payment.user_reserve_remains(obj)
+        return Reserve.user_reserve_remains(obj)
 
     def contribution_certificates(self, obj):
         request = self.context['request']
