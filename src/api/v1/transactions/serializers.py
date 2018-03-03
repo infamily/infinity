@@ -75,21 +75,6 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         if not tx:
             raise ValidationError('Bad data')
 
-        # TODO: move away from serializer, to business logic
-        if tx.will_deduce_reserve_by:
-            '''
-            Create reserve hours expense if reserve is used.
-            '''
-            rx = Reserve(
-                hours=-tx.will_deduce_reserve_by,
-                user=sender,
-                transaction=tx
-            )
-
-            if not rx:
-                raise ValidationError('Cannot create Reserve change.')
-            rx.save()
-
         return tx
 
 

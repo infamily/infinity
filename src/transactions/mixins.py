@@ -128,12 +128,6 @@ class CommentTransactionMixin():
         currency_amount = amount / value['in_hours']
         snapshot = self.create_snapshot(blockchain=self.blockchain)
 
-        # Deduce from reserve, if not enough quota
-        if (amount - quota) > 0:
-            expense = amount - quota
-        else:
-            expense = 0.
-
         tx = Transaction.objects.create(
             comment=self,
             snapshot=snapshot,
@@ -145,8 +139,17 @@ class CommentTransactionMixin():
             payment_recipient=self.owner,
             payment_sender=investor,
             hour_unit_cost=Decimal(1.) / value['in_hours'],
-            will_deduce_reserve_by=expense
         )
+
+        # Deduce from reserve, if not enough quota
+        if (amount - quota) > 0:
+            expense = amount - quota
+            rx = Reserve.objects.create(
+                hours=-expense,
+                user=investor,
+                transaction=tx,
+            )
+            rx.save()
 
         # Return the transaction
         return tx

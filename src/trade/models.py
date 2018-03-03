@@ -175,4 +175,4 @@ class Reserve(GenericModel):
 
     @classmethod
     def user_reserve_remains(cls, user):
-        return Reserve.user_purchased(user) - Reserve.user_expended(user)
+        return Reserve.user_purchased(user) + Reserve.user_expended(user)

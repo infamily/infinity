@@ -243,9 +243,6 @@ class Transaction(GenericModel):
     matched_hours = models.DecimalField(
         default=0., decimal_places=8, max_digits=20, blank=False)
 
-    will_deduce_reserve_by = models.DecimalField(
-        default=0., decimal_places=8, max_digits=20, blank=False)
-
     def set_hours(self):
         # Hours matched up with claimed time.
         paid_in_hours = self.payment_amount / self.hour_unit_cost
