@@ -116,6 +116,7 @@ class CommentTransactionMixin():
             """ Don't let invest more than quota and reserve """
             return
 
+        # Check that we have required currency
         try:
             currency = Currency.objects.get(
                 label=payment_currency_label.upper()
@@ -124,21 +125,31 @@ class CommentTransactionMixin():
             return
 
         value = currency.in_hours(objects=True)
-        amount = amount / value['in_hours']
+        currency_amount = amount / value['in_hours']
         snapshot = self.create_snapshot(blockchain=self.blockchain)
 
-        return Transaction.objects.create(
+        # Deduce from reserve, if not enough quota
+        if (amount - quota) > 0:
+            expense = amount - quota
+        else:
+            expense = 0.
+
+        tx = Transaction.objects.create(
             comment=self,
             snapshot=snapshot,
             hour_price=value['hour_price_snapshot'],
             currency_price=value['currency_price_snapshot'],
 
-            payment_amount=amount,
+            payment_amount=currency_amount,
             payment_currency=currency,
             payment_recipient=self.owner,
             payment_sender=investor,
             hour_unit_cost=Decimal(1.) / value['in_hours'],
+            will_deduce_reserve_by=expense
         )
+
+        # Return the transaction
+        return tx
 
     def proceed_interaction(self):
         if not self.pk:

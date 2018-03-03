@@ -97,6 +97,8 @@ class TestReserve(TestCase):
         )
 
     def test_user_can_change_reserve(self):
+        # quota = Transaction.user_quota_remains_today(sender)
+        # reserve = Payment.user_reserve_remains(sender)
 
         payment = Payment.objects.create(
             request="{}", response="{}", platform=0, provider=0, success=True,
@@ -120,12 +122,23 @@ class TestReserve(TestCase):
         # Initially, quota should be as defined in settings.
         self.assertEqual(
             Transaction.user_quota_remains_today(self.investor),
-            settings.INVESTING_HOURS_DAILY_QUOTA
+            settings.INVESTING_HOURS_DAILY_QUOTA # 4
         )
 
         # Investment should use up the hours, first from quota, then from reserve.
-        # self.comment.invest()
+        tx = self.comment.invest(5., 'hur', self.investor)
 
-        # settings.INVESTING_HOURS_DAILY_QUOTA
-        # quota = Transaction.user_quota_remains_today(sender)
-        # reserve = Payment.user_reserve_remains(sender)
+        self.assertEqual(
+            tx.will_deduce_reserve_by,
+            1.
+        )
+
+        tx.save()
+
+        # if tx.will_deduce_reserve_by:
+        #     rx = Reserve.objects.create(
+        #         hours=-tx.will_deduce_reserve_by,
+        #         user=self.investor,
+        #         transaction=tx
+        #     )
+        #     rx.save()

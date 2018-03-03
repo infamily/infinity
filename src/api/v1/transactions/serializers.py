@@ -75,14 +75,13 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         if not tx:
             raise ValidationError('Bad data')
 
-        if amount > quota:
+        # TODO: move away from serializer, to business logic
+        if tx.will_deduce_reserve_by:
             '''
             Create reserve hours expense if reserve is used.
             '''
-            expense = amount - quota
-
             rx = Reserve(
-                hours=-expense,
+                hours=-tx.will_deduce_reserve_by,
                 user=sender,
                 transaction=tx
             )
