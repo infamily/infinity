@@ -7,8 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from src.generic.models import GenericTranslationModel
 from src.users.models import User, CryptoKeypair
-from src.transactions.mixins import (TopicTransactionMixin,
-                                       CommentTransactionMixin)
+from src.transactions.mixins import (
+    TopicTransactionMixin,
+    CommentTransactionMixin
+)
 
 
 class Topic(TopicTransactionMixin, GenericTranslationModel):

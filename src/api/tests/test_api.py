@@ -163,7 +163,21 @@ class CreateTransactionAboveQuoata(APITestCaseAuthorizedUser):
         response = self.client.post(
             reverse('transaction-list'), transaction_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.content, b'["Hour amount larger than allowed today."]')
+        self.assertEqual(response.content, b'["Hour amount larger than sum of user daily_quota and user_reserve."]')
+
+
+# class CreateTransactionAboveQuoataButBelowTotalLimitWithReserve(APITestCaseAuthorizedUser):
+#     def test_can_create_comment(self):
+#         transaction_data = {
+#             'comment': self.comment_url,
+#             'payment_amount': Transaction.user_quota_remains_today(self.testuser) + 1,
+#             'payment_currency': self.usd.pk,
+#             'payment_sender': self.testuser.pk,
+#         }
+#         response = self.client.post(
+#             reverse('transaction-list'), transaction_data, format="json")
+#         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+#         self.assertEqual(response.content, b'["Hour amount larger than sum of user daily_quota and user_reserve."]')
 
 
 class GetTopicList(APITestCaseAuthorizedUser):
