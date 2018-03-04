@@ -11,6 +11,7 @@ from src.transactions.models import (
     Interaction,
     Transaction,
 )
+from src.trade.models import Reserve
 
 
 class TopicTransactionMixin():
@@ -102,10 +103,20 @@ class CommentTransactionMixin():
         Generating Transaction, ContributionCertificates for
         comment owner, and investor.
         """
+
         amount = min(Decimal(hour_amount), self.remains())
         if not amount:
             return
 
+        # Check that investment amount is not more than quota + reserve
+        quota = Transaction.user_quota_remains_today(investor)
+        reserve = Reserve.user_reserve_remains(investor)
+
+        if amount > (quota + reserve):
+            """ Don't let invest more than quota and reserve """
+            return
+
+        # Check that we have required currency
         try:
             currency = Currency.objects.get(
                 label=payment_currency_label.upper()
@@ -114,21 +125,34 @@ class CommentTransactionMixin():
             return
 
         value = currency.in_hours(objects=True)
-        amount = amount / value['in_hours']
+        currency_amount = amount / value['in_hours']
         snapshot = self.create_snapshot(blockchain=self.blockchain)
 
-        return Transaction.objects.create(
+        tx = Transaction.objects.create(
             comment=self,
             snapshot=snapshot,
             hour_price=value['hour_price_snapshot'],
             currency_price=value['currency_price_snapshot'],
 
-            payment_amount=amount,
+            payment_amount=currency_amount,
             payment_currency=currency,
             payment_recipient=self.owner,
             payment_sender=investor,
             hour_unit_cost=Decimal(1.) / value['in_hours'],
         )
+
+        # Deduce from reserve, if not enough quota
+        if (amount - quota) > 0:
+            expense = amount - quota
+            rx = Reserve.objects.create(
+                hours=-expense,
+                user=investor,
+                transaction=tx,
+            )
+            rx.save()
+
+        # Return the transaction
+        return tx
 
     def proceed_interaction(self):
         if not self.pk:

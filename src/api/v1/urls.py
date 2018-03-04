@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^', include('src.api.v1.meta.urls')),
     url(r'^', include('src.api.v1.auth.urls')),
     url(r'^', include('src.api.v1.transactions.urls')),
+    url(r'^', include('src.api.v1.trade.urls')),
 ]

@@ -17,6 +17,11 @@ from src.transactions.models import (
     ContributionCertificate
 )
 
+from src.trade.models import (
+    Payment,
+    Reserve
+)
+
 
 class TestTopic(TestCase):
 
@@ -637,6 +642,22 @@ class TestTopic(TestCase):
             Decimal('8.0')
         )
 
+        ### Make sure investor3 has enough quota and reserve.
+        self.investor3
+        payment = Payment.objects.create(
+            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
+        )
+        payment.save()
+
+        rx = Reserve.objects.create(
+            payment=payment,
+            user=self.investor3,
+            hours=5.,
+            hour_price=HourPriceSnapshot.objects.last(),
+            currency_price=CurrencyPriceSnapshot.objects.last()
+        )
+        ### /Make sure investor3 has enough quota and reserve.
+
         self.tx1 = self.comment2.invest(1.0, 'eur', self.investor)
         self.tx2 = self.comment2.invest(1.0, 'eur', self.investor2)
         self.tx3 = self.comment2.invest(6.0, 'eur', self.investor3)
@@ -773,6 +794,24 @@ class TestTopic(TestCase):
         self.assertEqual(self.comment.remains(), Decimal('6.0'))
         self.assertEqual(self.comment.contributions(), 6)
         self.assertEqual(self.comment.donated(), Decimal('0.5'))
+
+
+        ### Make sure investor3 has enough quota and reserve.
+        payment = Payment.objects.create(
+            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
+        )
+        payment.save()
+
+        rx = Reserve.objects.create(
+            payment=payment,
+            user=self.investor3,
+            hours=7.,
+            hour_price=HourPriceSnapshot.objects.last(),
+            currency_price=CurrencyPriceSnapshot.objects.last()
+        )
+        ### /Make sure investor3 has enough quota and reserve.
+
+
 
         self.tx3 = self.comment.invest(6.0, 'eur', self.investor3)
         self.assertEqual(self.comment.invested(), Decimal('8.0'))

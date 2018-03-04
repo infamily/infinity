@@ -6,6 +6,7 @@ from src.core.models import Comment
 from src.transactions.models import (
     Currency, Transaction, Interaction, TopicSnapshot, CommentSnapshot,
     HourPriceSnapshot, CurrencyPriceSnapshot, ContributionCertificate)
+from src.trade.models import (Payment, Reserve)
 
 from src.users.models import User
 
@@ -59,8 +60,11 @@ class TransactionCreateSerializer(serializers.HyperlinkedModelSerializer):
         currency = validated_data['payment_currency']
         sender = validated_data['payment_sender']
 
-        if amount > Transaction.user_quota_remains_today(sender):
-            raise ValidationError('Hour amount larger than allowed today.')
+        quota = Transaction.user_quota_remains_today(sender)
+        reserve = Reserve.user_reserve_remains(sender)
+
+        if amount > (quota + reserve):
+            raise ValidationError('Hour amount larger than sum of user daily_quota and user_reserve.')
 
         tx = comment.invest(
             hour_amount=amount,
