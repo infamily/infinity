@@ -16,6 +16,9 @@ from src.transactions.models import (
 )
 from src.users.models import User
 
+#TODO: It would be great not to have dependencies on 'trade' module though.
+from src.trade.models import Payment, Reserve
+
 
 class APITestCaseAuthorizedUser(APITestCase):
     def setUp(self):
@@ -141,9 +144,18 @@ class CreateCommentList(APITestCaseAuthorizedUser):
 
 class CreateTransactionList(APITestCaseAuthorizedUser):
     def test_can_create_comment(self):
+        ### Make sure has enough credit.
+        payment = Payment.objects.create(
+            request={
+                "amount": "50",
+                "currency": "usd",
+            },
+            platform=0, provider=0, owner=self.testuser
+        )
+        ### /Make sure user has enough credit.
         transaction_data = {
             'comment': self.comment_url,
-            'payment_amount': min(10, Transaction.user_quota_remains_today(self.testuser)),
+            'payment_amount': min(1.,Reserve.user_reserve_remains(self.testuser)),
             'payment_currency': self.usd.pk,
             'payment_sender': self.testuser.pk,
         }

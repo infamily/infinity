@@ -66,3 +66,4 @@ json-lines==0.3.1
 
 # Stripe
 stripe==1.79.0
+responses==0.8.1
