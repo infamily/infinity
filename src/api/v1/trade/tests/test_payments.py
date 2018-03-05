@@ -108,7 +108,7 @@ class APITestCaseAuthorizedUser(APITestCase):
 
         self.assertEqual(self.username, 'testuser')
 
-        # Later use responses library to finalize
+        #TODO: Later use responses library to finalize
 
         # response = self.client.post(
         #     reverse('payment-list'),
