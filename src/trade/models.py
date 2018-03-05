@@ -1,35 +1,39 @@
 from decimal import Decimal
+
 from django.db import models
 from django.db.models import Sum
 
 # Create your models here.
 from src.users.models import User
 from src.generic.models import GenericModel
-from src.transactions.models import Transaction
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
 
 class Payment(GenericModel):
-    STRIPE = 0
-    BRAINTREE = 1
-    PAYPAL = 2
+    TESTING = 0
+    STRIPE = 1
+    BRAINTREE = 2
+    PAYPAL = 3
 
     PLATFORMS = [
+        (TESTING, _('Testing')),
         (STRIPE, _('Stripe')),
         (BRAINTREE, _('Braintree')),
         (PAYPAL, _('Paypal'))
     ]
 
-    CARD = 0
-    SEPA = 1
-    ALIPAY = 2
-    WECHAT = 3
-    AMEX = 4
-    GIROPAY = 5
-    SOFORT = 6
+    TEST = 0
+    CARD = 1
+    SEPA = 2
+    ALIPAY = 3
+    WECHAT = 4
+    AMEX = 5
+    GIROPAY = 6
+    SOFORT = 7
 
     PROVIDERS = [
+        (TEST, _('Test')),
         (CARD, _('Card')),
         (SEPA, _('SEPA Direct Debit')),
         (ALIPAY, _('Alipay')),
@@ -44,8 +48,8 @@ class Payment(GenericModel):
     provider = models.PositiveSmallIntegerField(
         PROVIDERS, default=CARD
     )
-    paid = models.BooleanField(
-        default=False
+    paid = models.NullBooleanField(
+        default=None
     )
 
     request = JSONField()
@@ -57,6 +61,19 @@ class Payment(GenericModel):
         blank=False,
         null=False
     )
+
+    def __str__(self):
+        PROVIDER = None
+        for provider in self.PROVIDERS:
+            if provider[0] == self.provider:
+                PROVIDER = provider[1]
+        PLATFORM = None
+        for platform in self.PLATFORMS:
+            if platform[0] == self.platform:
+                PLATFORM = platform[1]
+        return "[{}] {} ({}) payment by {}".format(
+            self.created_date,
+            PLATFORM, PROVIDER, self.owner.username)
 
 
 class Reserve(GenericModel):
@@ -114,10 +131,10 @@ class Reserve(GenericModel):
         null=False
     )
 
-    payment = models.ForeignKey(
+    payment = models.OneToOneField(
         Payment,
         blank=True,
-        null=True
+        null=True,
     )
 
     hour_price = models.ForeignKey(
@@ -153,11 +170,16 @@ class Reserve(GenericModel):
         null=True
     )
 
-    transaction = models.ForeignKey(
-        Transaction,
+    transaction = models.OneToOneField(
+        'transactions.Transaction',
         related_name='transactions',
         blank=True,
-        null=True
+        null=True,
+    )
+
+    #TODO: Later remove with better tests
+    is_test = models.BooleanField(
+        default=True
     )
 
     @classmethod

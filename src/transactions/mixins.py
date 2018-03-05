@@ -144,12 +144,11 @@ class CommentTransactionMixin():
         # Deduce from reserve, if not enough quota
         if (amount - quota) > 0:
             expense = amount - quota
-            rx = Reserve.objects.create(
+            Reserve.objects.create(
+                transaction=tx,
                 hours=-expense,
                 user=investor,
-                transaction=tx,
             )
-            rx.save()
 
         # Return the transaction
         return tx

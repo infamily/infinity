@@ -116,18 +116,22 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     balance = serializers.SerializerMethodField('matched')
-    quota_today = serializers.SerializerMethodField('quota')
+    quota = serializers.SerializerMethodField('compute_quota')
     contributions = serializers.SerializerMethodField('contribution_certificates')
-    reserve_remains = serializers.SerializerMethodField('reserve')
+    reserve = serializers.SerializerMethodField('compute_reserve')
+    credit = serializers.SerializerMethodField('compute_credit')
 
     def matched(self, obj):
         return ContributionCertificate.user_matched(obj)
 
-    def quota(self, obj):
+    def compute_quota(self, obj):
         return Transaction.user_quota_remains_today(obj)
 
-    def reserve(self, obj):
+    def compute_reserve(self, obj):
         return Reserve.user_reserve_remains(obj)
+
+    def compute_credit(self, obj):
+        return self.compute_quota(obj) + self.compute_reserve(obj)
 
     def contribution_certificates(self, obj):
         request = self.context['request']
@@ -137,10 +141,9 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
         return "{}{}{}?received_by={}".format(protocol, domain, endpoint,
                                               obj.id)
-
     class Meta:
         model = User
-        fields = ('id', 'username', 'balance', 'contributions', 'quota_today', 'reserve_remains')
+        fields = ('id', 'username', 'balance', 'contributions', 'quota', 'reserve', 'credit')
 
 
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):

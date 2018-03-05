@@ -3,9 +3,10 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from src.api.v1.generic.viewsets import CustomViewSet
-from src.trade.models import Payment
+from src.trade.models import Payment, Reserve
 from src.api.v1.trade.serializers import (
-    PaymentSerializer
+    PaymentSerializer,
+    ReserveListSerializer
 )
 
 from src.api.v1.generic.permissions import (
@@ -30,3 +31,12 @@ class PaymentViewSet(CustomViewSet):
         qs = qs.filter(owner=self.request.user)
         return qs
 
+
+class ReserveListViewSet(CustomViewSet):
+    serializer_class = ReserveListSerializer
+
+    queryset = Reserve.objects.all()
+    filter_backends = (DjangoFilterBackend,
+                       filters.SearchFilter,)
+    filter_fields = ('user', 'payment', 'transaction')
+    http_method_names = ['get']
