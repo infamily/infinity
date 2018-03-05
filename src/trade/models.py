@@ -131,11 +131,10 @@ class Reserve(GenericModel):
         null=False
     )
 
-    payment = models.ForeignKey(
+    payment = models.OneToOneField(
         Payment,
         blank=True,
         null=True,
-        unique=True
     )
 
     hour_price = models.ForeignKey(
@@ -171,12 +170,11 @@ class Reserve(GenericModel):
         null=True
     )
 
-    transaction = models.ForeignKey(
+    transaction = models.OneToOneField(
         'transactions.Transaction',
         related_name='transactions',
         blank=True,
         null=True,
-        unique=True,
     )
 
     #TODO: Later remove with better tests
