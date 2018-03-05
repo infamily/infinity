@@ -129,6 +129,9 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
     def reserve(self, obj):
         return Reserve.user_reserve_remains(obj)
 
+    def credit(self, obj):
+        return self.quota(obj) + self.reserve(obj)
+
     def contribution_certificates(self, obj):
         request = self.context['request']
         protocol = 'http{}://'.format('s' if request.is_secure() else '')
@@ -140,7 +143,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'balance', 'contributions', 'quota_today', 'reserve_remains')
+        fields = ('id', 'username', 'balance', 'contributions', 'quota_today', 'reserve_remains', 'credit')
 
 
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):

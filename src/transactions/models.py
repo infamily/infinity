@@ -345,7 +345,7 @@ class Transaction(GenericModel):
     @classmethod
     def user_quota_remains_today(cls, user):
         daily_quota = Decimal(settings.INVESTING_HOURS_DAILY_QUOTA)
-        return daily_quota - cls.user_paid_today(user)
+        return max(Decimal(0.), daily_quota - cls.user_paid_today(user))
 
 
 class ContributionCertificate(GenericModel):

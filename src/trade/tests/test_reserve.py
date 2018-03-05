@@ -1,6 +1,9 @@
 # API tests at: src/api/tests/test_api.py
 
 import json
+import responses
+from decimal import Decimal
+
 from django.conf import settings
 
 from test_plus.test import TestCase
@@ -71,7 +74,7 @@ class TestReserve(TestCase):
         self.comment = Comment(
             topic=self.topic,
             text="""
-            - {10.5},{?0.5} for coming up with basic class structure,
+            - {14.5},{?0.5} for coming up with basic class structure,
             """,
             owner=self.doer
         )
@@ -81,7 +84,7 @@ class TestReserve(TestCase):
 
         self.assertEqual(
             self.comment.claimed_hours,
-            10.5
+            14.5
         )
 
         self.assertEqual(
@@ -96,40 +99,133 @@ class TestReserve(TestCase):
             0.
         )
 
+    @responses.activate
     def test_user_can_change_reserve(self):
-        # quota = Transaction.user_quota_remains_today(sender)
-        # reserve = Payment.user_reserve_remains(sender)
-
-        payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor
-        )
-        payment.save()
-
-        rx = Reserve.objects.create(
-            payment=payment,
-            user=self.investor,
-            hours=5.,
-            hour_price=HourPriceSnapshot.objects.last(),
-            currency_price=CurrencyPriceSnapshot.objects.last()
-        )
-
-        # After purchase, the reserve should be incre
-        self.assertEqual(
-            Reserve.user_reserve_remains(self.investor),
-            5.
-        )
-
         # Initially, quota should be as defined in settings.
         self.assertEqual(
             Transaction.user_quota_remains_today(self.investor),
-            settings.INVESTING_HOURS_DAILY_QUOTA # 4
+            4.
+        )
+        # Initially, reserve should be zero:
+        self.assertEqual(
+            Reserve.user_reserve_remains(self.investor),
+            0.
         )
 
-        # Investment should use up the hours, first from quota, then from reserve.
-        tx = self.comment.invest(5., 'eur', self.investor)
-        tx.save()
+        # After payment, reserve should be more than zero:
+        payment = Payment.objects.create(
+            request={
+                "amount": "150",
+                "currency": "usd",
+            },
+            platform=0, provider=0, owner=self.investor
+        )
 
         self.assertEqual(
             Reserve.user_reserve_remains(self.investor),
+            Decimal('5.71428571')
+        )
+        self.assertEqual(
+            Transaction.user_quota_remains_today(self.investor),
             4.
         )
+
+        # Investment should use up the hours, first from quota,
+        tx = self.comment.invest(1., 'eur', self.investor)
+
+        self.assertEqual(
+            Transaction.user_quota_remains_today(self.investor),
+            3.
+        )
+
+        self.assertEqual(
+            Reserve.user_reserve_remains(self.investor),
+            Decimal('5.71428571')
+        )
+
+        # Try more
+        tx = self.comment.invest(3., 'eur', self.investor)
+
+        self.assertEqual(
+            Transaction.user_quota_remains_today(self.investor),
+            0.
+        )
+
+        self.assertEqual(
+            Reserve.user_reserve_remains(self.investor),
+            Decimal('5.71428571')
+        )
+
+        # Try more
+        tx = self.comment.invest(1., 'eur', self.investor)
+
+        self.assertEqual(
+            Transaction.user_quota_remains_today(self.investor),
+            0.
+        )
+
+        self.assertEqual(
+            Reserve.user_reserve_remains(self.investor),
+            Decimal('4.71428571')
+        )
+
+        credit = Transaction.user_quota_remains_today(self.investor) + \
+            Reserve.user_reserve_remains(self.investor)
+
+        self.assertEqual(
+            credit,
+            Decimal('4.71428571')
+        )
+
+        # Remaining credit should be such:
+        self.assertEqual(
+            credit,
+            (Decimal(4.) + Decimal('5.71428571')) - \
+            (Decimal(1.) + Decimal(3.) + Decimal(1.))
+        )
+
+        # Comment should still have remaining 10. hrs
+        self.assertEqual(
+            self.comment.remains(),
+            Decimal(14.5)+Decimal(0.5) - \
+            (Decimal(1.) + Decimal(3.) + Decimal(1.))
+        )
+
+        # If we try invest more than available, we should fail:
+
+        # Try more
+        tx = self.comment.invest(4.9, 'eur', self.investor)
+
+        # Not created:
+        self.assertEqual(
+            tx,
+            None
+        )
+
+        # But we should be able to invest exactly the remainder:
+
+        tx = self.comment.invest(Decimal('4.71428571'), 'eur', self.investor)
+
+        self.assertEqual(
+            self.comment.remains(),
+            Decimal('5.28571428')
+        )
+
+        credit = Transaction.user_quota_remains_today(self.investor) + \
+            Reserve.user_reserve_remains(self.investor)
+
+        self.assertEqual(
+            credit,
+            0.
+        )
+
+        # Testing with real endpoints.
+        # payment = Payment.objects.create(
+        #     request={
+        #         "amount": "150",
+        #         "currency": "usd",
+        #         "card": "tok_visa",
+        #         "description": "me@myself.com"
+        #     },
+        #     platform=1, provider=1, owner=self.investor
+        # )

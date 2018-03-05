@@ -6,6 +6,10 @@ Test settings
 
 from .base import *  # noqa
 
+# Little site configuration for tests
+OWNER_ORGANIZATION_NAME = env("OWNER_ORGANIZATION_NAME", default="Infinity Family")
+
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost'])
 
 # DEBUG
 # ------------------------------------------------------------------------------

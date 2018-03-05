@@ -645,16 +645,11 @@ class TestTopic(TestCase):
         ### Make sure investor3 has enough quota and reserve.
         self.investor3
         payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
-        )
-        payment.save()
-
-        rx = Reserve.objects.create(
-            payment=payment,
-            user=self.investor3,
-            hours=5.,
-            hour_price=HourPriceSnapshot.objects.last(),
-            currency_price=CurrencyPriceSnapshot.objects.last()
+            request={
+                "amount": "150",
+                "currency": "usd",
+            },
+            platform=0, provider=0, owner=self.investor3
         )
         ### /Make sure investor3 has enough quota and reserve.
 
@@ -798,20 +793,13 @@ class TestTopic(TestCase):
 
         ### Make sure investor3 has enough quota and reserve.
         payment = Payment.objects.create(
-            request="{}", response="{}", platform=0, provider=0, paid=True, owner=self.investor3
-        )
-        payment.save()
-
-        rx = Reserve.objects.create(
-            payment=payment,
-            user=self.investor3,
-            hours=7.,
-            hour_price=HourPriceSnapshot.objects.last(),
-            currency_price=CurrencyPriceSnapshot.objects.last()
+            request={
+                "amount": "200",
+                "currency": "usd",
+            },
+            platform=0, provider=0, owner=self.investor3
         )
         ### /Make sure investor3 has enough quota and reserve.
-
-
 
         self.tx3 = self.comment.invest(6.0, 'eur', self.investor3)
         self.assertEqual(self.comment.invested(), Decimal('8.0'))
