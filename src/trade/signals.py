@@ -69,7 +69,7 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                 currency = Currency.objects.get(label=resp.currency.upper())
 
                 # Normalize currencies based on Strip minimum currency units:
-                if currency.label in ['EUR', 'USD']:
+                if currency.label in Currency.objects.all().values_list('label', flat=True):
                     amount = resp.amount/100.
                 else:
                     amount = resp.amount

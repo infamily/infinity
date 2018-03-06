@@ -14,6 +14,7 @@ class OwnerFilter(filters.CharFilter):
 class TopicFilter(filters.FilterSet):
     owner = OwnerFilter()
     type__not = filters.NumberFilter(name='type', exclude=True)
+    parents__isnull = filters.BooleanFilter(name='parents', lookup_expr='isnull')
 
     class Meta:
         model = Topic
