@@ -54,6 +54,13 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                 version="latest",
                 url=settings.ALLOWED_HOSTS
             )
+
+            if 'card' in instance.request.keys():
+                token = stripe.Token.create(
+                  card=instance.request['card'],
+                )
+                instance.request.update({'card': token.id})
+
             resp = stripe.Charge.create(**instance.request)
 
             if resp.paid:

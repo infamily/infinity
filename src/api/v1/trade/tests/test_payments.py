@@ -20,11 +20,23 @@ class APITestCaseAuthorizedUser(APITestCase):
 
     def test_create_payment(self):
 
+#         payment_request = json.loads('''{
+#   "amount": "10000",
+#   "currency": "usd",
+#   "description": "me@myself.com",
+#   "card": "tok_visa"
+# }''')
+
         payment_request = json.loads('''{
   "amount": "10000",
   "currency": "usd",
   "description": "me@myself.com",
-  "card": "tok_visa"
+  "card": {
+    "number": "4242424242424242",
+    "exp_month": 12,
+    "exp_year": 2019,
+    "cvc": "123"
+}
 }''')
 
         payment_response = json.loads('''{
