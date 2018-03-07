@@ -54,6 +54,21 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                 version="latest",
                 url=settings.ALLOWED_HOSTS
             )
+
+            if 'card' in instance.request.keys():
+                token = stripe.Token.create(
+                  card=instance.request['card'],
+                )
+                instance.request.update({'card': token.id})
+
+            currency_label = instance.request.get('currency')
+            currency_amount = instance.request.get('amount')
+
+            # Assume that amount is sent in dollars, and we need to convert it to cents.
+            if currency_label.upper() in Currency.objects.all().values_list('label', flat=True):
+                currency_amount = int(float(currency_amount) * 100.)
+                instance.request.update({'amount': currency_amount})
+
             resp = stripe.Charge.create(**instance.request)
 
             if resp.paid:
@@ -64,19 +79,14 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
             instance.response = resp.to_dict()
 
 
+            # Assume that amount is in cents, and we need to convert it to dollars.
             if Currency.objects.filter(label=resp.currency.upper()).exists():
 
-                currency = Currency.objects.get(label=resp.currency.upper())
-
-                # Normalize currencies based on Strip minimum currency units:
-                if currency.label in Currency.objects.all().values_list('label', flat=True):
-                    amount = resp.amount/100.
-                else:
-                    amount = resp.amount
+                amount = resp.amount / 100.
 
                 # Compute the amount of hours bought
+                currency = Currency.objects.get(label=resp.currency.upper())
                 purchase = Decimal(amount) * currency.in_hours()
-
 
                 Reserve.objects.create(
                     payment=instance,
@@ -88,4 +98,5 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                 )
             else:
                 pass
-            # payment: instance.needs_manual_review = True
+            # No associated reserve change recorded.
+            # payment: instance.needs_manual_review.
