@@ -8,8 +8,20 @@ from django.dispatch import receiver
 from src.trade.models import Payment, Reserve
 from src.transactions.models import Currency
 
+@receiver(models.signals.pre_save, sender=Payment)
+def payment_pre_save(sender, instance, *args, **kwargs):
+    """
+    Process Payment
+    """
+    # TODO:
+    # Move the creation of payment from post_save to pre_save
+    pass
+
 @receiver(models.signals.post_save, sender=Payment)
 def payment_post_save(sender, instance, created, *args, **kwargs):
+    """
+    Create Reserve
+    """
 
     if instance.request:
 
@@ -34,6 +46,8 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                         hours=purchase,
                         hour_price=currency.hour_price(),
                         currency_price=currency.currency_price(),
+                        currency=currency,
+                        amount=Decimal(amount),
                         is_test=True
                     )
 
@@ -56,10 +70,19 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
             )
 
             if 'card' in instance.request.keys():
-                token = stripe.Token.create(
-                  card=instance.request['card'],
-                )
+
+                try:
+                    token = stripe.Token.create(
+                      card=instance.request['card'],
+                    )
+                except:
+                    class dummy: pass
+                    token = dummy()
+                    token.id = 'not-retrieved'
+
                 instance.request.update({'card': token.id})
+                # Cause it won't get updated otherwise after save:
+                Payment.objects.filter(pk=instance.pk).update(request=instance.request)
 
             currency_label = instance.request.get('currency')
             currency_amount = instance.request.get('amount')
@@ -71,12 +94,16 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
 
             resp = stripe.Charge.create(**instance.request)
 
-            if resp.paid:
-                instance.paid = True
-            elif not resp.paid:
-                instance.paid = False
+            try:
+                #instance.paid = resp.paid
+                Payment.objects.filter(pk=instance.pk).update(paid=resp.paid)
+            except:
+                # In this case, it is left with default value (unknown)
+                pass
 
-            instance.response = resp.to_dict()
+            #TODO: move to pre-save.
+            #instance.response = resp.to_dict()
+            Payment.objects.filter(pk=instance.pk).update(response=resp.to_dict())
 
 
             # Assume that amount is in cents, and we need to convert it to dollars.
@@ -94,6 +121,8 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                     hours=purchase,
                     hour_price=currency.hour_price(),
                     currency_price=currency.currency_price(),
+                    currency=currency,
+                    amount=Decimal(amount),
                     is_test=IS_TEST
                 )
             else:
