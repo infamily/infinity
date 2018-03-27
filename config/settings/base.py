@@ -373,3 +373,7 @@ STRIPE_LIVE_SECRET_KEY = env("STRIPE_LIVE_SECRET_KEY", default="<your secret key
 STRIPE_TEST_PUBLIC_KEY = env("STRIPE_TEST_PUBLIC_KEY", default="<your publishable key>")
 STRIPE_TEST_SECRET_KEY = env("STRIPE_TEST_SECRET_KEY", default="<your secret key>")
 STRIPE_LIVE_MODE = env("STRIPE_LIVE_MODE", default=False)
+
+
+# AWS TOPICS
+TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', default='')

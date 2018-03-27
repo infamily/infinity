@@ -1,6 +1,10 @@
+import json
+
+import boto3
 import mistune
 import bs4
 import yaml
+from django.conf import settings
 
 from django.db import models
 from django.dispatch import receiver
@@ -12,6 +16,7 @@ from src.websocket.consumers import ws_send_comment_changed
 @receiver(models.signals.post_save, sender=Comment)
 def execute_after_save(sender, instance, created, *args, **kwargs):
     ws_send_comment_changed(instance, created)
+
 
 @receiver(models.signals.post_save, sender=Topic)
 def topic_post_save(sender, instance, created, *args, **kwargs):
@@ -83,3 +88,20 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
         for need in instance.parents.filter(type=0):
             if need.title not in ['.:{}:{}'.format(lang, d['name']) for d in needs]:
                 need.delete()
+
+
+@receiver(models.signals.post_save, sender=Topic)
+def send_sns_notification(sender, instance, created, *args, **kwargs):
+    if not created:
+        return
+
+    arn = getattr(settings, 'TOPIC_CREATED_ARN')
+    if not arn:
+        return
+
+    client = boto3.client('sns')
+    message = {"topic_id": instance.pk}
+    client.publish(
+        TopicArn=arn,
+        Message=json.dumps(message)
+    )
