@@ -376,4 +376,4 @@ STRIPE_LIVE_MODE = env("STRIPE_LIVE_MODE", default=False)
 
 
 # AWS TOPICS
-TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', 'arn:aws:sns:::topic_created')
+TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', default='')
