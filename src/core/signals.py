@@ -99,7 +99,11 @@ def send_sns_notification(sender, instance, created, *args, **kwargs):
     if not arn:
         return
 
-    client = boto3.client('sns')
+    region = getattr(settings, 'AWS_DEFAULT_REGION')
+    if not region:
+        return
+
+    client = boto3.client('sns', region_name=region)
     message = {"topic_id": instance.pk}
     client.publish(
         TopicArn=arn,
