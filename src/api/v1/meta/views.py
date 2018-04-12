@@ -1,6 +1,7 @@
 import json_lines
 import gzip
-from rest_framework import status, mixins, viewsets
+from rest_framework import status, mixins, viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import (
     IsAuthenticated,
@@ -27,12 +28,15 @@ from src.api.v1.generic.pagination_classes import (
     LargeResultsSetPagination
 )
 
+from src.api.v1.meta.filters import TypeFilter
+
 
 class TypeViewSet(CustomViewSet):
 
     serializer_class = TypeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Type.objects.all()
+    filter_class = TypeFilter
 
     def get_queryset(self):
         qs = super(TypeViewSet, self).get_queryset()

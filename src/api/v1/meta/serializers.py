@@ -16,7 +16,7 @@ class TypeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Type
-        fields = ('url', 'name', 'definition', 'source', 'languages')
+        fields = ('url', 'name', 'definition', 'source', 'languages', 'is_category')
 
 
 class SchemaSerializer(serializers.HyperlinkedModelSerializer):
