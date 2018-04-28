@@ -14,9 +14,25 @@ from src.api.v1.auth import serializers
 from src.users.models import User, OneTimePassword
 
 from src.api.v1.auth.serializers import (
-    CaptchaResponseSerializer, OneTimePasswordSerializer, SignupSerializer)
+    SignatureSerializer, CaptchaResponseSerializer,
+    OneTimePasswordSerializer, SignupSerializer)
 from src.mail import send_mail_async
 from src.api.v1.auth.serializers import UserSerializer
+
+
+class SignatureView(views.APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, *args, **kwargs):
+        signature_serializer = SignatureSerializer(
+            data={
+                'service': 'infinity',
+            }
+        )
+
+        signature_serializer.is_valid(raise_exception=True)
+
+        return Response(signature_serializer.data)
 
 
 class OTPCaptchaView(views.APIView):

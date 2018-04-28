@@ -95,3 +95,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             'username',
             'auth_token',
         )
+
+
+class SignatureSerializer(serializers.Serializer):
+    """
+    Used to provide a means to detect that we are
+    working with the service of Infinity server.
+    """
+    service = serializers.CharField()
