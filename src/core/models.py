@@ -2,6 +2,8 @@ from decimal import Decimal
 from re import finditer
 
 from django.db import models
+from django.db.models import Sum
+
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
@@ -71,6 +73,24 @@ class Topic(TopicTransactionMixin, GenericTranslationModel):
         super().save(*args, **kwargs)
         if self.blockchain:
             self.create_snapshot(blockchain=self.blockchain)
+
+    def declared(self):
+        """
+        Hours claimed and assumed in comments.
+        """
+        qs = Comment.objects.filter(topic=self)
+
+        declared_hours = \
+            Decimal(
+                qs.aggregate(
+                    total=Sum('claimed_hours')).get('total')
+                or 0.) + \
+            Decimal(
+                qs.aggregate(
+                    total=Sum('assumed_hours')).get('total')
+                or 0.)
+
+        return declared_hours
 
     class Meta:
         translation_fields = (
