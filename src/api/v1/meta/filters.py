@@ -4,9 +4,10 @@ from src.meta.models import Type
 
 
 class TypeFilter(filters.FilterSet):
+    parents__isnull = filters.BooleanFilter(name='parents', lookup_expr='isnull')
 
     class Meta:
         model = Type
-        fields = ['is_category']
+        fields = ['is_category', 'parents']
 
 
