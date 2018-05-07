@@ -148,6 +148,7 @@ class CommentTransactionMixin():
                 transaction=tx,
                 hours=-expense,
                 user=investor,
+                topic=self.topic,
             )
 
         # Return the transaction
