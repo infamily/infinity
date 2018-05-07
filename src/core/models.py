@@ -13,9 +13,12 @@ from src.transactions.mixins import (
     TopicTransactionMixin,
     CommentTransactionMixin
 )
+from src.trade.mixins import (
+    TopicTradeMixin
+)
 
 
-class Topic(TopicTransactionMixin, GenericTranslationModel):
+class Topic(TopicTransactionMixin, TopicTradeMixin, GenericTranslationModel):
     """
     Y: Main content type, to include fields of all infty types.
 

@@ -48,6 +48,7 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                         currency_price=currency.currency_price(),
                         currency=currency,
                         amount=Decimal(amount),
+                        topic=instance.topic,
                         is_test=True
                     )
 
@@ -123,6 +124,7 @@ def payment_post_save(sender, instance, created, *args, **kwargs):
                     currency_price=currency.currency_price(),
                     currency=currency,
                     amount=Decimal(amount),
+                    topic=instance.topic,
                     is_test=IS_TEST
                 )
             else:
