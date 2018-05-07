@@ -61,6 +61,11 @@ class Payment(GenericModel):
         blank=False,
         null=False
     )
+    topic = models.ForeignKey(
+        'core.Topic',
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         PROVIDER = None
@@ -175,6 +180,12 @@ class Reserve(GenericModel):
         related_name='transactions',
         blank=True,
         null=True,
+    )
+
+    topic = models.ForeignKey(
+        'core.Topic',
+        blank=True,
+        null=True
     )
 
     #TODO: Later remove with better tests
