@@ -69,7 +69,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
                   'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft',
-                  'blockchain', 'matched', 'declared')
+                  'blockchain', 'matched', 'declared', 'created_date', 'updated_date')
 
     def process_categories(self, validated_data):
         categories_str = validated_data.pop('categories_str', [])
@@ -110,7 +110,7 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
         model = Comment
         fields = ('id', 'url', 'topic', 'text', 'claimed_hours',
                   'assumed_hours', 'owner', 'languages', 'matched', 'donated',
-                  'remains', 'parent', 'blockchain')
+                  'remains', 'parent', 'blockchain', 'created_date', 'updated_date')
 
 
 class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
