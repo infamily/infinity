@@ -72,7 +72,7 @@ https://{server}/unsubscribe/{topic_id}?sign={signed_email}""".format(
             subject,
             body,
             settings.DEFAULT_FROM_EMAIL,
-            [email],
+            [recipient.email],
             [settings.DEFAULT_FROM_EMAIL],
         )
 
