@@ -175,7 +175,7 @@ class UnsubscribedView(views.APIView):
             data = {'status': 'No topic #{} found.'.format(topic)}
 
         if not sign:
-            data = {'status': 'No sign passed.'}
+            data = {'status': 'No message sign passed.'}
 
         if sign and topic:
             try:
@@ -187,10 +187,6 @@ class UnsubscribedView(views.APIView):
                 data = {'status': 'successfully unsubscribed from topic #{}'.format(topic.pk)}
             except:
                 data = {'status': 'wrong signature, cannot unsubscribe'}
-        else:
-            if not data:
-                data = {'status': 'either sign or topic is not defined'}
-
 
         unsubscribed_serializer = UnsubscribedSerializer(
             data=data
