@@ -103,3 +103,10 @@ class SignatureSerializer(serializers.Serializer):
     working with the service of Infinity server.
     """
     service = serializers.CharField()
+
+
+class UnsubscribedSerializer(serializers.Serializer):
+    """
+    Unsubscribes from Topic.
+    """
+    status = serializers.CharField()

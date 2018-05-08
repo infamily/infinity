@@ -12,12 +12,17 @@ from captcha.models import CaptchaStore
 
 from src.api.v1.auth import serializers
 from src.users.models import User, OneTimePassword
+from src.core.models import Topic
 
 from src.api.v1.auth.serializers import (
     SignatureSerializer, CaptchaResponseSerializer,
-    OneTimePasswordSerializer, SignupSerializer)
+    OneTimePasswordSerializer, SignupSerializer,
+    UnsubscribedSerializer
+)
 from src.mail import send_mail_async
 from src.api.v1.auth.serializers import UserSerializer
+
+from django.core.signing import Signer
 
 
 class SignatureView(views.APIView):
@@ -153,3 +158,40 @@ class TokenViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         qs = qs.filter(user=self.request.user)
         return qs
+
+
+class UnsubscribedView(views.APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, *args, **kwargs):
+
+        signer = Signer()
+
+        sign = self.request.GET.get('sign')
+        topic = kwargs.get('pk')
+
+
+        if not topic:
+            data = {'status': 'No topic #{} found.'.format(topic)}
+
+        if not sign:
+            data = {'status': 'No message sign passed.'}
+
+        if sign and topic:
+            try:
+                topic = Topic.objects.get(pk=topic)
+                user = User.objects.get(email=signer.unsign(sign))
+
+                topic.unsubscribed.add(user)
+
+                data = {'status': 'successfully unsubscribed from topic #{}'.format(topic.pk)}
+            except:
+                data = {'status': 'wrong signature, cannot unsubscribe'}
+
+        unsubscribed_serializer = UnsubscribedSerializer(
+            data=data
+        )
+
+        unsubscribed_serializer.is_valid(raise_exception=True)
+
+        return Response(unsubscribed_serializer.data)
