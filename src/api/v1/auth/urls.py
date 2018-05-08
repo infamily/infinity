@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^signin/$', views.OTPLoginView.as_view(), name="signin"),
     url(r'^captcha/$', views.OTPCaptchaView.as_view(), name="captcha"),
     url(r'^signature/$', views.SignatureView.as_view(), name="signature"),
+    url(r'^unsubscribe/(?P<pk>[^/.]+)/$', views.UnsubscribedView.as_view(), name="unsubscribed"),
 ] + router.urls

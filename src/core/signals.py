@@ -10,12 +10,75 @@ from django.db import models
 from django.dispatch import receiver
 
 from src.core.models import Topic, Comment
+from src.users.models import User
 from src.websocket.consumers import ws_send_comment_changed
+
+from src.mail import send_mail_async
+from django.core.signing import Signer
+
 
 
 @receiver(models.signals.post_save, sender=Comment)
-def execute_after_save(sender, instance, created, *args, **kwargs):
+def comment_post_save(sender, instance, created, *args, **kwargs):
+
+    # Utils and constants
+    signer = Signer()
+
+    server = next(iter(settings.ALLOWED_HOSTS or []), None)
+    if server == '*':
+        server = '0.0.0.0:8000'
+
+    client_server = server[4:] if not server.startswith('.inf') else server
+
+    # Broadcast over web-sockets
     ws_send_comment_changed(instance, created)
+
+    # Send e-mail notification
+
+    subscribers = {instance.topic.owner.pk}.union(set(
+        Comment.objects.filter(
+            topic=instance.topic).values_list(
+                'owner_id', flat=True).distinct()))
+
+    unsubscribed = {instance.owner.pk}.union(set(
+        instance.topic.unsubscribed.all().values_list('pk', flat=True)))
+
+    recipients = User.objects.filter(pk__in=subscribers-unsubscribed)
+
+    subject = '{} - {}'.format(settings.EMAIL_SUBJECT_PREFIX, instance.topic.title[5:])
+
+    for recipient in recipients:
+
+        body = """Comment by {author}:
+
+{body}
+
+To reply, visit: https://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}
+
+--
+Unsubscribe from this topic by visiting:
+https://{server}/unsubscribe/{topic_id}?sign={signed_email}""".format(
+        body=instance.text[5:],
+        server=server,
+        client=settings.CLIENT_DOMAIN,
+        client_server=client_server,
+        lang=instance.topic.title[2:4],
+        topic_id=instance.topic.pk,
+        comment_id=instance.pk,
+        author=instance.owner.username,
+        signed_email=signer.sign(recipient.email))
+
+        send_mail_async(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient.email],
+            [settings.DEFAULT_FROM_EMAIL],
+        )
+
+    # Subscribe the commenter (instance.owner) to the (instance.topic):
+    instance.topic.unsubscribed.remove(instance.owner)
+    # (if previously was unsubscribed)
 
 
 @receiver(models.signals.post_save, sender=Topic)
