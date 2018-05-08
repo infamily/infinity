@@ -21,10 +21,7 @@ from django.core.signing import Signer
 @receiver(models.signals.post_save, sender=Comment)
 def comment_post_save(sender, instance, created, *args, **kwargs):
 
-    # Broadcast over web-sockets
-    ws_send_comment_changed(instance, created)
-
-    # Send e-mail notification
+    # Utils and constants
     signer = Signer()
 
     server = next(iter(settings.ALLOWED_HOSTS or []), None)
@@ -33,13 +30,18 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
 
     client_server = server[4:] if not server.startswith('.inf') else server
 
+    # Broadcast over web-sockets
+    ws_send_comment_changed(instance, created)
+
+    # Send e-mail notification
+
     subscribers = {instance.topic.owner.pk}.union(set(
         Comment.objects.filter(
             topic=instance.topic).values_list(
                 'owner_id', flat=True).distinct()))
 
-    unsubscribed = set(
-        instance.topic.unsubscribed.all().values_list('pk', flat=True))
+    unsubscribed = {instance.owner.pk}.union(set(
+        instance.topic.unsubscribed.all().values_list('pk', flat=True)))
 
     recipients = User.objects.filter(pk__in=subscribers-unsubscribed)
 
@@ -73,6 +75,10 @@ https://{server}/unsubscribe/{topic_id}?sign={signed_email}""".format(
             [email],
             [settings.DEFAULT_FROM_EMAIL],
         )
+
+    # Subscribe the commenter (instance.owner) to the (instance.topic):
+    instance.topic.unsubscribed.remove(instance.owner)
+    # (if previously was unsubscribed)
 
 
 @receiver(models.signals.post_save, sender=Topic)
