@@ -56,8 +56,8 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
 To reply, visit: https://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
 <br>
 --<br>
-Unsubscribe from this topic by visiting:<br>
-https://{server}/unsubscribe/{topic_id}?sign={signed_email}""".format(
+To unsubscribe from this topic, visit:<br>
+https://{server}/unsubscribe/{topic_id}?sign={signed_email}<br>""".format(
         body=instance.text[5:],
         server=server,
         client=settings.CLIENT_DOMAIN,
