@@ -378,3 +378,6 @@ STRIPE_LIVE_MODE = env("STRIPE_LIVE_MODE", default=False)
 # AWS TOPICS
 AWS_DEFAULT_REGION = env('AWS_DEFAULT_REGION', default=None)
 TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', default='')
+
+# WEB CLIENT
+CLIENT_DOMAIN = env('CLIENT_DOMAIN', default='inf.li')

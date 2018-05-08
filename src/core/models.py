@@ -68,6 +68,9 @@ class Topic(TopicTransactionMixin, TopicTradeMixin, GenericTranslationModel):
     source = models.TextField(null=True, blank=True)
     data = JSONField(null=True, blank=True)
 
+    unsubscribed = models.ManyToManyField(
+        User, related_name='topic_unsubscribed', blank=True)
+
     def __str__(self):
         return '[{}] {}'.format(
             dict(self.TOPIC_TYPES).get(self.type), self.title)
