@@ -28,7 +28,7 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
     if server == '*':
         server = '0.0.0.0:8000'
 
-    client_server = server[4:] if not server.startswith('.inf') else server
+    client_server = server[4:] if server.startswith('.inf') else server
 
     # Broadcast over web-sockets
     ws_send_comment_changed(instance, created)
@@ -49,14 +49,14 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
 
     for recipient in recipients:
 
-        body = """Comment by {author}:
-
-{body}
-
-To reply, visit: https://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}
-
---
-Unsubscribe from this topic by visiting:
+        body = """Comment by {author}:<br>
+<br>
+{body}<br>
+<br>
+To reply, visit: https://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
+<br>
+--<br>
+Unsubscribe from this topic by visiting:<br>
 https://{server}/unsubscribe/{topic_id}?sign={signed_email}""".format(
         body=instance.text[5:],
         server=server,
