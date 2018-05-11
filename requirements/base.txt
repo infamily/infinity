@@ -71,3 +71,7 @@ responses==0.8.1
 
 # AWS
 boto3==1.6.17
+
+# Constance
+django-constance==2.2.0
+django-picklefield==1.0.0
