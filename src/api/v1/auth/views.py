@@ -23,6 +23,7 @@ from src.mail import send_mail_async
 from src.api.v1.auth.serializers import UserSerializer
 
 from django.core.signing import Signer
+from constance import config
 
 
 class SignatureView(views.APIView):
@@ -38,6 +39,19 @@ class SignatureView(views.APIView):
         signature_serializer.is_valid(raise_exception=True)
 
         return Response(signature_serializer.data)
+
+
+class ConstanceView(views.APIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, *args, **kwargs):
+        data={
+            'terms': config.TERMS_AND_CONDITIONS,
+            'show_balance': config.SHOW_BALANCE_WIDGET,
+            'page_how': config.PAGE_HOW,
+            'page_what': config.PAGE_WHAT,
+        }
+        return Response(data)
 
 
 class OTPCaptchaView(views.APIView):
