@@ -48,6 +48,8 @@ THIRD_PARTY_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'channels',
+    'constance',
+    'constance.backends.database',
 ]
 
 # Apps specific for this project go here.
@@ -381,3 +383,16 @@ TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', default='')
 
 # WEB CLIENT
 CLIENT_DOMAIN = env('CLIENT_DOMAIN', default='inf.li')
+
+# CONSTANCE
+CONSTANCE_CONFIG = {
+    'TERMS_AND_CONDITIONS': ('', 'On `Terms and Conditions`'),
+    'SHOW_BALANCE_WIDGET': (True, 'Show balance and quota.'),
+    'PAGE_HOW': ('', 'On `How does this place work?`'),
+    'PAGE_WHAT': ('', 'On `What is this place?`'),
+}
+CONSTANCE_CONFIG_FIELDSETS = {
+    'General Options': ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET'),
+    'Pages': ('PAGE_HOW', 'PAGE_WHAT'),
+}
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
