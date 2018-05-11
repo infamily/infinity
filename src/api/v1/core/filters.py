@@ -18,4 +18,4 @@ class TopicFilter(filters.FilterSet):
 
     class Meta:
         model = Topic
-        fields = ['owner', 'parents', 'children', 'type', 'categories']
+        fields = ['owner', 'parents', 'children', 'type', 'categories', 'is_draft']
