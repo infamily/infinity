@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
+from collections import OrderedDict
 
 ROOT_DIR = environ.Path(__file__) - 3  # (src/config/settings/base.py - 3 = src/)
 assert isinstance(ROOT_DIR, environ.Path)  # pycharm wailing fix
@@ -390,9 +391,17 @@ CONSTANCE_CONFIG = {
     'SHOW_BALANCE_WIDGET': (True, 'Show balance and quota.'),
     'PAGE_HOW': ('', 'On `How does this place work?`'),
     'PAGE_WHAT': ('', 'On `What is this place?`'),
+    'SPLASH_BACKGROUNDS_URL': ('\r\n'.join(
+        ['https://hypercortex.network/assets/images/space.jpg',
+         'https://hypercortex.network/assets/images/roads.jpg',
+         'https://hypercortex.network/assets/images/mountains.jpg']),
+        'Splash backgroound URLs separated by new lines'),
 }
-CONSTANCE_CONFIG_FIELDSETS = {
-    'General Options': ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET'),
-    'Pages': ('PAGE_HOW', 'PAGE_WHAT'),
-}
+
+CONSTANCE_CONFIG_FIELDSETS = OrderedDict([
+    ('General Options', ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET')),
+    ('Pages', ('PAGE_HOW', 'PAGE_WHAT')),
+    ('Appearance', ('SPLASH_BACKGROUNDS_URL',)),
+])
+
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
