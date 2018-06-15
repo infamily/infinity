@@ -50,6 +50,7 @@ class ConstanceView(views.APIView):
             'show_balance': config.SHOW_BALANCE_WIDGET,
             'page_how': config.PAGE_HOW,
             'page_what': config.PAGE_WHAT,
+            'splash_background_urls': config.SPLASH_BACKGROUNDS_URL.split('\r\n'),
         }
         return Response(data)
 
