@@ -385,15 +385,23 @@ TOPIC_CREATED_ARN = env('TOPIC_CREATED_ARN', default='')
 # WEB CLIENT
 CLIENT_DOMAIN = env('CLIENT_DOMAIN', default='inf.li')
 
+
 # CONSTANCE
+if ALLOWED_HOSTS == ['*']:
+    SERVER_DOMAIN = '0.0.0.0:8000'
+    SERVER_PROTOCOL = 'http'
+else:
+    SERVER_DOMAIN = ALLOWED_HOSTS[0]
+    SERVER_PROTOCOL = 'https'
+
 CONSTANCE_CONFIG = {
     'TERMS_AND_CONDITIONS': ('', 'On `Terms and Conditions`'),
     'SHOW_BALANCE_WIDGET': (True, 'Show balance and quota.'),
     'PAGE_HOW': ('', 'On `How does this place work?`'),
     'PAGE_WHAT': ('', 'On `What is this place?`'),
     'SPLASH_BACKGROUNDS_URL': ('\r\n'.join(
-        ['https://hypercortex.network/assets/images/space.jpg',
-         'https://hypercortex.network/assets/images/roads.jpg',
+        ['{}://{}/static/images/bg.jpg'.format(SERVER_PROTOCOL, SERVER_DOMAIN),
+         'https://hypercortex.network/assets/images/unity.jpg',
          'https://hypercortex.network/assets/images/mountains.jpg']),
         'Splash backgroound URLs separated by new lines'),
 }
