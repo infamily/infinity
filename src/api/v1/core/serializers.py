@@ -70,7 +70,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
                   'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft',
-                  'blockchain', 'matched', 'declared', 'created_date', 'updated_date', 'funds')
+                  'blockchain', 'matched', 'declared', 'created_date', 'updated_date', 'funds','data')
 
     def process_categories(self, validated_data):
         categories_str = validated_data.pop('categories_str', [])
