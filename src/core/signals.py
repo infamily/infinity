@@ -17,6 +17,11 @@ from src.mail import send_mail_async
 from django.core.signing import Signer
 
 
+@receiver(models.signals.post_delete, sender=Comment)
+def comment_post_delete(sender, instance, *args, **kwargs):
+    # update comment count
+    instance.topic.update_comment_count()
+
 
 @receiver(models.signals.post_save, sender=Comment)
 def comment_post_save(sender, instance, created, *args, **kwargs):
@@ -79,6 +84,10 @@ https://{server}/unsubscribe/{topic_id}?sign={signed_email}<br>""".format(
     # Subscribe the commenter (instance.owner) to the (instance.topic):
     instance.topic.unsubscribed.remove(instance.owner)
     # (if previously was unsubscribed)
+
+    # update comment count
+    if created:
+        instance.topic.update_comment_count()
 
 
 @receiver(models.signals.post_save, sender=Topic)

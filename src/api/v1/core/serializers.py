@@ -29,16 +29,22 @@ class TypeParentsSerializer(serializers.ModelSerializer):
 
 class TopicSerializer(serializers.HyperlinkedModelSerializer):
     title = LangSplitField(required=True)
+
     body = LangSplitField(required=False)
+
     type = serializers.ChoiceField(choices=Topic.TOPIC_TYPES, required=False)
+
     owner = UserField(read_only=True)
+
     editors = serializers.ReadOnlyField(
         source='editors.username', read_only=True)
+
     parents = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='topic-detail',
         queryset=Topic.objects.all(),
         required=False)
+
     children = serializers.HyperlinkedRelatedField(
         many=True,
         view_name='topic-detail',
@@ -69,7 +75,7 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Topic
         fields = ('id', 'url', 'type', 'title', 'body', 'owner', 'editors',
-                  'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft',
+                  'parents', 'children', 'categories', 'categories_str', 'categories_names', 'languages', 'is_draft', 'comment_count',
                   'blockchain', 'matched', 'declared', 'created_date', 'updated_date', 'funds','data')
 
     def process_categories(self, validated_data):
