@@ -21,6 +21,7 @@ from src.api.v1.generic.pagination_classes import (
     StandardResultsSetPagination,
     LargeResultsSetPagination
 )
+from rest_framework.pagination import LimitOffsetPagination
 
 from src.api.v1.core.filters import TopicFilter
 
@@ -53,6 +54,10 @@ class TopicViewSet(CustomViewSet):
             return qs.filter(languages__contains=[lang])
 
         return qs
+
+
+class TopicLimitOffsetViewSet(TopicViewSet):
+    pagination_class = LimitOffsetPagination
 
 
 class CommentViewSet(CustomViewSet):
