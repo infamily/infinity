@@ -28,6 +28,7 @@ from src.api.v1.core.filters import TopicFilter
 
 class TopicViewSet(CustomViewSet):
 
+    # serializer_class = LimitOffsetPagination
     serializer_class = TopicSerializer
     pagination_class = StandardResultsSetPagination
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -54,10 +55,6 @@ class TopicViewSet(CustomViewSet):
             return qs.filter(languages__contains=[lang])
 
         return qs
-
-
-class TopicLimitOffsetViewSet(TopicViewSet):
-    pagination_class = LimitOffsetPagination
 
 
 class CommentViewSet(CustomViewSet):

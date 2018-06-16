@@ -28,7 +28,7 @@ def ws_connect(message):
         label = get_general_label()
 
     Group(label).add(message.reply_channel)
-    message.channel_session['channnel_label'] = label
+    message.channel_session['channel_label'] = label
 
     # Accept connection
     message.reply_channel.send({"accept": True})
@@ -46,5 +46,5 @@ def ws_send_comment_changed(comment, created):
 
 @channel_session
 def ws_disconnect(message):
-    label = message.channel_session['channnel_label']
+    label = message.channel_session['channel_label']
     Group(label).discard(message.reply_channel)
