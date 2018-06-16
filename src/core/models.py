@@ -71,6 +71,8 @@ class Topic(TopicTransactionMixin, TopicTradeMixin, GenericTranslationModel):
     unsubscribed = models.ManyToManyField(
         User, related_name='topic_unsubscribed', blank=True)
 
+    comment_count = models.PositiveIntegerField(default=0)
+
     def __str__(self):
         return '[{}] {}'.format(
             dict(self.TOPIC_TYPES).get(self.type), self.title)
@@ -97,6 +99,11 @@ class Topic(TopicTransactionMixin, TopicTradeMixin, GenericTranslationModel):
                 or 0.)
 
         return declared_hours
+
+    def update_comment_count(self):
+        qs = Comment.objects.filter(topic=self)
+        self.comment_count=qs.count()
+        self.save(update_fields=["comment_count"])
 
     class Meta:
         translation_fields = (
