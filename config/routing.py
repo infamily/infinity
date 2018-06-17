@@ -1,5 +1,5 @@
 from channels.routing import route
-from src.websocket.consumers import (
+from websocket.consumers import (
     ws_connect,
     ws_disconnect
 )

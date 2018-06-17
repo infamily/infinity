@@ -9,11 +9,11 @@ from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
 
-from src.core.models import Topic, Comment
-from src.users.models import User
-from src.websocket.consumers import ws_send_comment_changed
+from core.models import Topic, Comment
+from users.models import User
+from websocket.consumers import ws_send_comment_changed
 
-from src.mail import send_mail_async
+from mail import send_mail_async
 from django.core.signing import Signer
 
 

@@ -4,8 +4,8 @@ from django.db import models
 from django.db.models import Sum
 
 # Create your models here.
-from src.users.models import User
-from src.generic.models import GenericModel
+from users.models import User
+from generic.models import GenericModel
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 

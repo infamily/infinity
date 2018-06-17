@@ -7,7 +7,7 @@ from captcha.models import CaptchaStore
 from django.test import override_settings
 from django.core.urlresolvers import reverse
 
-from src.users.models import (
+from users.models import (
     User,
     OneTimePassword,
     MemberOrganization

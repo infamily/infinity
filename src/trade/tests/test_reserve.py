@@ -1,4 +1,4 @@
-# API tests at: src/api/tests/test_api.py
+# API tests at: api/tests/test_api.py
 
 import json
 import responses
@@ -8,17 +8,17 @@ from django.conf import settings
 
 from test_plus.test import TestCase
 
-from src.core.models import (
+from core.models import (
     Topic,
     Comment,
 )
 
-from src.trade.models import (
+from trade.models import (
     Payment,
     Reserve
 )
 
-from src.transactions.models import (
+from transactions.models import (
     Currency,
     Transaction,
     HourPriceSnapshot,

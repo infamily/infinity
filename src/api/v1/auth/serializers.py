@@ -3,17 +3,17 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from src.users.models import User
+from users.models import User
 
 from captcha.models import CaptchaStore
 
-from src.api.v1.auth.fields import CaptchaImageField
-from src.api.v1.auth.validators import (
+from api.v1.auth.fields import CaptchaImageField
+from api.v1.auth.validators import (
     email_domain_validator,
     one_time_password_limit_validator,
 )
 
-from src.users.models import OneTimePassword
+from users.models import OneTimePassword
 
 
 class CaptchaSerializer(serializers.Serializer):

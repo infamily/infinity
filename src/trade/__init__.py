@@ -1,1 +1,1 @@
-default_app_config = 'src.trade.apps.TradeConfig'
+default_app_config = 'trade.apps.TradeConfig'

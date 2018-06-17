@@ -9,26 +9,26 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
-from src.api.v1.generic.permissions import (
+from api.v1.generic.permissions import (
     IsOwner
 )
 
-from src.meta.models import Type, Schema, Instance
+from meta.models import Type, Schema, Instance
 
-from src.api.v1.generic.viewsets import CustomViewSet
+from api.v1.generic.viewsets import CustomViewSet
 
-from src.api.v1.meta.serializers import (
+from api.v1.meta.serializers import (
     TypeSerializer,
     SchemaSerializer,
     InstanceSerializer,
 )
 
-from src.api.v1.generic.pagination_classes import (
+from api.v1.generic.pagination_classes import (
     StandardResultsSetPagination,
     LargeResultsSetPagination
 )
 
-from src.api.v1.meta.filters import TypeFilter
+from api.v1.meta.filters import TypeFilter
 
 
 class TypeViewSet(CustomViewSet):

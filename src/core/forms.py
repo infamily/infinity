@@ -1,7 +1,7 @@
 from django import forms
 
-from src.core.models import Topic, Comment
-from src.users.models import CryptoKeypair
+from core.models import Topic, Comment
+from users.models import CryptoKeypair
 
 
 class TopicForm(forms.ModelForm):

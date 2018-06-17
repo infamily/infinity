@@ -2,15 +2,15 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from src.core.models import Comment
-from src.transactions.models import (
+from core.models import Comment
+from transactions.models import (
     Currency, Transaction, Interaction, TopicSnapshot, CommentSnapshot,
     HourPriceSnapshot, CurrencyPriceSnapshot, ContributionCertificate)
-from src.trade.models import (Payment, Reserve)
+from trade.models import (Payment, Reserve)
 
-from src.users.models import User
+from users.models import User
 
-from src.api.v1.core.fields import UserField
+from api.v1.core.fields import UserField
 
 
 class CurrencyListSerializer(serializers.HyperlinkedModelSerializer):

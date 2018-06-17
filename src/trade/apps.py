@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class TradeConfig(AppConfig):
-    name = 'src.trade'
+    name = 'trade'
 
     def ready(self):
-        import src.trade.signals
+        import trade.signals

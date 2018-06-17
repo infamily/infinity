@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from src.transactions.models import (
+from transactions.models import (
     TopicSnapshot,
     CommentSnapshot,
     Currency,

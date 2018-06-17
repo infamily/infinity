@@ -7,9 +7,9 @@ from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from src.generic.models import GenericModel
-from src.users.models import User
-from src.transactions.utils import blockchain_save
+from generic.models import GenericModel
+from users.models import User
+from transactions.utils import blockchain_save
 
 
 class GenericSnapshot(GenericModel):

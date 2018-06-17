@@ -10,17 +10,17 @@ from rest_framework.permissions import AllowAny
 
 from captcha.models import CaptchaStore
 
-from src.api.v1.auth import serializers
-from src.users.models import User, OneTimePassword
-from src.core.models import Topic
+from api.v1.auth import serializers
+from users.models import User, OneTimePassword
+from core.models import Topic
 
-from src.api.v1.auth.serializers import (
+from api.v1.auth.serializers import (
     SignatureSerializer, CaptchaResponseSerializer,
     OneTimePasswordSerializer, SignupSerializer,
     UnsubscribedSerializer
 )
-from src.mail import send_mail_async
-from src.api.v1.auth.serializers import UserSerializer
+from mail import send_mail_async
+from api.v1.auth.serializers import UserSerializer
 
 from django.core.signing import Signer
 from constance import config
