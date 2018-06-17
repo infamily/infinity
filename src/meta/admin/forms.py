@@ -1,6 +1,6 @@
 from django import forms
 
-from src.meta.models import Type, Schema, Instance
+from meta.models import Type, Schema, Instance
 
 
 class TypeForm(forms.ModelForm):

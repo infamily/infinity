@@ -1,5 +1,5 @@
 from decimal import Decimal
-from src.trade.models import Reserve
+from trade.models import Reserve
 from django.db.models import Sum
 
 class TopicTradeMixin():

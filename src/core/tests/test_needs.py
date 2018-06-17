@@ -1,6 +1,6 @@
 from test_plus.test import TestCase
 
-from src.core.models import (
+from core.models import (
     Topic
 )
 

@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.utils import timezone
 
-from src.users.models import (
+from users.models import (
     MemberOrganization,
     OneTimePassword,
 )

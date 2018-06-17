@@ -3,13 +3,13 @@ from rest_framework import viewsets, filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from src.users.models import User, LanguageName
+from users.models import User, LanguageName
 
-from src.core.models import Topic, Comment
+from core.models import Topic, Comment
 
-from src.api.v1.generic.viewsets import CustomViewSet
+from api.v1.generic.viewsets import CustomViewSet
 
-from src.api.v1.core.serializers import (
+from api.v1.core.serializers import (
     TopicSerializer,
     CommentSerializer,
 
@@ -17,13 +17,13 @@ from src.api.v1.core.serializers import (
     LanguageNameSerializer,
 )
 
-from src.api.v1.generic.pagination_classes import (
+from api.v1.generic.pagination_classes import (
     StandardResultsSetPagination,
     LargeResultsSetPagination
 )
 from rest_framework.pagination import LimitOffsetPagination
 
-from src.api.v1.core.filters import TopicFilter
+from api.v1.core.filters import TopicFilter
 
 
 class TopicViewSet(CustomViewSet):

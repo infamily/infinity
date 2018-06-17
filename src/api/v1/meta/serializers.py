@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from src.meta.models import (
+from meta.models import (
     Type,
     Schema,
     Instance,
 )
 
 
-from src.api.v1.core.fields import LangSplitField
+from api.v1.core.fields import LangSplitField
 
 
 class TypeSerializer(serializers.HyperlinkedModelSerializer):

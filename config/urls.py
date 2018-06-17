@@ -15,7 +15,7 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
-    url(r'', include('src.api.urls')),
+    url(r'', include('api.urls')),
     url(r'^captcha/', include('captcha.urls')),
     url(r'^docs/',
         include_docs_urls(

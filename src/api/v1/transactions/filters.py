@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from src.transactions.models import Currency
+from transactions.models import Currency
 
 
 class CurrencyFilter(filters.FilterSet):

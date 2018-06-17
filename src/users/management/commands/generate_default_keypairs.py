@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from src.users.models import User, CryptoKeypair
+from users.models import User, CryptoKeypair
 
 
 class Command(BaseCommand):

@@ -7,6 +7,7 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
+import sys
 import environ
 from collections import OrderedDict
 
@@ -14,6 +15,9 @@ ROOT_DIR = environ.Path(__file__) - 3  # (src/config/settings/base.py - 3 = src/
 assert isinstance(ROOT_DIR, environ.Path)  # pycharm wailing fix
 APPS_DIR = ROOT_DIR.path('src')
 
+# Add src to the sys.path if necessary
+if str(APPS_DIR) not in sys.path:
+    sys.path.append(str(APPS_DIR))
 
 # Read .env file
 # environ.Env.read_env(str(ROOT_DIR.path('.env')))
@@ -55,13 +59,13 @@ THIRD_PARTY_APPS = [
 
 # Apps specific for this project go here.
 LOCAL_APPS = [
-    'src.generic',
-    'src.meta',
-    'src.core',
-    'src.users',
-    'src.transactions',
-    'src.trade',
-    'src.celery',
+    'generic',
+    'meta',
+    'core',
+    'users',
+    'transactions',
+    'trade',
+    'celery',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -82,7 +86,7 @@ MIDDLEWARE = [
 # MIGRATIONS CONFIGURATION
 # ------------------------------------------------------------------------------
 MIGRATION_MODULES = {
-    'sites': 'src.contrib.sites.migrations'
+    'sites': 'contrib.sites.migrations'
 }
 
 # DEBUG
@@ -114,6 +118,7 @@ IPDB_APP_KEY = env('IPDB_APP_KEY', default='')
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [
+    ("""Mindey I.""", 'mindey@mindey.com'),
     ("""A. Aliyev""", 'shamkir@gmail.com'),
 ]
 
@@ -268,8 +273,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'never'
 
 ACCOUNT_ALLOW_REGISTRATION = env.bool('DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
-ACCOUNT_ADAPTER = 'src.users.adapters.AccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'src.users.adapters.SocialAccountAdapter'
+ACCOUNT_ADAPTER = 'users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'users.adapters.SocialAccountAdapter'
 
 # Custom user app defaults
 # Select the correct user model

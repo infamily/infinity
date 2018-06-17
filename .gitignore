@@ -97,3 +97,6 @@ notebooks/.ipynb_checkpoints/*
 # Celery
 celerybeat-schedule
 celerybeat.pid
+
+# Tests
+.pytest_cache/

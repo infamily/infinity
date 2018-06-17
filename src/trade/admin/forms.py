@@ -1,6 +1,6 @@
 from django import forms
 
-from src.trade.models import (
+from trade.models import (
     Payment, Reserve
 )
 

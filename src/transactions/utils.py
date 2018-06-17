@@ -4,7 +4,7 @@ import bigchaindb_driver
 from django.core import serializers
 from django.conf import settings
 
-from src.users.models import CryptoKeypair
+from users.models import CryptoKeypair
 
 
 # HOUR_PRICE_SOURCES = {

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from src.meta.models import Type, Instance
-from src.meta.forms import TypeForm, InstanceForm
+from meta.models import Type, Instance
+from meta.forms import TypeForm, InstanceForm
 
 
 @admin.register(Type)

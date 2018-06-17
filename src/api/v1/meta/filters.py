@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from src.meta.models import Type
+from meta.models import Type
 
 
 class TypeFilter(filters.FilterSet):

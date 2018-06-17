@@ -2,11 +2,11 @@ import requests
 import json
 
 from test_plus.test import TestCase
-from src.core.models import (
+from core.models import (
     Topic,
     Comment,
 )
-from src.transactions.models import (
+from transactions.models import (
     TopicSnapshot,
     CommentSnapshot,
 )

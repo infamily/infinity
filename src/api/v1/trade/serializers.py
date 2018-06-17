@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.trade.models import Payment, Reserve
+from trade.models import Payment, Reserve
 
 
 class PaymentSerializer(serializers.HyperlinkedModelSerializer):

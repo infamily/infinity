@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from src.core.models import Topic, Comment
-from src.core.admin.forms import TopicForm, CommentForm
+from core.models import Topic, Comment
+from core.admin.forms import TopicForm, CommentForm
 
 
 @admin.register(Topic)

@@ -1,5 +1,5 @@
 from test_plus.test import TestCase
-from src.users.models import CryptoKeypair
+from users.models import CryptoKeypair
 
 class TestKeygen(TestCase):
 

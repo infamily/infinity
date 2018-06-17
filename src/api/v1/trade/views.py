@@ -2,14 +2,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
-from src.api.v1.generic.viewsets import CustomViewSet
-from src.trade.models import Payment, Reserve
-from src.api.v1.trade.serializers import (
+from api.v1.generic.viewsets import CustomViewSet
+from trade.models import Payment, Reserve
+from api.v1.trade.serializers import (
     PaymentSerializer,
     ReserveListSerializer
 )
 
-from src.api.v1.generic.permissions import (
+from api.v1.generic.permissions import (
     IsOwner
 )
 

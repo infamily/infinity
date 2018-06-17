@@ -1,6 +1,6 @@
 from test_plus.test import TestCase
 
-from ..admin import MyUserCreationForm
+from users.admin import MyUserCreationForm
 
 
 class TestMyUserCreationForm(TestCase):

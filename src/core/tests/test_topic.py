@@ -6,18 +6,18 @@ from test_plus.test import TestCase
 
 from django.db.models import Sum
 
-from src.core.models import (
+from core.models import (
     Topic,
     Comment,
 )
-from src.transactions.models import (
+from transactions.models import (
     Currency,
     HourPriceSnapshot,
     CurrencyPriceSnapshot,
     ContributionCertificate
 )
 
-from src.trade.models import (
+from trade.models import (
     Payment,
     Reserve
 )
