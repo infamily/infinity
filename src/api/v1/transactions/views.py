@@ -3,9 +3,9 @@ from rest_framework import filters
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from src.api.v1.generic.viewsets import CustomViewSet
+from api.v1.generic.viewsets import CustomViewSet
 
-from src.transactions.models import (
+from transactions.models import (
     Currency,
     Interaction,
     Transaction,
@@ -16,7 +16,7 @@ from src.transactions.models import (
     CurrencyPriceSnapshot,
 )
 
-from src.api.v1.transactions.serializers import (
+from api.v1.transactions.serializers import (
     CurrencyListSerializer,
     InteractionSerializer,
     TransactionCreateSerializer,
@@ -28,7 +28,7 @@ from src.api.v1.transactions.serializers import (
     CurrencyPriceSnapshotSerializer,
 )
 
-from src.api.v1.transactions.filters import CurrencyFilter
+from api.v1.transactions.filters import CurrencyFilter
 
 
 class CurrencyViewSet(CustomViewSet):

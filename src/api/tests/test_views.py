@@ -3,9 +3,9 @@ from autofixture import AutoFixture
 from rest_framework.reverse import reverse, reverse_lazy
 from rest_framework.test import APITestCase
 
-from src.core.models import Topic
-from src.meta.models import Type
-from src.users.models import User
+from core.models import Topic
+from meta.models import Type
+from users.models import User
 
 
 class TopicCreateTestCase(APITestCase):

@@ -2,15 +2,15 @@ from django.core.urlresolvers import reverse
 from langsplit import splitter
 from rest_framework import serializers
 
-from src.api.v1.core.fields import LangSplitField, UserField, CategoryNameField
-from src.core.models import (
+from api.v1.core.fields import LangSplitField, UserField, CategoryNameField
+from core.models import (
     Topic,
     Comment,
 )
-from src.meta.models import Type
-from src.transactions.models import ContributionCertificate, Transaction
-from src.users.models import (User, LanguageName)
-from src.trade.models import Reserve
+from meta.models import Type
+from transactions.models import ContributionCertificate, Transaction
+from users.models import (User, LanguageName)
+from trade.models import Reserve
 from decimal import Decimal
 
 

@@ -7,17 +7,17 @@ from rest_framework import status
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from src.core.models import Topic, Comment
-from src.transactions.models import (
+from core.models import Topic, Comment
+from transactions.models import (
     Transaction,
     Currency,
     HourPriceSnapshot,
     CurrencyPriceSnapshot,
 )
-from src.users.models import User
+from users.models import User
 
 #TODO: It would be great not to have dependencies on 'trade' module though.
-from src.trade.models import Payment, Reserve
+from trade.models import Payment, Reserve
 
 
 class APITestCaseAuthorizedUser(APITestCase):

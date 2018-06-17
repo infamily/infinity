@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from src.core.models import Topic
+from core.models import Topic
 
 
 class OwnerFilter(filters.CharFilter):

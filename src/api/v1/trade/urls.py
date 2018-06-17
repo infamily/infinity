@@ -1,5 +1,5 @@
 from rest_framework import routers
-from src.api.v1.trade import views
+from api.v1.trade import views
 
 
 router = routers.DefaultRouter()

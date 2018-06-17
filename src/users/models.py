@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.crypto import get_random_string
 from django.contrib.postgres.fields import ArrayField
 
-from src.generic.models import (GenericModel, GenericManager)
+from generic.models import (GenericModel, GenericManager)
 
 
 def username_hash(email):

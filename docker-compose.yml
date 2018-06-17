@@ -32,7 +32,7 @@ services:
     depends_on:
      - postgres
      - redis
-    command: celery -A src.celery worker -l INFO --purge
+    command: celery -A celery worker -l INFO --purge
     env_file:
       - env.dev
 
@@ -47,7 +47,7 @@ services:
     depends_on:
       - postgres
       - redis
-    command: celery -A src.celery beat -l INFO
+    command: celery -A celery beat -l INFO
     env_file:
       - env.dev
 

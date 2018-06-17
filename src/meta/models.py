@@ -3,8 +3,8 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
-from src.generic.models import GenericTranslationModel, GenericModel
-from src.users.models import User
+from generic.models import GenericTranslationModel, GenericModel
+from users.models import User
 
 
 class TypeQuerySet(models.QuerySet):

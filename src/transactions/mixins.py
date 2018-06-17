@@ -2,8 +2,8 @@ from decimal import Decimal
 
 from django.db.models import Sum
 
-from src.transactions.utils import instance_to_save_dict
-from src.transactions.models import (
+from transactions.utils import instance_to_save_dict
+from transactions.models import (
     TopicSnapshot,
     CommentSnapshot,
     ContributionCertificate,
@@ -11,7 +11,7 @@ from src.transactions.models import (
     Interaction,
     Transaction,
 )
-from src.trade.models import Reserve
+from trade.models import Reserve
 
 
 class TopicTransactionMixin():

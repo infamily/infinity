@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 
 from django.core.urlresolvers import reverse
-from src.users.models import User
+from users.models import User
 
 
 class APITestCaseAuthorizedUser(APITestCase):

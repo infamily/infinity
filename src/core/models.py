@@ -7,13 +7,13 @@ from django.db.models import Sum
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
-from src.generic.models import GenericTranslationModel
-from src.users.models import User, CryptoKeypair
-from src.transactions.mixins import (
+from generic.models import GenericTranslationModel
+from users.models import User, CryptoKeypair
+from transactions.mixins import (
     TopicTransactionMixin,
     CommentTransactionMixin
 )
-from src.trade.mixins import (
+from trade.mixins import (
     TopicTradeMixin
 )
 

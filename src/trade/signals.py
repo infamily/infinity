@@ -5,8 +5,8 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 
-from src.trade.models import Payment, Reserve
-from src.transactions.models import Currency
+from trade.models import Payment, Reserve
+from transactions.models import Currency
 
 @receiver(models.signals.pre_save, sender=Payment)
 def payment_pre_save(sender, instance, *args, **kwargs):

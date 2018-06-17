@@ -1,6 +1,6 @@
 # Create your tests here.
 from test_plus.test import TestCase
-from src.core.models import Topic, Comment
+from core.models import Topic, Comment
 
 class TestTopic(TestCase):
 
