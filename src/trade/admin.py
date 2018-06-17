@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from trade.models import Payment, Reserve
-from trade.admin.forms import PaymentForm, ReserveForm
+from trade.forms import PaymentForm, ReserveForm
 
 
 @admin.register(Payment)
@@ -11,3 +11,4 @@ class PaymentAdmin(admin.ModelAdmin):
 @admin.register(Reserve)
 class ReserveAdmin(admin.ModelAdmin):
     form = ReserveForm
+
