@@ -36,8 +36,11 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     owner = UserField(read_only=True)
 
-    editors = serializers.ReadOnlyField(
-        source='editors.username', read_only=True)
+    editors = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='user-detail',
+        queryset=User.objects.all(),
+        required=False)
 
     parents = serializers.HyperlinkedRelatedField(
         many=True,
