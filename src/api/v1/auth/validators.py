@@ -22,7 +22,11 @@ class EmailDomainValidator:
     def __call__(self, value):
         if not MemberOrganization.objects.filter(
                 domains__contains=[value.split('@')[-1]]).exists():
-            raise ValidationError(self.message)
+
+            if not MemberOrganization.objects.filter(
+                domains__contains=[value]).exists():
+
+                raise ValidationError(self.message)
 
 
 class OneTimePasswordLimitValidator:

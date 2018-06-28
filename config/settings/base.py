@@ -395,13 +395,14 @@ CLIENT_DOMAIN = env('CLIENT_DOMAIN', default='inf.li')
 CONSTANCE_CONFIG = {
     'TERMS_AND_CONDITIONS': ('', 'On `Terms and Conditions`'),
     'SHOW_BALANCE_WIDGET': (True, 'Show balance and quota.'),
+    'DISABLE_SIGNUP_CAPTCHA': (False, 'If selected, allows registering by providing dummy captcha values.'),
     'PAGE_HOW': ('', 'On `How does this place work?`'),
     'PAGE_WHAT': ('', 'On `What is this place?`'),
     'SPLASH_BACKGROUNDS_URL': ('', 'Splash backgroound URLs separated by new lines'),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = OrderedDict([
-    ('General Options', ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET')),
+    ('General Options', ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET', 'DISABLE_SIGNUP_CAPTCHA')),
     ('Pages', ('PAGE_HOW', 'PAGE_WHAT')),
     ('Appearance', ('SPLASH_BACKGROUNDS_URL',)),
 ])
