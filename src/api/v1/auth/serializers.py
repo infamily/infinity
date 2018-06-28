@@ -14,6 +14,7 @@ from api.v1.auth.validators import (
 )
 
 from users.models import OneTimePassword
+from constance import config
 
 
 class CaptchaSerializer(serializers.Serializer):
@@ -34,8 +35,12 @@ class CaptchaSerializer(serializers.Serializer):
                 hashkey=hashkey
             ).delete()
         except CaptchaStore.DoesNotExist:
-            raise serializers.ValidationError(
-                self.error_messages['invalid_captcha'])
+
+            IGNORE_CAPTCHA = config.DISABLE_SIGNUP_CAPTCHA
+
+            if not IGNORE_CAPTCHA:
+                raise serializers.ValidationError(
+                    self.error_messages['invalid_captcha'])
 
         return data
 
