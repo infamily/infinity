@@ -6,11 +6,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.crypto import get_random_string
 from django.contrib.postgres.fields import ArrayField
+from random import randrange
 
 from generic.models import (GenericModel, GenericManager)
 
+def random_string():
+    return '{}'.format(randrange(10**7, 10**8-1))
 
 def username_hash(email):
     name, domain = email.lower().split('@')
@@ -85,7 +87,7 @@ class CryptoKeypair(GenericModel):
 class OneTimePassword(GenericModel):
     user = models.ForeignKey(User)
     one_time_password = models.CharField(
-        max_length=64, default=get_random_string)
+        max_length=64, default=random_string)
     is_used = models.BooleanField(default=False)
     is_active = models.BooleanField(
         default=True

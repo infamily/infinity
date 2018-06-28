@@ -36,8 +36,11 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     owner = UserField(read_only=True)
 
-    editors = serializers.ReadOnlyField(
-        source='editors.username', read_only=True)
+    editors = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name='user-detail',
+        queryset=User.objects.all(),
+        required=False)
 
     parents = serializers.HyperlinkedRelatedField(
         many=True,
@@ -93,6 +96,27 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data = self.process_categories(validated_data)
+
+        languages = validated_data.get('languages', [])
+        body = validated_data.get('body', '')
+        title = validated_data.get('title', '')
+
+        if languages:
+            # update existing
+            original_title = splitter.split(instance.title)
+            original_body = splitter.split(instance.body)
+            body_updates = splitter.split(body)
+            title_updates = splitter.split(title)
+
+            for lang in languages:
+                if (lang in title_updates.keys()) and \
+                    (lang in body_updates.keys()):
+                    original_title.update({lang: title_updates[lang]})
+                    original_body.update({lang: body_updates[lang]})
+
+            validated_data['title'] = splitter.convert(original_title, title=True)
+            validated_data['body'] = splitter.convert(original_body)
+
         return super(TopicSerializer, self).update(instance, validated_data)
 
 
