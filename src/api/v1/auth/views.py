@@ -48,6 +48,7 @@ class ConstanceView(views.APIView):
         data={
             'terms': config.TERMS_AND_CONDITIONS,
             'show_balance': config.SHOW_BALANCE_WIDGET,
+            'ignore_captcha': config.DISABLE_SIGNUP_CAPTCHA,
             'page_how': config.PAGE_HOW,
             'page_what': config.PAGE_WHAT,
             'splash_background_urls': config.SPLASH_BACKGROUNDS_URL.split('\r\n'),
@@ -78,7 +79,22 @@ class OTPRegisterView(generics.GenericAPIView):
 
     def post(self, request):
         serializer_class = self.serializer_class(data=request.data)
-        serializer_class.is_valid(raise_exception=True)
+
+        IGNORE_CAPTCHA = config.DISABLE_SIGNUP_CAPTCHA
+
+        if IGNORE_CAPTCHA:
+
+            credentials_valid = serializer_class.is_valid(raise_exception=False)
+            if not credentials_valid:
+                if len(serializer_class.errors) == 1 and 'captcha' in serializer_class.errors:
+                    # ignoring captcha
+                    pass
+                else:
+                    serializer_class.is_valid(raise_exception=True)
+
+        else:
+            serializer_class.is_valid(raise_exception=True)
+
 
         email = serializer_class.data.get("email")
 
