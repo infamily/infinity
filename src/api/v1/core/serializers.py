@@ -114,8 +114,8 @@ class TopicSerializer(serializers.HyperlinkedModelSerializer):
                     original_title.update({lang: title_updates[lang]})
                     original_body.update({lang: body_updates[lang]})
 
-            validated_data['body'] = splitter.convert(original_title, title=True)
-            validated_data['title'] = splitter.convert(original_body)
+            validated_data['title'] = splitter.convert(original_title, title=True)
+            validated_data['body'] = splitter.convert(original_body)
 
         return super(TopicSerializer, self).update(instance, validated_data)
 
