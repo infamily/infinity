@@ -272,6 +272,43 @@ class UpdateTopic(APITestCaseAuthorizedUser):
             format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+    def test_multilingual_update_topic(self):
+
+        valid_info = {
+            'title': '.:en:Test topic 1.:lt:Bandomasis',
+            'body': ".:en\nUpdated body.:lt\nAtnaujintas kunas",
+            'type': Topic.NEED,
+        }
+
+        response = self.client.put(
+            reverse('topic-detail', kwargs={
+                'pk': self.topic.pk
+            }),
+            valid_info,
+            format="json")
+
+        valid_info = {
+            'title': '.:en:My Topic 1',
+            'body': ".:en\nMy body",
+            'languages': ['en'],
+            'type': Topic.NEED,
+        }
+
+        response = self.client.put(
+            reverse('topic-detail', kwargs={
+                'pk': self.topic.pk
+            }),
+            valid_info,
+            format="json")
+
+        expect_title = '.:en:My Topic 1.:lt:Bandomasis'
+        expect_body = '.:en\nMy body.:lt\nAtnaujintas kunas'
+
+        self.assertEqual(response.json().get('title'), expect_title)
+        self.assertEqual(response.json().get('body'), expect_body)
+
+
     def test_invalid_update_channel(self):
 
         invalid_info = {
