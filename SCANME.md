@@ -2,13 +2,15 @@
 
 ## core.topic
 ```yaml
+# clients=ooio.clients.Csv,ooio.clients.RemoteServer
+'*': 'WD:Q26256810'
 fields:
   blockchain:
-    '*': ''
+    '*': 'IN:wefindx/blockchain#integer'
   body:
-    '*': ''
+    '*': 'WD:Q1378314'
   categories:
-  - '*': ''
+  - '*': 'WD:Q21146257'
   comment_count:
     '*': ''
   created_date:
@@ -43,6 +45,7 @@ pk:
 
 ## core.comment
 ```yaml
+'*': ''
 fields:
   assumed_hours:
     '*': ''
@@ -76,6 +79,7 @@ pk:
 
 ## meta.instance
 ```yaml
+'*': ''
 fields:
   concept:
     '*': ''
@@ -117,6 +121,7 @@ pk:
 
 ## meta.schema
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -159,6 +164,7 @@ pk:
 
 ## meta.type
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -186,6 +192,7 @@ pk:
 
 ## transactions.currency
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -203,6 +210,7 @@ pk:
 
 ## transactions.currencypricesnapshot
 ```yaml
+'*': ''
 fields:
   base:
     '*': ''
@@ -294,6 +302,7 @@ pk:
 
 ## transactions.hourpricesnapshot
 ```yaml
+'*': ''
 fields:
   base:
     '*': ''
@@ -352,6 +361,7 @@ pk:
 
 ## users.cryptokeypair
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -373,6 +383,7 @@ pk:
 
 ## users.languagename
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -392,6 +403,7 @@ pk:
 
 ## users.memberorganization
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -409,6 +421,7 @@ pk:
 
 ## users.onetimepassword
 ```yaml
+'*': ''
 fields:
   created_date:
     '*': ''
@@ -432,6 +445,7 @@ pk:
 
 ## admin.logentry
 ```yaml
+'*': ''
 fields:
   action_flag:
     '*': ''
@@ -455,6 +469,7 @@ pk:
 
 ## authtoken.token
 ```yaml
+'*': ''
 fields:
   created:
     '*': ''
@@ -468,6 +483,7 @@ pk:
 
 ## captcha.captchastore
 ```yaml
+'*': ''
 fields:
   challenge:
     '*': ''
@@ -485,6 +501,7 @@ pk:
 
 ## contenttypes.contenttype
 ```yaml
+'*': ''
 fields:
   app_label:
     '*': ''
@@ -498,6 +515,7 @@ pk:
 
 ## database.constance
 ```yaml
+'*': ''
 fields:
   key:
     '*': ''
@@ -511,6 +529,7 @@ pk:
 
 ## sessions.session
 ```yaml
+'*': ''
 fields:
   expire_date:
     '*': ''
@@ -524,6 +543,7 @@ pk:
 
 ## sites.site
 ```yaml
+'*': ''
 fields:
   domain:
     '*': ''
