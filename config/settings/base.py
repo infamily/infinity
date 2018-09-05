@@ -393,6 +393,8 @@ CLIENT_DOMAIN = env('CLIENT_DOMAIN', default='inf.li')
 
 # CONSTANCE
 CONSTANCE_CONFIG = {
+    'DATA_SYNC_SERVER': ('mongodb://username:password@wefindx.net:27017', 'Server to sync collective knowledge.'),
+    'DATA_SYNC_DB': ('infdb', 'Name of the communal database.'),
     'TERMS_AND_CONDITIONS': ('', 'On `Terms and Conditions`'),
     'SHOW_BALANCE_WIDGET': (True, 'Show balance and quota.'),
     'DISABLE_SIGNUP_CAPTCHA': (False, 'If selected, allows registering by providing dummy captcha values.'),
@@ -402,7 +404,7 @@ CONSTANCE_CONFIG = {
 }
 
 CONSTANCE_CONFIG_FIELDSETS = OrderedDict([
-    ('General Options', ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET', 'DISABLE_SIGNUP_CAPTCHA')),
+    ('General Options', ('TERMS_AND_CONDITIONS', 'SHOW_BALANCE_WIDGET', 'DISABLE_SIGNUP_CAPTCHA', 'DATA_SYNC_SERVER', 'DATA_SYNC_DB')),
     ('Pages', ('PAGE_HOW', 'PAGE_WHAT')),
     ('Appearance', ('SPLASH_BACKGROUNDS_URL',)),
 ])
