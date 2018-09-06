@@ -29,15 +29,14 @@ branches:
   except:
   - master
 before_install:
-- sudo apt-get install software-properties-common
 - sudo apt-add-repository -y ppa:ansible/ansible
 - sudo apt-get update -qq
-- sudo apt-get install -y ansible
 - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev
   xvfb libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev
   libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev graphviz-dev firefox automake
   libtool libreadline6 libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev
   libssl-dev libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
+  python-pip software-properties-common ansible
 - ansible-galaxy install thefinn93.letsencrypt
 - echo ${VAULT_PASSWORD_KEY} | gpg --passphrase-fd 0 .vault_password.txt.gpg
 - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
@@ -50,8 +49,8 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 - sudo service redis-server start
 install:
+- pip install -U urllib3[secure]
 - pip install -r requirements/test.txt
-- pip install ansible --upgrade
 script:
 - "./manage.py test"
 after_success:
