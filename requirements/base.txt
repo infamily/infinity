@@ -75,3 +75,6 @@ boto3==1.6.17
 # Constance
 django-constance==2.2.0
 django-picklefield==1.0.0
+
+# MongoDB
+pymongo==3.7.1

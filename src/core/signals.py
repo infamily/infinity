@@ -10,11 +10,41 @@ from django.db import models
 from django.dispatch import receiver
 
 from core.models import Topic, Comment
+from transactions.models import Transaction
 from users.models import User
 from websocket.consumers import ws_send_comment_changed
 
 from mail import send_mail_async
 from django.core.signing import Signer
+
+from django.core import serializers
+
+from syncdb import update_syncdb_async
+
+
+def make_data(instance):
+    singular = instance.__class__.__name__.lower()
+    namespace = singular+'s'
+
+    data = json.loads(serializers.serialize('json', [instance]))[0]
+
+    protocol = 'https'
+    server = next(iter(settings.ALLOWED_HOSTS or []), None)
+    if server == '*':
+        protocol = 'http'
+        server = '0.0.0.0:8000'
+
+    location = '{protocol}://{server}/{namespace}/{pk}'.format(
+        protocol=protocol,
+        server=server,
+        namespace=namespace,
+        pk=data.get('pk'))
+
+    data.update({'-': location})
+    # normalization schema #
+    data.update({'*': 'https://github.com/wefindx/ooio/wiki/{}#infli'.format(singular)})
+
+    return data
 
 
 @receiver(models.signals.post_delete, sender=Comment)
@@ -29,8 +59,10 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
     # Utils and constants
     signer = Signer()
 
+    protocol = 'https'
     server = next(iter(settings.ALLOWED_HOSTS or []), None)
     if server == '*':
+        protocol = 'http'
         server = '0.0.0.0:8000'
 
     client_server = server[4:] if server.startswith('.inf') else server
@@ -58,11 +90,12 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
 <br>
 {body}<br>
 <br>
-To reply, visit: https://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
+To reply, visit: {protocol}://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
 <br>
 --<br>
 To unsubscribe from this topic, visit:<br>
 https://{server}/unsubscribe/{topic_id}?sign={signed_email}<br>""".format(
+        protocol=protocol,
         body=instance.text[5:],
         server=server,
         client=settings.CLIENT_DOMAIN,
@@ -89,11 +122,20 @@ https://{server}/unsubscribe/{topic_id}?sign={signed_email}<br>""".format(
     if created:
         instance.topic.update_comment_count()
 
+    # Save or update its copy to MongoDB, if it's defined
+    data = make_data(instance)
+    update_syncdb_async('comments', data)
+
 
 @receiver(models.signals.post_save, sender=Topic)
 def topic_post_save(sender, instance, created, *args, **kwargs):
 
     if instance.body:
+
+        # Save or update its copy to MongoDB, if it's defined
+        data = make_data(instance)
+        update_syncdb_async('topics', data)
+
 
         html = mistune.markdown(instance.body)
 
@@ -102,7 +144,7 @@ def topic_post_save(sender, instance, created, *args, **kwargs):
             'html.parser'
         )
 
-        # Parse Needs
+        # Parse Needs from YAML, and create them to the topic.
 
         targets = soup.find_all('code', {'class': 'lang-inf'})
 
@@ -181,3 +223,10 @@ def send_sns_notification(sender, instance, created, *args, **kwargs):
         TopicArn=arn,
         Message=json.dumps(message)
     )
+
+
+@receiver(models.signals.post_save, sender=Transaction)
+def transaction_post_save(sender, instance, created, *args, **kwargs):
+    # Save or update its copy to MongoDB, if it's defined
+    data = make_data(instance)
+    update_syncdb_async('transactions', data)
