@@ -5,6 +5,10 @@
 
 Checkout and do `docker-compose up` locally.
 
+## Quick node deployment:
+
+Check [documentation](https://github.com/infamily/infinity/blob/master/docs/devops.md#deploying-a-ci-with-a-single-node).
+
 ### Current workflow:
 
 ```

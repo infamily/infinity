@@ -79,10 +79,19 @@ gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
 - Review, change to your repo:
       ./deploy/ansible/roles/prepare/vars/main.yml
 
+- Make sure to replace the "user@example.net" in the file to something reasonable here, or the letsencrypt will fail:
+      `./deploy/ansible/site.yml`
+
 - Type, and wait for the server will be fully set up:
     - `ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"`
 
+- Create .env_production file based on env_production_example:
+    - `cp env_production_example .env_production`
+
 - Run command to deploy:
+    - `ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml`
+
+- [Alternative] Run command to deploy:
     - `ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml`
 
 - Finally, visit the:
@@ -118,7 +127,7 @@ The service should be running (make sure to do Django migrations, create superus
 
     - Generate travis ssh key for deployment to server, and add `travis_rsa.pub` to `~/.ssh/authorized_keys` on server:
         `ssh-keygen -f travis_rsa -t rsa -b 2048 -C -N`
-    
+
     - Encrypt the travis_rsa, with Ansible vault, like so:
         `ANSIBLE_VAULT_PASSWORD_FILE=.vault_password.txt ansible-vault encrypt travis_rsa --output travis_rsa.vault`
 
