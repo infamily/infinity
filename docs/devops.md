@@ -85,8 +85,8 @@ gpg -e -o infinity.kdb.gpg -r <email> -r <email> infinity.kdb
 - Type, and wait for the server will be fully set up:
     - `ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml --extra-vars="scenario=init"`
 
-- Create .env_production file based on env_production_example:
-    - `cp env_production_example .env_production`
+- Create .env_production file based on the sample:
+    - `cp sample.env_production .env_production`
 
 - Run command to deploy:
     - `ansible-playbook -v -i deploy/ansible/inventories/staging deploy/ansible/site.yml`
