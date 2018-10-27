@@ -1,7 +1,6 @@
 ---
 - name: update apt packages
-  apt:
-    update_cache: yes
+  shell: apt update
 
 - name: install libraries for docker
   apt: name {{item}} state=installed
@@ -21,8 +20,7 @@
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
 
 - name: update apt packages
-  apt:
-    update_cache: yes
+  shell: apt update
 
 - name: install docker
   apt: name=docker-ce state=installed
