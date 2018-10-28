@@ -45,15 +45,15 @@ class TestChain(TestCase):
             - {1.5},{?0.5} for coming up with basic class structure,
             - {?2.5} for implementation,
             - {?3.5} for testing.
- 
+
             Here is the result so far:
             https://github.com/wefindx/infty2.0/commit/9f096dc54f94c31eed9558eb32ef0858f51b1aec
             """,
             owner=self.doer
         )
         self.comment.save()
-        #self.comment.create_snapshot(blockchain=1)
-        self.comment.create_snapshot(blockchain=False)
+        self.comment.create_snapshot(blockchain=1)
+        #self.comment.create_snapshot(blockchain=False)
 
         self.assertEqual(
             CommentSnapshot.objects.filter(comment=self.comment).count(),
