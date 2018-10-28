@@ -117,10 +117,7 @@ IPDB_APP_KEY = env('IPDB_APP_KEY', default='')
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [
-    ("""Mindey I.""", 'mindey@mindey.com'),
-    ("""A. Aliyev""", 'shamkir@gmail.com'),
-]
+ADMINS = []
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS

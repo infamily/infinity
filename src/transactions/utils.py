@@ -25,13 +25,19 @@ def instance_to_save_dict(instance):
 
 def blockchain_save(user, data, blockchain=False):
 
-    bdb = bigchaindb_driver.BigchainDB(
-        settings.IPDB_API_ROOT,
-        headers={
+    if settings.IPDB_APP_ID and settings.IPDB_APP_KEY:
+        headers = {
             'app_id': settings.IPDB_APP_ID,
             'app_key': settings.IPDB_APP_KEY
         }
-    )
+        bdb = bigchaindb_driver.BigchainDB(
+            settings.IPDB_API_ROOT,
+            headers=headers
+        )
+    else:
+        bdb = bigchaindb_driver.BigchainDB(
+            settings.IPDB_API_ROOT
+        )
 
     if blockchain in dict(CryptoKeypair.KEY_TYPES).keys():
 
@@ -58,17 +64,8 @@ def blockchain_save(user, data, blockchain=False):
             private_keys=keypair.private_key
         )
 
-        sent_tx = bdb.transactions.send(signed_tx)
+        sent_tx = bdb.transactions.send_commit(signed_tx)
 
         txid = sent_tx['id']
 
-        # Try 100 times till completion.
-        trials = 0
-
-        while trials < 100:
-            try:
-                if bdb.transactions.status(txid).get('status') == 'valid':
-                    return txid
-            except bigchaindb_driver.exceptions.NotFoundError:
-                trials += 1
         return None
