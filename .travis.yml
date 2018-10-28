@@ -38,7 +38,7 @@ before_install:
   libssl-dev libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
   python-pip software-properties-common ansible python-urllib3 python-openssl
 - sudo pip install ndg-httpsclient pyasn1
-- ansible-galaxy install thefinn93.letsencrypt
+- ansible-galaxy --ignore-certs install thefinn93.letsencrypt
 - echo ${VAULT_PASSWORD_KEY} | gpg --passphrase-fd 0 .vault_password.txt.gpg
 - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
 - mv travis_rsa.key ~/.ssh/travis_rsa
