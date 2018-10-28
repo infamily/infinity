@@ -52,8 +52,8 @@ class TestChain(TestCase):
             owner=self.doer
         )
         self.comment.save()
-        self.comment.create_snapshot(blockchain=1)
-        #self.comment.create_snapshot(blockchain=False)
+        # self.comment.create_snapshot(blockchain=1)
+        self.comment.create_snapshot(blockchain=False)
 
         self.assertEqual(
             CommentSnapshot.objects.filter(comment=self.comment).count(),
