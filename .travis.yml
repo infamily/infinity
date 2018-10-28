@@ -12,7 +12,8 @@ addons:
     - redis
   apt:
     packages:
-      - libssl1.0.0
+      - libssl-dev
+      - libffi-dev
 env:
   global:
   - DOCKER_COMPOSE_VERSION=1.16.1
@@ -38,9 +39,9 @@ before_install:
   xvfb libtiff4-dev libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev libtiff4-dev
   libjpeg8-dev libfreetype6-dev liblcms1-dev libwebp-dev graphviz-dev firefox automake
   libtool libreadline6 libreadline6-dev libreadline-dev libsqlite3-dev libxml2 libxml2-dev
-  libssl-dev libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
+  libbz2-dev wget curl llvm python-setuptools python3-dev python-virtualenv
   python-pip software-properties-common ansible python-urllib3 python-openssl
-- sudo pip install ndg-httpsclient pyasn1
+- sudo pip install pyopenssl ndg-httpsclient pyasn1
 - ansible-galaxy install thefinn93.letsencrypt
 - echo ${VAULT_PASSWORD_KEY} | gpg --passphrase-fd 0 .vault_password.txt.gpg
 - ansible-vault decrypt travis_rsa.vault --output travis_rsa.key
