@@ -1,4 +1,5 @@
 import json
+import urllib
 import bigchaindb_driver
 
 from django.core import serializers
@@ -66,6 +67,11 @@ def blockchain_save(user, data, blockchain=False):
 
         sent_tx = bdb.transactions.send_commit(signed_tx)
 
-        txid = sent_tx['id']
+        txid = urllib.parse.urljoin(
+            settings.IPDB_API_ROOT,
+            'api/v1/transactions/{}'.format(
+                sent_tx['id']
+            )
+        )
 
-        return None
+        return txid
