@@ -123,7 +123,7 @@ class ContributionSerializer(serializers.HyperlinkedModelSerializer):
 class TopicSnapshotSerializer(serializers.HyperlinkedModelSerializer):
 
     topic = serializers.HyperlinkedRelatedField(
-        view_name='comment-detail', queryset=Comment.objects.all())
+        view_name='topic-detail', queryset=Comment.objects.all())
 
     class Meta:
         model = TopicSnapshot
