@@ -52,7 +52,8 @@ class TopicViewSet(CustomViewSet):
         lang = self.request.query_params.get('lang', None)
 
         if lang:
-            return qs.filter(languages__contains=[lang])
+            if lang != 'all':
+                return qs.filter(languages__contains=[lang])
 
         return qs
 
@@ -78,7 +79,8 @@ class CommentViewSet(CustomViewSet):
         lang = self.request.query_params.get('lang', None)
 
         if lang:
-            return qs.filter(languages__contains=[lang])
+            if lang != 'all':
+                return qs.filter(languages__contains=[lang])
 
         return qs
 

@@ -5,7 +5,7 @@
 wheel==0.29.0
 
 # Django
-django==1.11.9
+django==1.11.15
 
 # Configuration
 django-environ==0.4.4
@@ -57,7 +57,7 @@ channels==1.1.8
 # Your custom requirements go here
 six==1.11.0
 langsplit==0.1.6
-bigchaindb-driver==0.4.1
+bigchaindb-driver==0.6.1
 mistune==0.8.3
 bs4==0.0.1
 PyYAML==3.12

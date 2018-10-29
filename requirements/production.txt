@@ -14,7 +14,7 @@ collectfast==0.6.0
 
 # Email backends for Mailgun, Postmark, SendGrid and more
 # -------------------------------------------------------
-django-anymail==1.2
+django-anymail==1.2.1
 sendgrid-django==4.2.0
 
 # Raven is the Sentry client

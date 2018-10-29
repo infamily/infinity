@@ -2,7 +2,11 @@ from django.core.urlresolvers import reverse
 from langsplit import splitter
 from rest_framework import serializers
 
-from api.v1.core.fields import LangSplitField, UserField, CategoryNameField
+from api.v1.core.fields import (
+    LangSplitField,
+    UserField,
+    CategoryNameField
+)
 from core.models import (
     Topic,
     Comment,
