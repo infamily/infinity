@@ -1,6 +1,6 @@
 import json
 import urllib
-import bigchaindb_driver
+from bigchaindb_driver import BigchainDB
 
 from django.core import serializers
 from django.conf import settings
@@ -31,12 +31,12 @@ def blockchain_save(user, data, blockchain=False):
             'app_id': settings.IPDB_APP_ID,
             'app_key': settings.IPDB_APP_KEY
         }
-        bdb = bigchaindb_driver.BigchainDB(
+        bdb = BigchainDB(
             settings.IPDB_API_ROOT,
             headers=headers
         )
     else:
-        bdb = bigchaindb_driver.BigchainDB(
+        bdb = BigchainDB(
             settings.IPDB_API_ROOT
         )
 
