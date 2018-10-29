@@ -7,10 +7,8 @@ INSTALLED_APPS += [ # noqa
 ]
 
 RAVEN_CONFIG = {
-    'dsn': env('SENTRY_DSN'),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+    'dsn': env('SENTRY_DSN', default=None),
+    'release': env('REVISION', default=None),
 }
 
 # SECRET CONFIGURATION
