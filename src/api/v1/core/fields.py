@@ -10,7 +10,6 @@ def get_langsplit(lang, value):
     split = splitter.split(value, title=True)
     return split.get(lang) or 'languages: {}'.format(list(split.keys()))
 
-
 class UserField(serializers.CharField):
     def to_representation(self, value):
         return {"id": value.pk, "username": value.username}
@@ -56,6 +55,9 @@ class LangSplitField(fields.CharField):
         lang = self.context['request'].query_params.get('lang')
 
         if lang and value:
-            return get_langsplit(lang, value)
+            if lang == 'all':
+                return splitter.split(value, title=True)
+            else:
+                return get_langsplit(lang, value)
 
         return value
