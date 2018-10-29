@@ -1,16 +1,17 @@
-"""
-Production Configurations
-
-- Use Amazon's S3 for storing static files and uploaded media
-- Use mailgun to send emails
-- Use Redis for cache
-
-- Use sentry for error logging
-
-
-"""
-
+import os
+import raven
 from .base import *  # noqa
+
+INSTALLED_APPS += [ # noqa
+    'raven.contrib.django.raven_compat',
+]
+
+RAVEN_CONFIG = {
+    'dsn': env('SENTRY_DSN'),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.abspath(os.pardir)),
+}
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
