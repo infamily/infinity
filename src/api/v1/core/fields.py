@@ -56,7 +56,7 @@ class LangSplitField(fields.CharField):
 
         if lang and value:
             if lang == 'all':
-                return splitter.split(value, title=True)
+                return list(splitter.split(value, title=True).items())[0][-1]
             else:
                 return get_langsplit(lang, value)
 
