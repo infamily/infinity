@@ -55,9 +55,12 @@ class LangSplitField(fields.CharField):
         lang = self.context['request'].query_params.get('lang')
 
         if lang and value:
-            if lang == 'all':
-                return list(splitter.split(value, title=True).items())[0][-1]
+            # Return given language, if exists
+            langs = splitter.split(value, title=True)
+            if lang in langs.keys():
+                return langs[lang]
+            # else first language defined in doc.
             else:
-                return get_langsplit(lang, value)
+                return list(langs.items())[0][-1]
 
         return value
