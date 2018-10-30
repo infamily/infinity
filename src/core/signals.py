@@ -65,7 +65,7 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
         protocol = 'http'
         server = '0.0.0.0:8000'
 
-    client_server = server[4:] if server.startswith('.inf') else server
+    # client_server = server[4:] if server.startswith('.inf') else server
 
     # Broadcast over web-sockets
     ws_send_comment_changed(instance, created)
@@ -90,7 +90,7 @@ def comment_post_save(sender, instance, created, *args, **kwargs):
 <br>
 {body}<br>
 <br>
-To reply, visit: {protocol}://{client}/#/{client_server}:{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
+To reply, visit: {protocol}://{client}/#/{lang}/@/topic/{topic_id}/comment/{comment_id}<br>
 <br>
 --<br>
 To unsubscribe from this topic, visit:<br>
@@ -99,7 +99,6 @@ https://{server}/unsubscribe/{topic_id}?sign={signed_email}<br>""".format(
         body=instance.text[5:],
         server=server,
         client=settings.CLIENT_DOMAIN,
-        client_server=client_server,
         lang=instance.topic.title[2:4],
         topic_id=instance.topic.pk,
         comment_id=instance.pk,
