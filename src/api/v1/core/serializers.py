@@ -155,9 +155,13 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
     contributions = serializers.SerializerMethodField('contribution_certificates')
     reserve = serializers.SerializerMethodField('compute_reserve')
     credit = serializers.SerializerMethodField('compute_credit')
+    claimed = serializers.SerializerMethodField('compute_claimed')
 
     def matched(self, obj):
         return ContributionCertificate.user_matched(obj)
+
+    def compute_claimed(self, obj):
+        return Comment.user_claimed(obj)
 
     def compute_quota(self, obj):
         return Transaction.user_quota_remains_today(obj)
@@ -178,7 +182,7 @@ class UserBalanceSerializer(serializers.HyperlinkedModelSerializer):
                                               obj.id)
     class Meta:
         model = User
-        fields = ('id', 'username', 'balance', 'contributions', 'quota', 'reserve', 'credit')
+        fields = ('id', 'username', 'balance', 'contributions', 'quota', 'reserve', 'credit', 'claimed')
 
 
 class LanguageNameSerializer(serializers.HyperlinkedModelSerializer):
