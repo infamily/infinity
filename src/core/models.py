@@ -186,6 +186,16 @@ class Comment(CommentTransactionMixin, GenericTranslationModel):
         if self.blockchain:
             self.create_snapshot(blockchain=self.blockchain)
 
+    @classmethod
+    def user_claimed(cls, user):
+        """
+        Returns amount of claimed hours that a given user has accumulated.
+        """
+        return Decimal(
+            cls.objects.filter(
+                owner=user).aggregate(total=Sum('claimed_hours')).get('total')
+            or 0)
+
     class Meta:
         translation_fields = (('text', False), )
         verbose_name = _("Comment")
