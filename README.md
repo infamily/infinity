@@ -12,6 +12,32 @@ Thanks for your cooperation.
 
 Checkout and do `docker-compose up` locally.
 
+Prefill with data:
+```
+docker-compose run web bash
+python manage.py migrate
+python manage.py createsuperuser
+ > username: Admin@D3942DCE
+ > email: admin@admin.com
+ > password: helloinfinity
+python manage.py loaddata fixtures/languages.json
+python manage.py loaddata fixtures/currencies.json
+python manage.py loaddata fixtures/currency_price_snapshots.json fixtures/hour_price_snapshots.json
+exit
+docker-compose up
+```
+http://0.0.0.0:8000/admin
+
+**NB:** For local development with the [client](https://github.com/infamily/infinity-reactjs#readme), localhost needs SSL, which is not yet configured. May temporarily consider using something like [ngrok](https://ngrok.com/), i.e., `./ngrok http 80` to provide over SSL for client.
+
+Check out [conveniences](https://gist.github.com/mindey/34fb97b5082d551ccb3bf24602e243ff) for more management commands.
+
+E.g., to run dbshell in app docker, one needs:
+```
+apt update && apt install -y postgresql-client
+python manage.py dbshel
+```
+
 ## Quick node deployment:
 
 Check [documentation](https://github.com/infamily/infinity/blob/master/docs/devops.md#deploying-a-ci-with-a-single-node).
