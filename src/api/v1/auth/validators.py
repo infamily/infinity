@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.utils import timezone
+from constance import config
 
 from users.models import (
     MemberOrganization,
@@ -20,13 +21,16 @@ class EmailDomainValidator:
             self.code = code
 
     def __call__(self, value):
-        if not MemberOrganization.objects.filter(
-                domains__contains=[value.split('@')[-1]]).exists():
+
+        if config.REQUIRE_MEMBERSHIP_TO_REGISTER:
 
             if not MemberOrganization.objects.filter(
-                domains__contains=[value]).exists():
+                    domains__contains=[value.split('@')[-1]]).exists():
 
-                raise ValidationError(self.message)
+                if not MemberOrganization.objects.filter(
+                    domains__contains=[value]).exists():
+
+                    raise ValidationError(self.message)
 
 
 class OneTimePasswordLimitValidator:
