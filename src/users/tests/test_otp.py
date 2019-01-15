@@ -59,10 +59,13 @@ class OTPSignupTestCase(APITestCaseCustom):
         response = self.client.post(self.otp_signup_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_cannot_create_otp_wo_membership(self):
-        data = {"email": 'test@other.com', "captcha_0": "abc", "captcha_1": "passed"}
-        response = self.client.post(self.otp_signup_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    # Commented out, because by default we want to allow everyone be able to register.
+    #
+    # def test_cannot_create_otp_wo_membership(self):
+    #     data = {"email": 'test@other.com', "captcha_0": "abc", "captcha_1": "passed"}
+    #     response = self.client.post(self.otp_signup_url, data, format="json")
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #
 
     def test_cannot_create_otp_wo_email(self):
         data = {"email": "", "captcha_0": "abc", "captcha_1": "abc"}
