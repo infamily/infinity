@@ -60,7 +60,7 @@ langsplit==0.1.7
 bigchaindb-driver==0.6.1
 mistune==0.8.3
 bs4==0.0.1
-PyYAML==3.12
+PyYAML==5.4
 boltons==17.2.0
 json-lines==0.3.1
 
